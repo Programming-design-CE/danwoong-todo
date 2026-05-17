@@ -1,6 +1,6 @@
 package com.danwoog.todo.repository;
 
-import com.danwoog.todo.domain.User;
+import com.danwoog.todo.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

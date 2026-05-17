@@ -1,4 +1,4 @@
-package com.danwoog.todo.domain;
+package com.danwoog.todo.domain.user;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;

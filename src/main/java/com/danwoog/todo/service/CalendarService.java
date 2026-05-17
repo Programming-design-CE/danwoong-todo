@@ -1,6 +1,6 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.Todo;
+import com.danwoog.todo.domain.todo.Todo;
 import com.danwoog.todo.dto.CalendarDailyResponse;
 import com.danwoog.todo.dto.CalendarDayDto;
 import com.danwoog.todo.dto.CalendarMonthlyResponse;

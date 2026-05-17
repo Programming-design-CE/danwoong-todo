@@ -1,4 +1,4 @@
-package com.danwoog.todo.domain;
+package com.danwoog.todo.domain.shop;
 
 import jakarta.persistence.*;
 
