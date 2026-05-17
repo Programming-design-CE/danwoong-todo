@@ -1,10 +1,15 @@
 package com.danwoog.todo.global;
 
-import com.danwoog.todo.domain.*;
-import com.danwoog.todo.repository.*;
+import com.danwoog.todo.domain.todo.*;
+import com.danwoog.todo.domain.user.User;
+import com.danwoog.todo.repository.TodoAssigneeRepository;
+import com.danwoog.todo.repository.TodoGroupRepository;
+import com.danwoog.todo.repository.TodoRepository;
+import com.danwoog.todo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -12,64 +17,75 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
     private final TodoGroupRepository todoGroupRepository;
     private final TodoRepository todoRepository;
     private final TodoAssigneeRepository todoAssigneeRepository;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
-        // 더미 데이터 생성
-        Member member = new Member("서준영");
-        member.updateNote("오늘 해야 할 일을 정리해보세요.");
-        memberRepository.save(member);
+        User user = User.builder()
+                .loginId("testuser")
+                .password("password")
+                .nickname("서준영")
+                .build();
+        userRepository.save(user);
 
-        TodoGroup group = new TodoGroup("단웅의 전설");
-        todoGroupRepository.save(group);
+        TodoGroup group1 = new TodoGroup("문해프 프로젝트");
+        todoGroupRepository.save(group1);
 
-        // 진행 중인 할 일
         Todo todo1 = Todo.builder()
-                .title("API 명세서 작성")
-                .group(group)
-                .deadline(LocalDate.of(2026, 5, 10))
-                .category("개발")
+                .group(group1)
+                .todoName("API 명세서 작성")
+                .description("할 일 1 설명")
+                .deadline(LocalDate.of(2026, 5, 2).atStartOfDay())
                 .garlicReward(5)
-                .priority(TodoPriority.HIGH)
-                .description("API 명세서 꼼꼼히 작성하기")
+                .priority(TodoPriority.HIGH.name())
+                .category("문서 작업")
                 .build();
-        todoRepository.save(todo1);
-        
-        TodoAssignee assignee1 = TodoAssignee.builder().todo(todo1).member(member).build();
-        todoAssigneeRepository.save(assignee1);
-
-        // 완료된 할 일
+                
         Todo todo2 = Todo.builder()
-                .title("ERD 작성")
-                .group(group)
-                .deadline(LocalDate.of(2026, 5, 2))
-                .category("개발")
+                .group(group1)
+                .todoName("ERD 작성")
+                .description("할 일 2 설명")
+                .deadline(LocalDate.of(2026, 5, 10).atStartOfDay())
                 .garlicReward(3)
-                .priority(TodoPriority.MEDIUM)
-                .description("데이터베이스 설계")
+                .priority(TodoPriority.MEDIUM.name())
+                .category("설계")
                 .build();
-        todoRepository.save(todo2);
-        
-        TodoAssignee assignee2 = TodoAssignee.builder().todo(todo2).member(member).build();
-        assignee2.complete();
-        todoAssigneeRepository.save(assignee2);
-        
-        // 추가 할 일 (통계용)
+
         Todo todo3 = Todo.builder()
-                .title("발표자료(PPT) 제작")
-                .group(group)
-                .deadline(LocalDate.of(2026, 5, 30))
+                .group(group1)
+                .todoName("발표자료(PPT) 제작")
+                .description("할 일 3 설명")
+                .deadline(LocalDate.of(2026, 5, 30).atStartOfDay())
+                .garlicReward(10)
+                .priority(TodoPriority.HIGH.name())
                 .category("발표 준비")
-                .garlicReward(4)
-                .priority(TodoPriority.HIGH)
-                .description("발표자료 준비")
                 .build();
+
+        todoRepository.save(todo1);
+        todoRepository.save(todo2);
         todoRepository.save(todo3);
-        TodoAssignee assignee3 = TodoAssignee.builder().todo(todo3).member(member).build();
+
+        TodoAssignee assignee1 = TodoAssignee.builder()
+                .todo(todo1)
+                .user(user)
+                .build();
+
+        TodoAssignee assignee2 = TodoAssignee.builder()
+                .todo(todo2)
+                .user(user)
+                .build();
+
+        TodoAssignee assignee3 = TodoAssignee.builder()
+                .todo(todo3)
+                .user(user)
+                .build();
+
+        todoAssigneeRepository.save(assignee1);
+        todoAssigneeRepository.save(assignee2);
         todoAssigneeRepository.save(assignee3);
     }
 }

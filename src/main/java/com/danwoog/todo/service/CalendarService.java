@@ -1,6 +1,6 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.Todo;
+import com.danwoog.todo.domain.todo.Todo;
 import com.danwoog.todo.dto.CalendarDailyResponse;
 import com.danwoog.todo.dto.CalendarDayDto;
 import com.danwoog.todo.dto.CalendarMonthlyResponse;
@@ -29,11 +29,11 @@ public class CalendarService {
         List<CalendarTodoDto> todoDtos = todos.stream()
                 .map(todo -> CalendarTodoDto.builder()
                         .todoId(todo.getId())
-                        .title(todo.getTitle())
-                        .date(todo.getDeadline())
+                        .title(todo.getTodoName())
+                        .date(todo.getDeadline().toLocalDate())
                         .completed(false) // 임시: 전체 그룹의 할 일 조회이므로, 완료 여부는 false 로 고정
                         .category(todo.getCategory())
-                        .priority(todo.getPriority() != null ? todo.getPriority().name() : null)
+                        .priority(todo.getPriority())
                         .build())
                 .collect(Collectors.toList());
 
@@ -48,10 +48,12 @@ public class CalendarService {
         List<Todo> todos = todoRepository.findByDeadlineBetween(startDate, endDate);
 
         // Group by date and count
-        Map<LocalDate, Long> countByDate = todos.stream()
-                .collect(Collectors.groupingBy(Todo::getDeadline, Collectors.counting()));
-
-        List<CalendarDayDto> days = countByDate.entrySet().stream()
+        Map<LocalDate, Long> countMap = todos.stream()
+                .collect(Collectors.groupingBy(
+                        t -> t.getDeadline().toLocalDate(),
+                        Collectors.counting()
+                ));
+        List<CalendarDayDto> days = countMap.entrySet().stream()
                 .map(entry -> new CalendarDayDto(entry.getKey(), entry.getValue().intValue()))
                 .sorted((d1, d2) -> d1.getDate().compareTo(d2.getDate()))
                 .collect(Collectors.toList());

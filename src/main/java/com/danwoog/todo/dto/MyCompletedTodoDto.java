@@ -1,6 +1,6 @@
 package com.danwoog.todo.dto;
 
-import com.danwoog.todo.domain.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoAssignee;
 import lombok.Getter;
 import java.time.format.DateTimeFormatter;
 
@@ -13,8 +13,8 @@ public class MyCompletedTodoDto {
     
     public MyCompletedTodoDto(TodoAssignee ta) {
         this.todo_id = ta.getTodo().getId();
-        this.todo_name = ta.getTodo().getTitle();
-        this.completed_at = ta.getCompletedAt() != null ? ta.getCompletedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        this.todo_name = ta.getTodo().getTodoName();
+        this.completed_at = ta.getTodo().getCompletedAt() != null ? ta.getTodo().getCompletedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
         this.garlic_reward = ta.getTodo().getGarlicReward();
     }
 }

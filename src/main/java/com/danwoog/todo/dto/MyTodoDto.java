@@ -1,6 +1,6 @@
 package com.danwoog.todo.dto;
 
-import com.danwoog.todo.domain.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoAssignee;
 import lombok.Getter;
 
 @Getter
@@ -12,7 +12,7 @@ public class MyTodoDto {
     
     public MyTodoDto(TodoAssignee ta) {
         this.todo_id = ta.getTodo().getId();
-        this.todo_name = ta.getTodo().getTitle();
+        this.todo_name = ta.getTodo().getTodoName();
         this.group_name = ta.getTodo().getGroup() != null ? ta.getTodo().getGroup().getName() : null;
         this.deadline = ta.getTodo().getDeadline() != null ? ta.getTodo().getDeadline().toString() : null;
     }
