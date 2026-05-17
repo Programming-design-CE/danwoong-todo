@@ -17,4 +17,4 @@ public class UpdateUserResponse {
     public String getNickname() {
         return nickname;
     }
-}g
+}
