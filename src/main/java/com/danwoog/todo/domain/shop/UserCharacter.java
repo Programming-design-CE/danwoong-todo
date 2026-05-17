@@ -1,5 +1,6 @@
-package com.danwoog.todo.domain;
+package com.danwoog.todo.domain.shop;
 
+import com.danwoog.todo.domain.user.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

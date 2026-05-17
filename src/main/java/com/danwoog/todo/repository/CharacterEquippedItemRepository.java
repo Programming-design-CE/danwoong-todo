@@ -1,7 +1,7 @@
 package com.danwoog.todo.repository;
 
-import com.danwoog.todo.domain.CharacterEquippedItem;
-import com.danwoog.todo.domain.UserCharacter;
+import com.danwoog.todo.domain.shop.CharacterEquippedItem;
+import com.danwoog.todo.domain.shop.UserCharacter;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

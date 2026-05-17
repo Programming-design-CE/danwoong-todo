@@ -1,8 +1,8 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.Member;
-import com.danwoog.todo.domain.TodoAssignee;
-import com.danwoog.todo.domain.TodoStatus;
+import com.danwoog.todo.domain.todogroup.TodoGroupMember;
+import com.danwoog.todo.domain.todo.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.dto.*;
 import com.danwoog.todo.repository.MemberRepository;
 import com.danwoog.todo.repository.TodoAssigneeRepository;
@@ -34,14 +34,14 @@ public class PersonalTodoService {
     }
 
     public MyNoteResponse getMyNote(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+        TodoGroupMember member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return new MyNoteResponse(member.getNote());
     }
 
     @Transactional
     public void updateMyNote(Long memberId, MyNoteRequest request) {
-        Member member = memberRepository.findById(memberId)
+        TodoGroupMember member = memberRepository.findById(memberId)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         member.updateNote(request.getContent());
     }

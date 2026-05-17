@@ -8,6 +8,6 @@ public class HealthCheckController {
 
     @GetMapping("/health")
     public String healthCheck() {
-        return "TikiTaka backend is running";
+        return "backend is running";
     }
 }

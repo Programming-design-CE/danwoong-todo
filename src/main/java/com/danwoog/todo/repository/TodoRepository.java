@@ -1,6 +1,6 @@
 package com.danwoog.todo.repository;
 
-import com.danwoog.todo.domain.Todo;
+import com.danwoog.todo.domain.todo.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.User;
+import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.LoginRequest;
 import com.danwoog.todo.dto.LoginResponse;
 import com.danwoog.todo.dto.SignupRequest;
