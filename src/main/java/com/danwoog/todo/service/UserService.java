@@ -7,62 +7,64 @@ import com.danwoog.todo.dto.SignupRequest;
 import com.danwoog.todo.dto.UpdateUserRequest;
 import com.danwoog.todo.dto.UpdateUserResponse;
 import com.danwoog.todo.dto.UserInfoResponse;
+import com.danwoog.todo.global.security.JwtProvider;
 import com.danwoog.todo.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
-    // Lombok 안 쓰고 생성자 직접 주입
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtProvider jwtProvider
+    ) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtProvider = jwtProvider;
     }
 
-    // 회원가입
     @Transactional
     public void signup(SignupRequest request) {
-
         if (userRepository.existsByLoginId(request.getLogin_id())) {
             throw new IllegalArgumentException("이미 존재하는 로그인 ID입니다.");
         }
 
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         User user = new User(
                 request.getLogin_id(),
-                request.getPassword(),
+                encodedPassword,
                 request.getNickname()
         );
 
         userRepository.save(user);
     }
 
-    // 로그인
     @Transactional
     public LoginResponse login(LoginRequest request) {
-
         User user = userRepository.findByLoginId(request.getLogin_id())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        String accessToken = "access_token_" + UUID.randomUUID();
-        String refreshToken = "refresh_token_" + UUID.randomUUID();
+        String accessToken = jwtProvider.createAccessToken(user.getUserId());
+        String refreshToken = jwtProvider.createRefreshToken(user.getUserId());
 
         return new LoginResponse(accessToken, refreshToken);
     }
 
-    // 내 정보 조회
     public UserInfoResponse getMyInfo(Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = findUser(userId);
 
         return new UserInfoResponse(
                 user.getUserId(),
@@ -72,12 +74,9 @@ public class UserService {
         );
     }
 
-    // 내 정보 수정
     @Transactional
     public UpdateUserResponse updateMyInfo(Long userId, UpdateUserRequest request) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = findUser(userId);
 
         user.updateNickname(request.getNickname());
 
@@ -85,5 +84,10 @@ public class UserService {
                 user.getUserId(),
                 user.getNickname()
         );
+    }
+
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 }
