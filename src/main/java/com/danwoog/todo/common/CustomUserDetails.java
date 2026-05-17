@@ -5,17 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * =====================================================
- * [팀원 A 연결 포인트]
- * 이 클래스는 팀원 A(인증 담당)의 CustomUserDetails와 맞춰야 함
- *
- * 팀원 A에게 확인할 것:
- *   1. 세션에 저장되는 UserDetails 구현체 클래스명
- *   2. userId를 꺼내는 메서드명 (getUserId()인지 확인)
- *   3. 이 파일을 팀원 A 버전으로 교체하거나, 팀원 A 코드를 여기에 맞춰달라고 요청
- * =====================================================
- */
+
+ 
 public class CustomUserDetails implements UserDetails {
 
     private final Long userId;

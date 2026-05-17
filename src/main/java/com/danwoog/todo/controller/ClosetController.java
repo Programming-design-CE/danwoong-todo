@@ -16,7 +16,6 @@ public class ClosetController {
 
     private final ClosetService closetService;
 
-    // 팀원 코드와 동일하게 임시 하드코딩 (인증 붙으면 교체)
     private final Long TEMP_MEMBER_ID = 1L;
 
     /** GET /closet/items — 보유 아이템 목록 조회 */
