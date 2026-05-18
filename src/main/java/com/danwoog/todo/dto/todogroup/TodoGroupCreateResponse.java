@@ -21,8 +21,8 @@ public class TodoGroupCreateResponse {
 
     private GroupStatus status;
 
-    @JsonProperty("member_preview")
-    private List<MemberPreviewResponse> memberPreview;
+    @JsonProperty("members")
+    private List<MemberPreviewResponse> members;
 
     @JsonProperty("member_count")
     private int memberCount;
@@ -33,7 +33,7 @@ public class TodoGroupCreateResponse {
             LocalDate deadline,
             Priority priority,
             GroupStatus status,
-            List<MemberPreviewResponse> memberPreview,
+            List<MemberPreviewResponse> members,
             int memberCount
     ) {
         this.groupId = groupId;
@@ -41,7 +41,7 @@ public class TodoGroupCreateResponse {
         this.deadline = deadline;
         this.priority = priority;
         this.status = status;
-        this.memberPreview = memberPreview;
+        this.members = members;
         this.memberCount = memberCount;
     }
 
@@ -65,8 +65,8 @@ public class TodoGroupCreateResponse {
         return status;
     }
 
-    public List<MemberPreviewResponse> getMemberPreview() {
-        return memberPreview;
+    public List<MemberPreviewResponse> getMembers() {
+        return members;
     }
 
     public int getMemberCount() {

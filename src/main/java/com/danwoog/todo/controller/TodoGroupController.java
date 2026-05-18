@@ -3,11 +3,14 @@ package com.danwoog.todo.controller;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupDeleteResponse;
+import com.danwoog.todo.dto.todogroup.TodoGroupInviteRequest;
+import com.danwoog.todo.dto.todogroup.TodoGroupInviteResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateResponse;
 import com.danwoog.todo.service.TodoGroupService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -91,4 +94,26 @@ public class TodoGroupController {
 
         return todoGroupService.deleteGroup(userId, groupId);
     }
+
+
+
+    @Operation(
+                summary = "그룹 인원 추가",
+                description = "member_ids 사용자들을 그룹 멤버로 바로 추가합니다."
+        )
+        @PostMapping("/{groupId}/invitations")
+        public TodoGroupInviteResponse inviteMembers(
+                Authentication authentication,
+                @Parameter(description = "그룹 ID")
+                @PathVariable("groupId") Long groupId,
+                @RequestBody TodoGroupInviteRequest request
+        ) {
+        Long userId = (Long) authentication.getPrincipal();
+
+        return todoGroupService.inviteMembers(
+                userId,
+                groupId,
+                request
+        );
+        }
 }
