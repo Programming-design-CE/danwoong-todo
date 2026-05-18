@@ -1,8 +1,7 @@
 package com.danwoog.todo.domain.friend;
 
-import com.danwoog.todo.domain.user.User;
+import com.danwoog.todo.domain.user.*;
 import jakarta.persistence.*;
-import jakarta.persistence.Column;
 
 import java.time.LocalDateTime;
 
@@ -44,6 +43,16 @@ public class FriendRequest {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void accept() {
+        this.status = FriendRequestStatus.ACCEPTED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void reject() {
+        this.status = FriendRequestStatus.REJECTED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public Long getRequestId() {
         return requestId;
     }
@@ -58,5 +67,13 @@ public class FriendRequest {
 
     public FriendRequestStatus getStatus() {
         return status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
