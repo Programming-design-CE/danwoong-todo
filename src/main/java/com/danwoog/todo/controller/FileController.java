@@ -11,6 +11,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -53,11 +54,12 @@ public class FileController {
     }
 
     /** POST /todo-groups/{groupId}/folders/{folderId}/files — 파일 업로드 */
-    @PostMapping("/todo-groups/{groupId}/folders/{folderId}/files")
+    @PostMapping(value = "/todo-groups/{groupId}/folders/{folderId}/files", 
+                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<FileResponse>> uploadFile(
             @PathVariable Long groupId,
             @PathVariable Long folderId,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(fileService.uploadFile(groupId, folderId, file, TEMP_MEMBER_ID)));
     }
