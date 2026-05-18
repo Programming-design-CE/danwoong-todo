@@ -40,7 +40,7 @@ public class FileService {
     public FolderResponse getRootFolder(Long groupId, Long userId) {
         TodoGroup group = findGroup(groupId);
         User user = findUser(userId);
-        Folder root = folderRepository.findByGroup_IdAndParentFolderIdIsNull(groupId)
+        Folder root = folderRepository.findByGroup_GroupIdAndParentFolderIdIsNull(groupId)
                 .orElseGet(() -> folderRepository.save(
                         Folder.builder().group(group).folderName("기본 폴더")
                                 .parentFolderId(null).createdBy(user).build()
@@ -65,10 +65,10 @@ public class FileService {
         Folder current = folderRepository.findById(folderId)
                 .orElseThrow(() -> new NotFoundException("폴더가 존재하지 않습니다."));
         List<FolderResponse> subFolders = folderRepository
-                .findByGroup_IdAndParentFolderId(groupId, folderId).stream()
+                .findByGroup_GroupIdAndParentFolderId(groupId, folderId).stream()
                 .map(this::toFolderResponse).collect(Collectors.toList());
         List<FileResponse> files = fileItemRepository
-                .findByGroup_IdAndFolder(groupId, current).stream()
+                .findByGroup_GroupIdAndFolder(groupId, current).stream()
                 .map(this::toFileResponse).collect(Collectors.toList());
         return FolderItemsResponse.builder()
                 .currentFolder(toFolderResponse(current))
@@ -113,8 +113,8 @@ public class FileService {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new NotFoundException("폴더가 존재하지 않습니다."));
         fileItemRepository.deleteAll(
-                fileItemRepository.findByGroup_IdAndFolder(folder.getGroup().getId(), folder));
-        folderRepository.findByGroup_IdAndParentFolderId(folder.getGroup().getId(), folderId)
+                fileItemRepository.findByGroup_GroupIdAndFolder(folder.getGroup().getGroupId(), folder));
+        folderRepository.findByGroup_GroupIdAndParentFolderId(folder.getGroup().getGroupId(), folderId)
                 .forEach(sub -> deleteFolder(sub.getId()));
         folderRepository.delete(folder);
     }
