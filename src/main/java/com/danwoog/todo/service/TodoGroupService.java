@@ -77,6 +77,9 @@ public class TodoGroupService {
                 todoGroupMemberRepository.findByUser_UserId(userId);
 
         List<TodoGroupSummaryResponse> groups = myMemberships.stream()
+                .filter(myMember ->
+                        myMember.getGroup().getStatus() != GroupStatus.DELETED
+                )
                 .map(myMember -> {
                         TodoGroup group = myMember.getGroup();
 
@@ -143,7 +146,7 @@ public class TodoGroupService {
                 TodoGroup group = todoGroupRepository.findById(groupId)
                         .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
 
-                todoGroupRepository.delete(group);
+                group.delete();
 
                 return new TodoGroupDeleteResponse(groupId, "DELETED" );
         }
