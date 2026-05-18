@@ -69,4 +69,16 @@ public class TodoGroup {
     public User getCreatedBy() {
         return createdBy;
     }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public GroupStatus getStatus() {
+        return status;
+    }
 }
