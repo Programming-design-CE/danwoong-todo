@@ -74,6 +74,18 @@ public class TodoGroup {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // PATCH용 업데이트 메서드
+    public void update(String groupName,
+                    LocalDateTime deadline,
+                    Priority priority,
+                    GroupStatus status) {
+        this.groupName = groupName;
+        this.deadline = deadline;
+        this.priority = priority;
+        this.status = status;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 
     public Long getGroupId() {
         return groupId;

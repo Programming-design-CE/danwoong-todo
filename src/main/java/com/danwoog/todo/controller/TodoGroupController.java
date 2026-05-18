@@ -1,9 +1,6 @@
 package com.danwoog.todo.controller;
 
-import com.danwoog.todo.dto.todogroup.TodoGroupCreateRequest;
-import com.danwoog.todo.dto.todogroup.TodoGroupCreateResponse;
-import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
-import com.danwoog.todo.dto.todogroup.TodoGroupDeleteResponse;
+import com.danwoog.todo.dto.todogroup.*;
 import com.danwoog.todo.service.TodoGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -45,6 +42,27 @@ public class TodoGroupController {
         Long userId = (Long) authentication.getPrincipal();
         return todoGroupService.getMyGroups(userId);
     }
+
+
+
+
+    @Operation(
+            summary = "그룹 정보 수정",
+            description = "공동 할 일 그룹 정보를 수정합니다."
+    )
+    @PatchMapping("/{groupId}")
+    public TodoGroupUpdateResponse updateGroup(
+            Authentication authentication,
+            @PathVariable("groupId") Long groupId,
+            @RequestBody TodoGroupUpdateRequest request
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        return todoGroupService.updateGroup(userId, groupId, request);
+    }
+
+
+
+
 
     @Operation(
             summary = "공동 할 일 그룹 삭제",

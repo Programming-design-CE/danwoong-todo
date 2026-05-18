@@ -5,6 +5,9 @@ import com.danwoog.todo.domain.todogroup.Priority;
 import com.danwoog.todo.domain.todogroup.TodoGroup;
 import com.danwoog.todo.domain.todogroup.TodoGroupMember;
 import com.danwoog.todo.domain.user.User;
+import com.danwoog.todo.domain.todogroup.GroupStatus;
+import com.danwoog.todo.dto.todogroup.TodoGroupUpdateRequest;
+import com.danwoog.todo.dto.todogroup.TodoGroupUpdateResponse;
 import com.danwoog.todo.dto.todogroup.MemberPreviewResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateResponse;
@@ -108,7 +111,33 @@ public class TodoGroupService {
         }
 
 
-        // 3. 그룹 정보 수정
+        public TodoGroupUpdateResponse updateGroup(Long userId, Long groupId, TodoGroupUpdateRequest request) {
+
+                TodoGroup group = todoGroupRepository.findById(groupId)
+                        .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+                group.update(
+                        request.getGroupName(),
+                        request.getDeadline().atStartOfDay(),
+                        Priority.valueOf(request.getPriority()),
+                        GroupStatus.valueOf(request.getStatus())
+                );
+
+                return new TodoGroupUpdateResponse(
+                        group.getGroupId(),
+                        group.getGroupName(),
+                        group.getDeadline().toLocalDate(),
+                        group.getPriority(),
+                        group.getStatus()
+                );
+        }
+
+
+
+
+
+
+        // 4. 그룹 삭제
         public TodoGroupDeleteResponse deleteGroup(Long userId, Long groupId) {
 
                 TodoGroup group = todoGroupRepository.findById(groupId)
