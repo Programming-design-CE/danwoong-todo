@@ -1,47 +1,47 @@
 package com.danwoog.todo.domain.shop;
 
 import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "shop_items")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopItem {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
-    private Long itemId;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "item_name")
+    @Column(nullable = false, length = 100)
     private String itemName;
 
-    @Column(name = "item_type")
+    // HAT, CLOTHES, ACCESSORY, BACKGROUND, DYE
+    @Column(nullable = false, length = 30)
     private String itemType;
 
-    @Column(name = "item_image")
+    @Column(length = 255)
     private String itemImage;
 
+    @Column(nullable = false)
     private Integer price;
 
-    protected ShopItem() {
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Builder
+    public ShopItem(String itemName, String itemType, String itemImage, Integer price) {
+        this.itemName = itemName;
+        this.itemType = itemType;
+        this.itemImage = itemImage;
+        this.price = price;
     }
 
-    public Long getItemId() {
-        return itemId;
-    }
+    @PrePersist
+    protected void onCreate() { createdAt = updatedAt = LocalDateTime.now(); }
 
-    public String getItemName() {
-        return itemName;
-    }
-
-    public String getItemType() {
-        return itemType;
-    }
-
-    public String getItemImage() {
-        return itemImage;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
+    @PreUpdate
+    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

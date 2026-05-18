@@ -1,53 +1,47 @@
 package com.danwoog.todo.domain.file;
 
-import com.danwoog.todo.domain.todogroup.TodoGroup;
-import com.danwoog.todo.domain.user.User;
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
+import com.danwoog.todo.domain.todogroup.TodoGroup;
+import com.danwoog.todo.domain.user.User;
+
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "folders")
 public class Folder {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "folder_id")
-    private Long folderId;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
     private TodoGroup group;
 
-    @Column(name = "folder_name", length = 100, nullable = false)
+    @Column(nullable = false, length = 100)
     private String folderName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_folder_id")
-    private Folder parentFolder;
+    // null이면 루트 폴더
+    @Column(nullable = true)
+    private Long parentFolderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-    @Column(name = "created_at")
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected Folder() {
-    }
-
-    public Folder(TodoGroup group, String folderName, Folder parentFolder, User createdBy) {
+    @Builder
+    public Folder(TodoGroup group, String folderName, Long parentFolderId, User createdBy) {
         this.group = group;
         this.folderName = folderName;
-        this.parentFolder = parentFolder;
+        this.parentFolderId = parentFolderId;
         this.createdBy = createdBy;
-        this.createdAt = LocalDateTime.now();
     }
 
-    public Long getFolderId() {
-        return folderId;
-    }
-
-    public String getFolderName() {
-        return folderName;
-    }
+    @PrePersist
+    protected void onCreate() { createdAt = LocalDateTime.now(); }
 }
