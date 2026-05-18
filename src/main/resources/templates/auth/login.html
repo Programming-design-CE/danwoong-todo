@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="page">
+  <main class="auth-scene">
+    <img class="background" th:src="@{/assets/main_background.png}" alt="동굴 배경">
+
+    <img class="danbi" th:src="@{/assets/danbi.png}" alt="단비">
+    <img class="danwoong" th:src="@{/assets/danwoong.png}" alt="단웅">
+
+    <section class="paper-card">
+      <div class="paper-pin"></div>
+
+      <h1>로그인</h1>
+
+      <form id="loginForm" class="auth-form">
+        <div class="input-box">
+          <span>👤</span>
+          <input type="text" id="loginId" placeholder="아이디" required>
+        </div>
+
+        <div class="input-box">
+          <span>🔒</span>
+          <input type="password" id="loginPassword" placeholder="비밀번호" required>
+        </div>
+
+        <p class="login-guide">
+          아직 계정이 없으신가요?
+          <a th:href="@{/signup}">회원가입</a>
+        </p>
+
+        <button type="submit" class="main-btn">로그인</button>
+
+        <p id="loginMessage" class="message"></p>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script th:src="@{/js/auth.js}"></script>
+</body>
+</html>
