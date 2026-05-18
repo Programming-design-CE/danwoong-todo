@@ -34,11 +34,6 @@ public class SecurityConfig {
                                 "/users/signup",
                                 "/users/login",
                                 "/main",
-                                "/shop/**",
-                                "/closet/**",
-                                "/todo-groups/**",
-                                "/files/**",
-                                "/folders/**",
 
                                 "/css/**",
                                 "/js/**",
