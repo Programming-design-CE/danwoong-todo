@@ -1,7 +1,7 @@
 package com.danwoog.todo.repository;
 
-import com.danwoog.todo.domain.TodoAssignee;
-import com.danwoog.todo.domain.TodoStatus;
+import com.danwoog.todo.domain.todo.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

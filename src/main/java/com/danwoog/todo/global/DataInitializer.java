@@ -1,6 +1,9 @@
 package com.danwoog.todo.global;
 
-import com.danwoog.todo.domain.*;
+import com.danwoog.todo.domain.todo.Todo;
+import com.danwoog.todo.domain.todo.TodoAssignee;
+import com.danwoog.todo.domain.todogroup.TodoGroup;
+import com.danwoog.todo.domain.todogroup.TodoGroupMember;
 import com.danwoog.todo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 더미 데이터 생성
-        Member member = new Member("서준영");
+        TodoGroupMember member = new TodoGroupMember("서준영");
         member.updateNote("오늘 해야 할 일을 정리해보세요.");
         memberRepository.save(member);
 

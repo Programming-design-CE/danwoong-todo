@@ -1,6 +1,6 @@
 package com.danwoog.todo.dto;
 
-import com.danwoog.todo.domain.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoAssignee;
 import lombok.Getter;
 import java.time.format.DateTimeFormatter;
 
