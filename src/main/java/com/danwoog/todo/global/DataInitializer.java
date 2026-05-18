@@ -27,7 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // 더미 데이터 생성
         TodoGroupMember member = new TodoGroupMember("서준영");
-        member.updateNote("오늘 해야 할 일을 정리해보세요.");g
+        member.updateNote("오늘 해야 할 일을 정리해보세요.");
         memberRepository.save(member);
 
         TodoGroup group = new TodoGroup("단웅의 전설");
