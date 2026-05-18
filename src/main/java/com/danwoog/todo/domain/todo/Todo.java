@@ -87,4 +87,47 @@ public class Todo {
     public TodoStatus getStatus() {
         return status;
     }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
+    }
+
+    public Integer getGarlicReward() {
+        return garlicReward;
+    }
+
+    public void setGarlicReward(Integer garlicReward) {
+        this.garlicReward = garlicReward;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void complete(User completedBy) {
+        this.status = TodoStatus.COMPLETED;
+        this.completedBy = completedBy;
+        this.completedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

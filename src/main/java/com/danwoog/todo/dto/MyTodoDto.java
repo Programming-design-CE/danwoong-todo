@@ -11,9 +11,9 @@ public class MyTodoDto {
     private String deadline;
     
     public MyTodoDto(TodoAssignee ta) {
-        this.todo_id = ta.getTodo().getId();
-        this.todo_name = ta.getTodo().getTitle();
-        this.group_name = ta.getTodo().getGroup() != null ? ta.getTodo().getGroup().getName() : null;
+        this.todo_id = ta.getTodo().getTodoId();
+        this.todo_name = ta.getTodo().getTodoName();
+        this.group_name = ta.getTodo().getGroup() != null ? ta.getTodo().getGroup().getGroupName() : null;
         this.deadline = ta.getTodo().getDeadline() != null ? ta.getTodo().getDeadline().toString() : null;
     }
 }
