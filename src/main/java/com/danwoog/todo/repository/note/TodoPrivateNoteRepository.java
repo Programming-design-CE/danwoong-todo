@@ -1,4 +1,4 @@
-package com.danwoog.todo.repository;
+package com.danwoog.todo.repository.note;
 
 import com.danwoog.todo.domain.note.TodoPrivateNote;
 import org.springframework.data.jpa.repository.JpaRepository;

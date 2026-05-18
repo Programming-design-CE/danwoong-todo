@@ -1,4 +1,4 @@
-package com.danwoog.todo.dto;
+package com.danwoog.todo.dto.note;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

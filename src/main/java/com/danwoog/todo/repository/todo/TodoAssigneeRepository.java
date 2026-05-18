@@ -1,4 +1,4 @@
-package com.danwoog.todo.repository;
+package com.danwoog.todo.repository.todo;
 
 import com.danwoog.todo.domain.todo.TodoAssignee;
 import com.danwoog.todo.domain.todo.TodoStatus;

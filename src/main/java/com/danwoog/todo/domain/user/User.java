@@ -43,7 +43,8 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected User() {}
+    protected User() {
+    }
 
     public User(String loginId, String password, String nickname) {
         this.loginId = loginId;
@@ -52,23 +53,22 @@ public class User {
         this.garlicCount = 0;
     }
 
-    public void updateNickname(String nickname) { this.nickname = nickname; }
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
-    public void updateGarlicCount(int garlicCount) { this.garlicCount = garlicCount; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public String getPersonalNote() { return personalNote; }
+    public String getLoginId() {
+        return loginId;
+    }
 
-    public void setPersonalNote(String personalNote) { this.personalNote = personalNote; }
+    public String getPassword() {
+        return password;
+    }
 
-<<<<<<< HEAD
-    public Long getUserId() { return userId; }
-    public String getLoginId() { return loginId; }
-    public String getPassword() { return password; }
-    public String getNickname() { return nickname; }
-    public String getProfileImage() { return profileImage; }
-    public Integer getGarlicCount() { return garlicCount; }
-}
-=======
     public String getNickname() {
         return nickname;
     }
@@ -89,4 +89,3 @@ public class User {
         this.personalNote = personalNote;
     }
 }
->>>>>>> 8df9e81 (fix: resolve compilation errors due to DB domain changes)

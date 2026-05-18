@@ -1,4 +1,4 @@
-package com.danwoog.todo.dto;
+package com.danwoog.todo.dto.todo;
 
 import com.danwoog.todo.domain.todo.TodoAssignee;
 import lombok.Getter;
