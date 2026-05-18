@@ -4,10 +4,10 @@ import com.danwoog.todo.domain.friend.Friend;
 import com.danwoog.todo.domain.friend.FriendRequest;
 import com.danwoog.todo.domain.friend.FriendRequestStatus;
 import com.danwoog.todo.domain.user.User;
-import com.danwoog.todo.dto.*;
-import com.danwoog.todo.repository.FriendRepository;
-import com.danwoog.todo.repository.FriendRequestRepository;
-import com.danwoog.todo.repository.UserRepository;
+import com.danwoog.todo.dto.friend.*;
+import com.danwoog.todo.repository.friend.FriendRepository;
+import com.danwoog.todo.repository.friend.FriendRequestRepository;
+import com.danwoog.todo.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

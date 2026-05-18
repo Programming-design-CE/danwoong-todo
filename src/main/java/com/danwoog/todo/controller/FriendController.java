@@ -1,6 +1,6 @@
 package com.danwoog.todo.controller;
 
-import com.danwoog.todo.dto.*;
+import com.danwoog.todo.dto.friend.*;
 import com.danwoog.todo.service.FriendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
