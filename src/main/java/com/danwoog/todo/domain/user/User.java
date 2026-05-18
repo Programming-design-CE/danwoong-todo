@@ -32,6 +32,9 @@ public class User {
     @Column(name = "garlic_count")
     private Integer garlicCount = 0;
 
+    @Column(name = "personal_note", columnDefinition = "TEXT")
+    private String personalNote;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -76,5 +79,13 @@ public class User {
 
     public Integer getGarlicCount() {
         return garlicCount;
+    }
+
+    public String getPersonalNote() {
+        return personalNote;
+    }
+
+    public void setPersonalNote(String personalNote) {
+        this.personalNote = personalNote;
     }
 }

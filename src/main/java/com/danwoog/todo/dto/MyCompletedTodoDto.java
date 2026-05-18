@@ -12,9 +12,9 @@ public class MyCompletedTodoDto {
     private Integer garlic_reward;
     
     public MyCompletedTodoDto(TodoAssignee ta) {
-        this.todo_id = ta.getTodo().getId();
-        this.todo_name = ta.getTodo().getTitle();
-        this.completed_at = ta.getCompletedAt() != null ? ta.getCompletedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        this.todo_id = ta.getTodo().getTodoId();
+        this.todo_name = ta.getTodo().getTodoName();
+        this.completed_at = ta.getTodo().getCompletedAt() != null ? ta.getTodo().getCompletedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
         this.garlic_reward = ta.getTodo().getGarlicReward();
     }
 }

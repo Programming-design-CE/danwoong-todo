@@ -24,13 +24,13 @@ public class CalendarService {
     private final TodoRepository todoRepository;
 
     public CalendarDailyResponse getDailyTodos(LocalDate date) {
-        List<Todo> todos = todoRepository.findByDeadline(date);
+        List<Todo> todos = todoRepository.findByDeadlineBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
         
         List<CalendarTodoDto> todoDtos = todos.stream()
                 .map(todo -> CalendarTodoDto.builder()
-                        .todoId(todo.getId())
-                        .title(todo.getTitle())
-                        .date(todo.getDeadline())
+                        .todoId(todo.getTodoId())
+                        .title(todo.getTodoName())
+                        .date(todo.getDeadline() != null ? todo.getDeadline().toLocalDate() : null)
                         .completed(false) // 임시: 전체 그룹의 할 일 조회이므로, 완료 여부는 false 로 고정
                         .category(todo.getCategory())
                         .priority(todo.getPriority() != null ? todo.getPriority().name() : null)
@@ -45,11 +45,12 @@ public class CalendarService {
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        List<Todo> todos = todoRepository.findByDeadlineBetween(startDate, endDate);
+        List<Todo> todos = todoRepository.findByDeadlineBetween(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
 
         // Group by date and count
         Map<LocalDate, Long> countByDate = todos.stream()
-                .collect(Collectors.groupingBy(Todo::getDeadline, Collectors.counting()));
+                .filter(todo -> todo.getDeadline() != null)
+                .collect(Collectors.groupingBy(todo -> todo.getDeadline().toLocalDate(), Collectors.counting()));
 
         List<CalendarDayDto> days = countByDate.entrySet().stream()
                 .map(entry -> new CalendarDayDto(entry.getKey(), entry.getValue().intValue()))
