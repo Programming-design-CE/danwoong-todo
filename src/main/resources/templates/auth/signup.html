@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+<div class="page">
+    <main class="auth-scene">
+        <img class="background" th:src="@{/assets/main_background.png}" alt="동굴 배경">
+
+        <section class="paper-card">
+            <div class="paper-pin"></div>
+
+            <h1>회원가입</h1>
+
+            <form id="signupForm" class="auth-form">
+                <div class="input-box">
+                    <span>👤</span>
+                    <input type="text" id="signupLoginId" placeholder="아이디" required>
+                </div>
+
+                <div class="input-box">
+                    <span>🔒</span>
+                    <input type="password" id="signupPassword" placeholder="비밀번호" required>
+                </div>
+
+                <div class="input-box">
+                    <span>🏷️</span>
+                    <input type="text" id="signupNickname" placeholder="닉네임" required>
+                </div>
+
+                <p class="login-guide">
+                    이미 계정이 있으신가요?
+                    <a th:href="@{/login}">로그인</a>
+                </p>
+
+                <label class="check-line">
+                    <input type="checkbox" id="agreeCheck" required>
+                    <span>서비스 이용약관 및 개인정보 처리방침에 동의합니다.</span>
+                </label>
+
+                <button type="submit" class="main-btn">가입하기</button>
+
+                <p id="signupMessage" class="message"></p>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script th:src="@{/js/auth.js}"></script>
+</body>
+</html>
