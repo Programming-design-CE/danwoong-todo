@@ -1,6 +1,7 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.*;
+import com.danwoog.todo.domain.shop.*;
+import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.closet.ClosetDto.*;
 import com.danwoog.todo.exception.CustomException.*;
 import com.danwoog.todo.repository.*;
@@ -44,7 +45,6 @@ public class ClosetService {
                 .filter(inv -> inv.getQuantity() > 0)
                 .orElseThrow(() -> new BusinessException("보유하지 않은 아이템입니다."));
 
-        // 슬롯 upsert: 있으면 교체, 없으면 신규
         CharacterEquippedItem equipped = equippedItemRepository
                 .findByCharacterAndSlotType(character, request.getSlotType())
                 .map(existing -> { existing.changeItem(item); return existing; })
@@ -62,7 +62,7 @@ public class ClosetService {
         User user = findUser(userId);
         ShopItem item = findShopItem(itemId);
 
-        MemberInventory inventory = memberInventoryRepository.findByUserAndItem(user, item)
+        UserInventory inventory = memberInventoryRepository.findByUserAndItem(user, item)
                 .orElseThrow(() -> new NotFoundException("보유하지 않은 아이템입니다."));
 
         inventory.useQuantity(1);

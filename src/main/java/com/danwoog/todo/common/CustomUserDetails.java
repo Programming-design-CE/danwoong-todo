@@ -1,4 +1,4 @@
-package com.danwoong.common;
+package com.danwoog.todo.common;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

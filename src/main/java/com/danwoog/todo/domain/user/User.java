@@ -32,6 +32,9 @@ public class User {
     @Column(name = "garlic_count")
     private Integer garlicCount = 0;
 
+    @Column(name = "personal_note", columnDefinition = "TEXT")
+    private String personalNote;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -40,8 +43,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected User() {
-    }
+    protected User() {}
 
     public User(String loginId, String password, String nickname) {
         this.loginId = loginId;
@@ -50,31 +52,18 @@ public class User {
         this.garlicCount = 0;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
+    public void updateNickname(String nickname) { this.nickname = nickname; }
 
-    public Long getUserId() {
-        return userId;
-    }
+    public void updateGarlicCount(int garlicCount) { this.garlicCount = garlicCount; }
 
-    public String getLoginId() {
-        return loginId;
-    }
+    public String getPersonalNote() { return personalNote; }
 
-    public String getPassword() {
-        return password;
-    }
+    public void setPersonalNote(String personalNote) { this.personalNote = personalNote; }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public Integer getGarlicCount() {
-        return garlicCount;
-    }
+    public Long getUserId() { return userId; }
+    public String getLoginId() { return loginId; }
+    public String getPassword() { return password; }
+    public String getNickname() { return nickname; }
+    public String getProfileImage() { return profileImage; }
+    public Integer getGarlicCount() { return garlicCount; }
 }

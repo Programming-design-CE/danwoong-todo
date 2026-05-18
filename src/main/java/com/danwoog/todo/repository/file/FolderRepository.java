@@ -1,6 +1,6 @@
 package com.danwoog.todo.repository;
 
-import com.danwoog.todo.domain.Folder;
+import com.danwoog.todo.domain.file.Folder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

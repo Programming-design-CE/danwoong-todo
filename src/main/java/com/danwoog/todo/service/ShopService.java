@@ -1,9 +1,15 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.*;
+import com.danwoog.todo.domain.shop.ShopItem;
+import com.danwoog.todo.domain.shop.UserInventory;
+import com.danwoog.todo.domain.shop.PurchaseHistory;
+import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.shop.ShopDto.*;
 import com.danwoog.todo.exception.CustomException.*;
-import com.danwoog.todo.repository.*;
+import com.danwoog.todo.repository.MemberInventoryRepository;
+import com.danwoog.todo.repository.PurchaseHistoryRepository;
+import com.danwoog.todo.repository.ShopItemRepository;
+import com.danwoog.todo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,26 +48,22 @@ public class ShopService {
             throw new BusinessException("마늘이 부족합니다.");
         }
 
-        // 마늘 차감 — 팀원 A의 updateNickname() 스타일로 서비스에서 직접 계산
-        int updatedGarlic = user.getGarlicCount() - totalPrice;
-        user.updateGarlicCount(updatedGarlic);
+        user.updateGarlicCount(user.getGarlicCount() - totalPrice);
 
-        // 인벤토리 upsert
-        MemberInventory inventory = memberInventoryRepository
+        UserInventory inventory = memberInventoryRepository
                 .findByUserAndItem(user, shopItem)
-                .orElse(MemberInventory.builder().user(user).item(shopItem).quantity(0).build());
+                .orElse(new UserInventory(user, shopItem, 0));
         inventory.addQuantity(request.getCount());
         memberInventoryRepository.save(inventory);
 
-        // 구매 이력 저장
         PurchaseHistory history = purchaseHistoryRepository.save(
-                PurchaseHistory.builder().user(user).item(shopItem).price(totalPrice).build()
+                new PurchaseHistory(user, shopItem, totalPrice)
         );
 
         return PurchaseResponse.builder()
-                .purchaseId(history.getId())
+                .purchaseId(history.getPurchaseId())
                 .itemId(itemId)
-                .remainingGarlic(user.getGarlicCount())  // 차감 후 값
+                .remainingGarlic(user.getGarlicCount())
                 .build();
     }
 

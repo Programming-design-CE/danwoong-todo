@@ -2,7 +2,7 @@ package com.danwoog.todo.controller;
 
 import com.danwoog.todo.common.ApiResponse;
 import com.danwoog.todo.dto.file.FileDto.*;
-import com.danwoog.todo.domain.FileItem;
+import com.danwoog.todo.domain.file.FileEntity;
 import com.danwoog.todo.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +65,7 @@ public class FileController {
     /** GET /files/{fileId} — 파일 다운로드 */
     @GetMapping("/files/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws IOException {
-        FileItem fileItem = fileService.getFile(fileId);
+        FileEntity fileItem = fileService.getFile(fileId);
         Resource resource = new UrlResource(Paths.get(uploadDir, fileItem.getStoredName()).toUri());
 
         return ResponseEntity.ok()

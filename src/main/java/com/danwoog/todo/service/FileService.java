@@ -1,6 +1,9 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.*;
+import com.danwoog.todo.domain.file.FileEntity;
+import com.danwoog.todo.domain.file.Folder;
+import com.danwoog.todo.domain.todogroup.TodoGroup;
+import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.file.FileDto.*;
 import com.danwoog.todo.exception.CustomException.*;
 import com.danwoog.todo.repository.*;
@@ -82,22 +85,21 @@ public class FileService {
         if (!Files.exists(dir)) Files.createDirectories(dir);
         Files.copy(file.getInputStream(), dir.resolve(storedName), StandardCopyOption.REPLACE_EXISTING);
 
-        return toFileResponse(fileItemRepository.save(FileItem.builder()
-                .group(group).folder(folder).uploadedBy(user)
-                .originalName(originalName).storedName(storedName)
-                .fileUrl("/files/" + storedName).fileSize(file.getSize())
-                .fileType(file.getContentType() != null ? file.getContentType() : "application/octet-stream")
-                .build()));
+        return toFileResponse(fileItemRepository.save(
+                new FileEntity(group, folder, user, originalName, storedName,
+                        "/files/" + storedName, file.getSize(),
+                        file.getContentType() != null ? file.getContentType() : "application/octet-stream")
+        ));
     }
 
-    public FileItem getFile(Long fileId) {
+    public FileEntity getFile(Long fileId) {
         return fileItemRepository.findById(fileId)
                 .orElseThrow(() -> new NotFoundException("파일이 존재하지 않습니다."));
     }
 
     @Transactional
     public void deleteFile(Long fileId) throws IOException {
-        FileItem file = getFile(fileId);
+        FileEntity file = getFile(fileId);
         Files.deleteIfExists(Paths.get(uploadDir, file.getStoredName()));
         fileItemRepository.delete(file);
     }
@@ -128,8 +130,8 @@ public class FileService {
                 .parentFolderId(f.getParentFolderId()).createdAt(f.getCreatedAt()).build();
     }
 
-    private FileResponse toFileResponse(FileItem f) {
-        return FileResponse.builder().fileId(f.getId()).originalName(f.getOriginalName())
+    private FileResponse toFileResponse(FileEntity f) {
+        return FileResponse.builder().fileId(f.getFileId()).originalName(f.getOriginalName())
                 .fileUrl(f.getFileUrl()).fileSize(f.getFileSize())
                 .fileType(f.getFileType()).uploadedAt(f.getUploadedAt()).build();
     }
