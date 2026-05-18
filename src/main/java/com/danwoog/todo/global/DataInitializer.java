@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+// aaaa
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
