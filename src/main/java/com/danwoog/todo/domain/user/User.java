@@ -60,6 +60,7 @@ public class User {
 
     public void setPersonalNote(String personalNote) { this.personalNote = personalNote; }
 
+<<<<<<< HEAD
     public Long getUserId() { return userId; }
     public String getLoginId() { return loginId; }
     public String getPassword() { return password; }
@@ -67,3 +68,25 @@ public class User {
     public String getProfileImage() { return profileImage; }
     public Integer getGarlicCount() { return garlicCount; }
 }
+=======
+    public String getNickname() {
+        return nickname;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public Integer getGarlicCount() {
+        return garlicCount;
+    }
+
+    public String getPersonalNote() {
+        return personalNote;
+    }
+
+    public void setPersonalNote(String personalNote) {
+        this.personalNote = personalNote;
+    }
+}
+>>>>>>> 8df9e81 (fix: resolve compilation errors due to DB domain changes)
