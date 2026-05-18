@@ -78,6 +78,7 @@ public class TodoGroupService {
         // 현재 그룹 멤버 전체 조회
         List<TodoGroupMember> groupMembers =
                 todoGroupMemberRepository.findByGroup_GroupId(savedGroup.getGroupId());
+        savedGroup.initializeGarlicBudget(groupMembers.size());
 
         // 응답에 넣을 전체 멤버 목록 생성
         List<MemberPreviewResponse> members = groupMembers.stream()
@@ -94,6 +95,8 @@ public class TodoGroupService {
                 savedGroup.getDeadline().toLocalDate(),
                 savedGroup.getPriority(),
                 savedGroup.getStatus(),
+                savedGroup.getTotalGarlicReward(),
+                savedGroup.getRemainingGarlicReward(),
                 members,
                 groupMembers.size()
         );
@@ -139,6 +142,8 @@ public class TodoGroupService {
                             group.getDeadline().toLocalDate(),
                             group.getPriority(),
                             group.getStatus(),
+                            group.getTotalGarlicReward(),
+                            group.getRemainingGarlicReward(),
                             members,
                             groupMembers.size()
                     );
@@ -173,7 +178,9 @@ public class TodoGroupService {
                 group.getGroupName(),
                 group.getDeadline().toLocalDate(),
                 group.getPriority(),
-                group.getStatus()
+                group.getStatus(),
+                group.getTotalGarlicReward(),
+                group.getRemainingGarlicReward()
         );
     }
 
@@ -249,6 +256,8 @@ public class TodoGroupService {
                 invitedCount++;
             }
         }
+
+        group.increaseGarlicBudget(invitedCount);
 
         return new TodoGroupInviteResponse(
                 groupId,
