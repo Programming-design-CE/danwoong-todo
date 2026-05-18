@@ -6,10 +6,9 @@ import com.danwoog.todo.domain.shop.PurchaseHistory;
 import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.shop.ShopDto.*;
 import com.danwoog.todo.exception.CustomException.*;
-import com.danwoog.todo.repository.MemberInventoryRepository;
-import com.danwoog.todo.repository.PurchaseHistoryRepository;
-import com.danwoog.todo.repository.ShopItemRepository;
-import com.danwoog.todo.repository.UserRepository;
+import com.danwoog.todo.repository.shop.*;
+import com.danwoog.todo.repository.user.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

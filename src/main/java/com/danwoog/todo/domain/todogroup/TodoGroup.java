@@ -58,6 +58,35 @@ public class TodoGroup {
         this.updatedAt = LocalDateTime.now();
     }
 
+
+    // 생성자 오버로딩 (테스트는 간단용이라 위에 생성자 써가지고..)
+    // 사실 위에 지우고 이걸로 해야하는게 맞는거 같긴 합니다...근데 테스트에서 형식 바꾸는게 싫어서 ㅠㅠ
+    public TodoGroup(String groupName, String description,
+                    LocalDateTime deadline, Priority priority,
+                    User createdBy) {
+        this.groupName = groupName;
+        this.description = description;
+        this.deadline = deadline;
+        this.priority = priority;
+        this.createdBy = createdBy;
+        this.status = GroupStatus.IN_PROGRESS;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // PATCH용 업데이트 메서드
+    public void update(String groupName,
+                    LocalDateTime deadline,
+                    Priority priority,
+                    GroupStatus status) {
+        this.groupName = groupName;
+        this.deadline = deadline;
+        this.priority = priority;
+        this.status = status;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
     public Long getGroupId() {
         return groupId;
     }
@@ -68,5 +97,17 @@ public class TodoGroup {
 
     public User getCreatedBy() {
         return createdBy;
+    }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public GroupStatus getStatus() {
+        return status;
     }
 }

@@ -4,7 +4,11 @@ import com.danwoog.todo.domain.shop.*;
 import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.closet.ClosetDto.*;
 import com.danwoog.todo.exception.CustomException.*;
-import com.danwoog.todo.repository.*;
+import com.danwoog.todo.repository.CharacterEquippedItemRepository;
+import com.danwoog.todo.repository.shop.*;
+import com.danwoog.todo.repository.user.UserCharacterRepository;
+import com.danwoog.todo.repository.user.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

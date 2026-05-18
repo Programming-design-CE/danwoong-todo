@@ -1,4 +1,4 @@
-package com.danwoog.todo.repository;
+package com.danwoog.todo.repository.shop;
 
 import com.danwoog.todo.domain.shop.PurchaseHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
