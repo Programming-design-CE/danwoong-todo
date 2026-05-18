@@ -1,12 +1,20 @@
 package com.danwoog.todo.dto.todogroup;
 
 import com.danwoog.todo.domain.todogroup.GroupMemberRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TodoGroupCreateResponse {
 
+    @JsonProperty("group_id")
     private Long groupId;
+
+    @JsonProperty("leader_id")
     private Long leaderId;
+
+    @JsonProperty("leader_role")
     private GroupMemberRole leaderRole;
+
+    @JsonProperty("invitation_count")
     private int invitationCount;
 
     public TodoGroupCreateResponse(Long groupId, Long leaderId, GroupMemberRole leaderRole, int invitationCount) {
