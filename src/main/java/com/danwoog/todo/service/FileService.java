@@ -7,6 +7,10 @@ import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.file.FileDto.*;
 import com.danwoog.todo.exception.CustomException.*;
 import com.danwoog.todo.repository.*;
+import com.danwoog.todo.repository.file.FileItemRepository;
+import com.danwoog.todo.repository.file.FolderRepository;
+import com.danwoog.todo.repository.user.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

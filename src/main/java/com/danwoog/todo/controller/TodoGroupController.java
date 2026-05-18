@@ -71,10 +71,9 @@ public class TodoGroupController {
     @DeleteMapping("/{groupId}")
     public TodoGroupDeleteResponse deleteGroup(
             Authentication authentication,
-            @PathVariable Long groupId
+            @PathVariable("groupId") Long groupId
     ) {
         Long userId = (Long) authentication.getPrincipal();
-
         return todoGroupService.deleteGroup(userId, groupId);
     }
 }

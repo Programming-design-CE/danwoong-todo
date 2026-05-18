@@ -1,4 +1,4 @@
-package com.danwoog.todo.repository;
+package com.danwoog.todo.repository.file;
 
 import com.danwoog.todo.domain.file.FileEntity;
 import com.danwoog.todo.domain.file.Folder;
