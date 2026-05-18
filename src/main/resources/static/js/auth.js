@@ -95,7 +95,7 @@ if (loginForm) {
             setMessage("loginMessage", "로그인 성공!", "success");
 
             setTimeout(function () {
-                window.location.href = "/";
+                window.location.href = "/main";
             }, 800);
 
         } catch (error) {

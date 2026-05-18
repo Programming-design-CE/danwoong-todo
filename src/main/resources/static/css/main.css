@@ -1,0 +1,175 @@
+@font-face {
+    font-family: 'MaplestoryLight';
+    src: url('/fonts/Maplestory Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'YoonChild';
+    src: url('/fonts/YoonChildfundkoreaDaeHan.ttf') format('truetype');
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #3f3f3f;
+}
+
+.main-page {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* 왼쪽 캐릭터 전체 묶음 */
+.character-area {
+    position: absolute;
+    left: 7%;
+    bottom: 8%;
+    width: 520px;
+    height: 430px;
+    z-index: 3;
+}
+
+/* 바위 */
+.rock {
+    position: absolute;
+    left: 70px;
+    bottom: 15px;
+    width: 320px;
+    z-index: 3;
+}
+
+/* 곰 단웅 */
+.danwoong {
+    position: absolute;
+    left: 80px;
+    bottom: 112px;
+    width: 300px;
+    z-index: 4;
+}
+
+/* 호랑이 단비 */
+.danbi {
+    position: absolute;
+    left: 270px;
+    bottom: 20px;
+    width: 300px;
+    z-index: 2;
+}
+
+/* 닉네임 - 메이플스토리 라이트 */
+.nickname {
+    position: absolute;
+    left: 200px;
+    bottom: 40px;
+    z-index: 5;
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 26px;
+    color: #ffffff;
+    letter-spacing: -1px;
+}
+
+/* 건드리지 마 - 윤차일드 */
+.touch-text {
+    position: absolute;
+    left: 400px;
+    bottom: 240px;
+    z-index: 5;
+    font-family: 'YoonChild', sans-serif;
+    font-size: 24px;
+    color: #ffffff;
+    letter-spacing: 1px;
+    transform: rotate(5deg);
+    white-space: nowrap;
+}
+
+/* 오른쪽 메뉴 */
+.menu-area {
+    position: absolute;
+    right: 20%;
+    top: 16%;
+    display: flex;
+    flex-direction: column;
+    gap: 46px;
+    z-index: 4;
+}
+
+.menu-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'YoonChild', sans-serif;
+    font-size: 70px;
+    color: #ffffff;
+    letter-spacing: 3px;
+    text-align: left;
+    white-space: nowrap;
+    padding: 0;
+
+    -webkit-text-stroke: 3px #000000;
+    paint-order: stroke fill;
+
+    filter:
+            drop-shadow(0 4px 10px rgba(var(--shadow-color), 1))
+            drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.8));
+
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+/* 오늘의 할 일 */
+#todoBtn,
+.menu-btn:nth-child(1) {
+    --shadow-color: 67, 74, 97; /* #434A61 */
+}
+
+/* 단웅이의 옷장 */
+#closetBtn,
+.menu-btn:nth-child(2) {
+    --shadow-color: 210, 116, 55; /* #D27437 */
+}
+
+/* 마늘 상점 */
+#shopBtn,
+.menu-btn:nth-child(3) {
+    --shadow-color: 67, 74, 95; /* #434A5F */
+}
+
+.menu-btn:hover {
+    transform: translateX(8px);
+    filter:
+            drop-shadow(0 4px 10px rgba(var(--shadow-color), 0.3))
+            drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.3));
+}
+
+/* 작은 화면 대응 */
+@media (max-width: 1200px) {
+    .character-area {
+        left: 5%;
+        bottom: 7%;
+        transform: scale(0.9);
+        transform-origin: left bottom;
+    }
+
+    .menu-area {
+        right: 7%;
+        top: 18%;
+    }
+
+    .menu-btn {
+        font-size: 42px;
+    }
+}

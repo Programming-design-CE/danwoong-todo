@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>메인 화면</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<main class="main-page">
+  <img class="main-bg" th:src="@{/assets/main_background.png}" alt="동굴 배경">
+
+  <section class="character-area">
+    <img class="rock" th:src="@{/assets/rock.png}" alt="바위">
+    <img class="danwoong" th:src="@{/assets/danwoong.png}" alt="단웅">
+    <img class="danbi" th:src="@{/assets/danbi.png}" alt="단비">
+
+    <div class="nickname" id="nicknameText"></div>
+    <div class="touch-text">건드리지 마!...</div>
+  </section>
+
+  <section class="menu-area">
+    <button class="menu-btn" id="todoBtn">오늘의 할 일</button>
+    <button class="menu-btn" id="closetBtn">단웅이의 옷장</button>
+    <button class="menu-btn" id="shopBtn">마늘 상점</button>
+  </section>
+
+</main>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
