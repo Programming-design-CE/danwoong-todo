@@ -6,6 +6,8 @@ import java.util.List;
 
 public class TodoGroupCreateRequest {
 
+
+    // JSON에서는 "group_name"으로 받고, Java에서는 groupName 변수에 넣어주는 어노테이션
     @JsonProperty("group_name")
     private String groupName;
 
