@@ -1,6 +1,7 @@
 package com.danwoog.todo.service;
 
 import com.danwoog.todo.domain.todogroup.GroupMemberRole;
+import com.danwoog.todo.domain.todogroup.Priority;
 import com.danwoog.todo.domain.todogroup.TodoGroup;
 import com.danwoog.todo.domain.todogroup.TodoGroupMember;
 import com.danwoog.todo.domain.user.User;
@@ -35,6 +36,8 @@ public class TodoGroupService {
         TodoGroup group = new TodoGroup(
                 request.getGroupName(),
                 null,
+                request.getDeadline().atStartOfDay(),
+                Priority.valueOf(request.getPriority()),
                 leader
         );
 
@@ -62,29 +65,40 @@ public class TodoGroupService {
 
     public TodoGroupListResponse getMyGroups(Long userId) {
 
-        List<TodoGroupMember> members =
+        List<TodoGroupMember> myMemberships =
                 todoGroupMemberRepository.findByUser_UserId(userId);
 
-        List<TodoGroupSummaryResponse> groups = members.stream()
-                .map(member -> {
-                    TodoGroup group = member.getGroup();
+        List<TodoGroupSummaryResponse> groups = myMemberships.stream()
+                .map(myMember -> {
+                        TodoGroup group = myMember.getGroup();
 
-                    List<MemberPreviewResponse> previews = List.of(
-                            new MemberPreviewResponse(userId, null)
-                    );
+                        List<TodoGroupMember> groupMembers =
+                                todoGroupMemberRepository.findByGroup_GroupId(group.getGroupId());
 
-                    return new TodoGroupSummaryResponse(
-                            group.getGroupId(),
-                            group.getGroupName(),
-                            group.getDeadline(),
-                            group.getPriority(),
-                            group.getStatus(),
-                            previews,
-                            1
-                    );
+                        List<MemberPreviewResponse> previews = groupMembers.stream()
+                                .limit(2)
+                                .map(groupMember -> {
+                                User memberUser = groupMember.getUser();
+
+                                return new MemberPreviewResponse(
+                                        memberUser.getUserId(),
+                                        memberUser.getProfileImage()
+                                );
+                                })
+                                .toList();
+
+                        return new TodoGroupSummaryResponse(
+                                group.getGroupId(),
+                                group.getGroupName(),
+                                group.getDeadline().toLocalDate(),
+                                group.getPriority(),
+                                group.getStatus(),
+                                previews,
+                                groupMembers.size()
+                        );
                 })
                 .toList();
 
         return new TodoGroupListResponse(groups);
-    }
+        }
 }

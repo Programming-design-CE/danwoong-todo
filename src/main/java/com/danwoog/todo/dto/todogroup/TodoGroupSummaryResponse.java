@@ -3,9 +3,22 @@ package com.danwoog.todo.dto.todogroup;
 import com.danwoog.todo.domain.todogroup.GroupStatus;
 import com.danwoog.todo.domain.todogroup.Priority;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.time.LocalDate;
 import java.util.List;
 
+
+
+@JsonPropertyOrder({
+        "group_id",
+        "group_name",
+        "deadline",
+        "priority",
+        "status",
+        "member_preview",
+        "member_count"
+})
 public class TodoGroupSummaryResponse {
 
     @JsonProperty("group_id")
@@ -15,7 +28,7 @@ public class TodoGroupSummaryResponse {
     private String groupName;
 
     @JsonProperty("deadline")
-    private LocalDateTime deadline;
+    private LocalDate deadline;
 
     @JsonProperty("priority")
     private Priority priority;
@@ -29,7 +42,7 @@ public class TodoGroupSummaryResponse {
     @JsonProperty("member_count")
     private int memberCount;
 
-    public TodoGroupSummaryResponse(Long groupId, String groupName, LocalDateTime deadline,
+    public TodoGroupSummaryResponse(Long groupId, String groupName, LocalDate deadline,
                                     Priority priority, GroupStatus status,
                                     List<MemberPreviewResponse> memberPreview, int memberCount) {
         this.groupId = groupId;
@@ -43,7 +56,7 @@ public class TodoGroupSummaryResponse {
 
     public Long getGroupId() { return groupId; }
     public String getGroupName() { return groupName; }
-    public LocalDateTime getDeadline() { return deadline; }
+    public LocalDate getDeadline() { return deadline; }
     public Priority getPriority() { return priority; }
     public GroupStatus getStatus() { return status; }
     public List<MemberPreviewResponse> getMemberPreview() { return memberPreview; }

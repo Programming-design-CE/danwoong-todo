@@ -9,4 +9,6 @@ public interface MemberRepository
         extends JpaRepository<TodoGroupMember, Long> {
 
     List<TodoGroupMember> findByUser_UserId(Long userId);
+
+    List<TodoGroupMember> findByGroup_GroupId(Long groupId);
 }
