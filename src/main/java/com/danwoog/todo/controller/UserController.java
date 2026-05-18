@@ -1,11 +1,11 @@
 package com.danwoog.todo.controller;
 
-import com.danwoog.todo.dto.LoginRequest;
-import com.danwoog.todo.dto.LoginResponse;
-import com.danwoog.todo.dto.SignupRequest;
-import com.danwoog.todo.dto.UpdateUserRequest;
-import com.danwoog.todo.dto.UpdateUserResponse;
-import com.danwoog.todo.dto.UserInfoResponse;
+import com.danwoog.todo.dto.user.LoginRequest;
+import com.danwoog.todo.dto.user.LoginResponse;
+import com.danwoog.todo.dto.user.SignupRequest;
+import com.danwoog.todo.dto.user.UpdateUserRequest;
+import com.danwoog.todo.dto.user.UpdateUserResponse;
+import com.danwoog.todo.dto.user.UserInfoResponse;
 import com.danwoog.todo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

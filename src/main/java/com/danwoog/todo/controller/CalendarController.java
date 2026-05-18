@@ -1,7 +1,7 @@
 package com.danwoog.todo.controller;
 
-import com.danwoog.todo.dto.CalendarDailyResponse;
-import com.danwoog.todo.dto.CalendarMonthlyResponse;
+import com.danwoog.todo.dto.calendar.CalendarDailyResponse;
+import com.danwoog.todo.dto.calendar.CalendarMonthlyResponse;
 import com.danwoog.todo.service.CalendarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;

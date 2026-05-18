@@ -1,0 +1,17 @@
+package com.danwoog.todo.dto.user;
+
+public class UpdateUserRequest {
+
+    private String nickname;
+
+    public UpdateUserRequest() {
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+}
