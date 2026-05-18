@@ -87,6 +87,13 @@ public class TodoGroup {
     }
 
 
+    // 삭제
+    public void delete() {
+        this.status = GroupStatus.DELETED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
     public Long getGroupId() {
         return groupId;
     }

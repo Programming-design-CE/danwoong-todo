@@ -11,4 +11,6 @@ public interface MemberRepository
     List<TodoGroupMember> findByUser_UserId(Long userId);
 
     List<TodoGroupMember> findByGroup_GroupId(Long groupId);
+
+    boolean existsByGroup_GroupIdAndUser_UserId(Long groupId, Long userId);
 }
