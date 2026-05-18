@@ -3,6 +3,7 @@ package com.danwoog.todo.controller;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
+import com.danwoog.todo.dto.todogroup.TodoGroupDeleteResponse;
 import com.danwoog.todo.service.TodoGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,5 +44,19 @@ public class TodoGroupController {
     ) {
         Long userId = (Long) authentication.getPrincipal();
         return todoGroupService.getMyGroups(userId);
+    }
+
+    @Operation(
+            summary = "공동 할 일 그룹 삭제",
+            description = "공동 할 일 그룹을 삭제합니다."
+    )
+    @DeleteMapping("/{groupId}")
+    public TodoGroupDeleteResponse deleteGroup(
+            Authentication authentication,
+            @PathVariable Long groupId
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+
+        return todoGroupService.deleteGroup(userId, groupId);
     }
 }

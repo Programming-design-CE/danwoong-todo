@@ -10,6 +10,7 @@ import com.danwoog.todo.dto.todogroup.TodoGroupCreateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupCreateResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupSummaryResponse;
+import com.danwoog.todo.dto.todogroup.TodoGroupDeleteResponse;
 import com.danwoog.todo.repository.MemberRepository;
 import com.danwoog.todo.repository.TodoGroupRepository;
 import com.danwoog.todo.repository.user.UserRepository;
@@ -28,6 +29,7 @@ public class TodoGroupService {
     private final MemberRepository todoGroupMemberRepository;
     private final UserRepository userRepository;
 
+    // 1. POST : 공동 할 일 그룹 생성 및 친구 초대
     public TodoGroupCreateResponse createGroup(Long loginUserId, TodoGroupCreateRequest request) {
 
         User leader = userRepository.findById(loginUserId)
@@ -63,6 +65,9 @@ public class TodoGroupService {
         );
     }
 
+
+
+    // 2. 내가 속한 공동 할 일 그룹 목록 조회
     public TodoGroupListResponse getMyGroups(Long userId) {
 
         List<TodoGroupMember> myMemberships =
@@ -100,5 +105,17 @@ public class TodoGroupService {
                 .toList();
 
         return new TodoGroupListResponse(groups);
+        }
+
+
+        // 3. 그룹 정보 수정
+        public TodoGroupDeleteResponse deleteGroup(Long userId, Long groupId) {
+
+                TodoGroup group = todoGroupRepository.findById(groupId)
+                        .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+                todoGroupRepository.delete(group);
+
+                return new TodoGroupDeleteResponse(groupId, "DELETED" );
         }
 }
