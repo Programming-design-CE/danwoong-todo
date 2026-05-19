@@ -21,6 +21,12 @@ public class TodoGroupCreateResponse {
 
     private GroupStatus status;
 
+    @JsonProperty("total_garlic_reward")
+    private Integer totalGarlicReward;
+
+    @JsonProperty("remaining_garlic_reward")
+    private Integer remainingGarlicReward;
+
     @JsonProperty("members")
     private List<MemberPreviewResponse> members;
 
@@ -33,6 +39,8 @@ public class TodoGroupCreateResponse {
             LocalDate deadline,
             Priority priority,
             GroupStatus status,
+            Integer totalGarlicReward,
+            Integer remainingGarlicReward,
             List<MemberPreviewResponse> members,
             int memberCount
     ) {
@@ -41,6 +49,8 @@ public class TodoGroupCreateResponse {
         this.deadline = deadline;
         this.priority = priority;
         this.status = status;
+        this.totalGarlicReward = totalGarlicReward;
+        this.remainingGarlicReward = remainingGarlicReward;
         this.members = members;
         this.memberCount = memberCount;
     }
@@ -63,6 +73,14 @@ public class TodoGroupCreateResponse {
 
     public GroupStatus getStatus() {
         return status;
+    }
+
+    public Integer getTotalGarlicReward() {
+        return totalGarlicReward;
+    }
+
+    public Integer getRemainingGarlicReward() {
+        return remainingGarlicReward;
     }
 
     public List<MemberPreviewResponse> getMembers() {

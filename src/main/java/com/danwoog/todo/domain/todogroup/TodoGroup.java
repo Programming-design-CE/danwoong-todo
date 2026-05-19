@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Table(name = "todo_groups")
 public class TodoGroup {
 
+    private static final int GARLIC_REWARD_PER_MEMBER = 40;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_id")
@@ -36,6 +38,12 @@ public class TodoGroup {
     @Column(name = "status", length = 20)
     private GroupStatus status;
 
+    @Column(name = "total_garlic_reward")
+    private Integer totalGarlicReward;
+
+    @Column(name = "remaining_garlic_reward")
+    private Integer remainingGarlicReward;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
@@ -54,6 +62,8 @@ public class TodoGroup {
         this.description = description;
         this.createdBy = createdBy;
         this.status = GroupStatus.IN_PROGRESS;
+        this.totalGarlicReward = 0;
+        this.remainingGarlicReward = 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -70,6 +80,8 @@ public class TodoGroup {
         this.priority = priority;
         this.createdBy = createdBy;
         this.status = GroupStatus.IN_PROGRESS;
+        this.totalGarlicReward = 0;
+        this.remainingGarlicReward = 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -91,6 +103,60 @@ public class TodoGroup {
     public void delete() {
         this.status = GroupStatus.DELETED;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void initializeGarlicBudget(int memberCount) {
+        int budget = Math.max(memberCount, 0) * GARLIC_REWARD_PER_MEMBER;
+        this.totalGarlicReward = budget;
+        this.remainingGarlicReward = budget;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void increaseGarlicBudget(int additionalMemberCount) {
+        if (additionalMemberCount <= 0) {
+            return;
+        }
+
+        int additionalBudget = additionalMemberCount * GARLIC_REWARD_PER_MEMBER;
+        this.totalGarlicReward = getSafeGarlicValue(totalGarlicReward) + additionalBudget;
+        this.remainingGarlicReward = getSafeGarlicValue(remainingGarlicReward) + additionalBudget;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void allocateGarlicReward(int garlicReward) {
+        adjustAllocatedGarlicReward(0, garlicReward);
+    }
+
+    public void adjustAllocatedGarlicReward(int previousReward, int newReward) {
+        int previous = Math.max(previousReward, 0);
+        int next = Math.max(newReward, 0);
+        int diff = next - previous;
+
+        if (diff <= 0) {
+            this.remainingGarlicReward = getSafeGarlicValue(remainingGarlicReward) + Math.abs(diff);
+            this.updatedAt = LocalDateTime.now();
+            return;
+        }
+
+        if (getSafeGarlicValue(remainingGarlicReward) < diff) {
+            throw new IllegalArgumentException("그룹에 남아 있는 마늘보다 더 많이 배정할 수 없습니다.");
+        }
+
+        this.remainingGarlicReward = getSafeGarlicValue(remainingGarlicReward) - diff;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void restoreGarlicReward(int garlicReward) {
+        if (garlicReward <= 0) {
+            return;
+        }
+
+        this.remainingGarlicReward = getSafeGarlicValue(remainingGarlicReward) + garlicReward;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    private int getSafeGarlicValue(Integer value) {
+        return value != null ? value : 0;
     }
 
 
@@ -116,5 +182,13 @@ public class TodoGroup {
 
     public GroupStatus getStatus() {
         return status;
+    }
+
+    public Integer getTotalGarlicReward() {
+        return totalGarlicReward;
+    }
+
+    public Integer getRemainingGarlicReward() {
+        return remainingGarlicReward;
     }
 }

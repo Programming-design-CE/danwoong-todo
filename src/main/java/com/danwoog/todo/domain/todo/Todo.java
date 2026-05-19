@@ -32,6 +32,10 @@ public class Todo {
     private Integer garlicReward;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "distribution_type", length = 20)
+    private GarlicDistributionType distributionType;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "priority", length = 20)
     private Priority priority;
 
@@ -67,6 +71,7 @@ public class Todo {
         this.todoName = todoName;
         this.description = description;
         this.createdBy = createdBy;
+        this.distributionType = GarlicDistributionType.EVEN;
         this.status = TodoStatus.IN_PROGRESS;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -102,6 +107,14 @@ public class Todo {
 
     public void setGarlicReward(Integer garlicReward) {
         this.garlicReward = garlicReward;
+    }
+
+    public GarlicDistributionType getDistributionType() {
+        return distributionType;
+    }
+
+    public void setDistributionType(GarlicDistributionType distributionType) {
+        this.distributionType = distributionType;
     }
 
     public Priority getPriority() {
