@@ -8,7 +8,12 @@ import com.danwoog.todo.dto.todo.MyTodoStatisticsResponse;
 import com.danwoog.todo.service.PersonalTodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,33 +21,34 @@ import org.springframework.web.bind.annotation.*;
 public class PersonalTodoController {
 
     private final PersonalTodoService personalTodoService;
-    
-    // 임시로 하드코딩된 사용자 ID
-    private final Long TEMP_MEMBER_ID = 1L;
 
     @GetMapping
-    public ResponseEntity<MyTodoResponse> getMyTodos() {
-        return ResponseEntity.ok(personalTodoService.getMyTodos(TEMP_MEMBER_ID));
+    public ResponseEntity<MyTodoResponse> getMyTodos(Authentication authentication) {
+        return ResponseEntity.ok(personalTodoService.getMyTodos(getLoginUserId(authentication)));
     }
 
     @GetMapping("/completed")
-    public ResponseEntity<MyCompletedTodoResponse> getMyCompletedTodos() {
-        return ResponseEntity.ok(personalTodoService.getMyCompletedTodos(TEMP_MEMBER_ID));
+    public ResponseEntity<MyCompletedTodoResponse> getMyCompletedTodos(Authentication authentication) {
+        return ResponseEntity.ok(personalTodoService.getMyCompletedTodos(getLoginUserId(authentication)));
     }
 
     @GetMapping("/note")
-    public ResponseEntity<MyNoteResponse> getMyNote() {
-        return ResponseEntity.ok(personalTodoService.getMyNote(TEMP_MEMBER_ID));
+    public ResponseEntity<MyNoteResponse> getMyNote(Authentication authentication) {
+        return ResponseEntity.ok(personalTodoService.getMyNote(getLoginUserId(authentication)));
     }
 
     @PutMapping("/note")
-    public ResponseEntity<Void> updateMyNote(@RequestBody MyNoteRequest request) {
-        personalTodoService.updateMyNote(TEMP_MEMBER_ID, request);
+    public ResponseEntity<Void> updateMyNote(Authentication authentication, @RequestBody MyNoteRequest request) {
+        personalTodoService.updateMyNote(getLoginUserId(authentication), request);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/statistics")
-    public ResponseEntity<MyTodoStatisticsResponse> getMyStatistics() {
-        return ResponseEntity.ok(personalTodoService.getMyStatistics(TEMP_MEMBER_ID));
+    public ResponseEntity<MyTodoStatisticsResponse> getMyStatistics(Authentication authentication) {
+        return ResponseEntity.ok(personalTodoService.getMyStatistics(getLoginUserId(authentication)));
+    }
+
+    private Long getLoginUserId(Authentication authentication) {
+        return (Long) authentication.getPrincipal();
     }
 }

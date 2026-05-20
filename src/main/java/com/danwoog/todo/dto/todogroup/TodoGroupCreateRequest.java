@@ -14,6 +14,9 @@ public class TodoGroupCreateRequest {
     @JsonProperty("group_icon_url")
     private String groupIconUrl;
 
+    @JsonProperty("group_category")
+    private String groupCategory;
+
     @JsonProperty("deadline")
     private LocalDate deadline;
 
@@ -29,6 +32,10 @@ public class TodoGroupCreateRequest {
 
     public String getGroupIconUrl() {
         return groupIconUrl;
+    }
+
+    public String getGroupCategory() {
+        return groupCategory;
     }
 
     public LocalDate getDeadline() {
