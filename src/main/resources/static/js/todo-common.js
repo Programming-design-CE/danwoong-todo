@@ -2,20 +2,22 @@ function getTodoAccessToken() {
     return localStorage.getItem("accessToken") || "";
 }
 
-function getTodoAuthHeaders() {
-    return {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + getTodoAccessToken()
-    };
+function getTodoAuthHeaders(extraHeaders = {}) {
+    const headers = { ...extraHeaders };
+    const token = getTodoAccessToken();
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+    if (!headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
+    }
+    return headers;
 }
 
-async function fetchTodoJson(url, options) {
+async function fetchTodoJson(url, options = {}) {
     const response = await fetch(url, {
         ...options,
-        headers: {
-            ...getTodoAuthHeaders(),
-            ...(options?.headers || {})
-        }
+        headers: getTodoAuthHeaders(options.headers || {})
     });
 
     if (response.status === 401 || response.status === 403) {
@@ -26,7 +28,7 @@ async function fetchTodoJson(url, options) {
     }
 
     if (!response.ok) {
-        throw new Error("Request failed: " + response.status);
+        throw new Error(`Request failed: ${response.status}`);
     }
 
     const text = await response.text();
@@ -77,7 +79,7 @@ function initMemoPanel() {
                 const hour = String(now.getHours()).padStart(2, "0");
                 const minute = String(now.getMinutes()).padStart(2, "0");
                 if (footer) {
-                    footer.textContent = "자동 저장됨 · 오늘 " + hour + ":" + minute;
+                    footer.textContent = `자동 저장됨 · 오늘 ${hour}:${minute}`;
                 }
             } catch (error) {
                 console.error(error);

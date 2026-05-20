@@ -11,6 +11,12 @@ public class TodoGroupUpdateRequest {
     @JsonProperty("group_name")
     private String groupName;
 
+    @JsonProperty("group_icon_url")
+    private String groupIconUrl;
+
+    @JsonProperty("group_category")
+    private String groupCategory;
+
     @JsonProperty("deadline")
     private LocalDate deadline;
 
@@ -22,6 +28,8 @@ public class TodoGroupUpdateRequest {
 
     public Long getGroupId() { return groupId; }
     public String getGroupName() { return groupName; }
+    public String getGroupIconUrl() { return groupIconUrl; }
+    public String getGroupCategory() { return groupCategory; }
     public LocalDate getDeadline() { return deadline; }
     public String getPriority() { return priority; }
     public String getStatus() { return status; }

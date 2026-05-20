@@ -86,12 +86,26 @@ public class TodoGroup {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void setGroupColor(String groupColor) {
+        this.groupColor = groupColor;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setGroupCategory(String groupCategory) {
+        this.groupCategory = groupCategory;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     // PATCH용 업데이트 메서드
     public void update(String groupName,
+                    String groupColor,
+                    String groupCategory,
                     LocalDateTime deadline,
                     Priority priority,
                     GroupStatus status) {
         this.groupName = groupName;
+        this.groupColor = groupColor;
+        this.groupCategory = groupCategory;
         this.deadline = deadline;
         this.priority = priority;
         this.status = status;
@@ -166,6 +180,14 @@ public class TodoGroup {
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getGroupColor() {
+        return groupColor;
+    }
+
+    public String getGroupCategory() {
+        return groupCategory;
     }
 
     public User getCreatedBy() {

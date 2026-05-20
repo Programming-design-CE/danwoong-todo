@@ -1,7 +1,6 @@
 package com.danwoog.todo.dto.todo;
 
 import com.danwoog.todo.domain.todo.GarlicDistributionType;
-import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.todogroup.Priority;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -49,7 +48,7 @@ public class GroupTodoDetailResponse {
         this.priority = todo.getPriority();
         this.status = todo.getStatus();
         this.garlicReward = todo.getGarlicReward();
-        this.category = toCategoryLabel(todo.getCategory());
+        this.category = todo.getCategory();
         this.distributionType = todo.getDistributionType();
         this.assignees = assignees;
     }
@@ -84,10 +83,6 @@ public class GroupTodoDetailResponse {
 
     public String getCategory() {
         return category;
-    }
-
-    private String toCategoryLabel(TodoCategory category) {
-        return category != null ? category.getLabel() : null;
     }
 
     public GarlicDistributionType getDistributionType() {

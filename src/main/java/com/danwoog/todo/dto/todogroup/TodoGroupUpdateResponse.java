@@ -13,6 +13,12 @@ public class TodoGroupUpdateResponse {
     @JsonProperty("group_name")
     private String groupName;
 
+    @JsonProperty("group_color")
+    private String groupColor;
+
+    @JsonProperty("group_category")
+    private String groupCategory;
+
     @JsonProperty("deadline")
     private LocalDate deadline;
 
@@ -31,6 +37,8 @@ public class TodoGroupUpdateResponse {
     public TodoGroupUpdateResponse(
             Long groupId,
             String groupName,
+            String groupColor,
+            String groupCategory,
             LocalDate deadline,
             Priority priority,
             GroupStatus status,
@@ -39,6 +47,8 @@ public class TodoGroupUpdateResponse {
     ) {
         this.groupId = groupId;
         this.groupName = groupName;
+        this.groupColor = groupColor;
+        this.groupCategory = groupCategory;
         this.deadline = deadline;
         this.priority = priority;
         this.status = status;
@@ -48,6 +58,8 @@ public class TodoGroupUpdateResponse {
 
     public Long getGroupId() { return groupId; }
     public String getGroupName() { return groupName; }
+    public String getGroupColor() { return groupColor; }
+    public String getGroupCategory() { return groupCategory; }
     public LocalDate getDeadline() { return deadline; }
     public Priority getPriority() { return priority; }
     public GroupStatus getStatus() { return status; }

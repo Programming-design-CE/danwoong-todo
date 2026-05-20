@@ -39,9 +39,8 @@ public class Todo {
     @Column(name = "priority", length = 20)
     private Priority priority;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "category", length = 50)
-    private TodoCategory category;
+    private String category;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
@@ -126,11 +125,11 @@ public class Todo {
         this.priority = priority;
     }
 
-    public TodoCategory getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(TodoCategory category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

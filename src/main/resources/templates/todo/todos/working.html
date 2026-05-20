@@ -18,15 +18,19 @@
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'working', '4', '2')}"></div>
 
             <div class="filter-bar">
-                <button class="filter-btn" type="button">전체 카테고리 <span class="filter-caret">∨</span></button>
-                <button class="filter-btn" type="button">최근 추가순 <span class="filter-caret">∨</span></button>
+                <button class="filter-btn" type="button">
+                    전체 카테고리 <span class="filter-caret">▾</span>
+                </button>
+                <button class="filter-btn" type="button">
+                    최근 추가순 <span class="filter-caret">▾</span>
+                </button>
             </div>
 
             <div class="project-scroll-area">
                 <div class="project-list" id="projectList"></div>
 
                 <div class="project-actions">
-                    <button class="btn-add-project" id="btnAddProject" type="button">＋ 프로젝트 추가하기</button>
+                    <button class="btn-add-project" id="btnAddProject" type="button">+ 프로젝트 추가하기</button>
                 </div>
             </div>
         </main>
@@ -39,12 +43,12 @@
     <div class="modal">
         <div class="modal-top">
             <span class="modal-title">프로젝트 추가하기</span>
-            <button class="modal-close" id="modalClose" type="button">x</button>
+            <button class="modal-close" id="modalClose" type="button">×</button>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="groupName">프로젝트 제목 <span class="required">*</span></label>
-            <input id="groupName" type="text" class="form-input" placeholder="예: 발표 자료 준비" maxlength="50">
+            <input id="groupName" type="text" class="form-input" placeholder="예) 발표 자료 준비" maxlength="50">
             <div class="char-count"><span id="nameCount">0</span>/50</div>
         </div>
 
@@ -55,14 +59,14 @@
         </div>
 
         <div class="form-row">
-            <div class="form-group" style="margin-bottom:0; position:relative;">
+            <div class="form-group" style="margin-bottom: 0; position: relative;">
                 <label class="form-label">담당자</label>
                 <div class="assignee-wrap" id="assigneeWrap">
                     <button class="btn-add-assignee" id="btnAddAssignee" type="button">+</button>
                 </div>
                 <div class="friend-picker" id="friendPicker"></div>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
+            <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="groupPriority">우선순위</label>
                 <select class="priority-select" id="groupPriority">
                     <option value="LOW">낮음</option>
@@ -72,18 +76,18 @@
             </div>
         </div>
 
-        <div class="form-row" style="margin-top:16px;">
-            <div class="form-group" style="margin-bottom:0;">
+        <div class="form-row" style="margin-top: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="groupDeadline">마감일</label>
                 <input id="groupDeadline" type="date" class="form-input">
             </div>
-            <div class="form-group" style="margin-bottom:0;">
+            <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="groupGarlic">마늘 개수</label>
                 <input id="groupGarlic" type="number" class="form-input" placeholder="보상을 입력하세요." min="0">
             </div>
         </div>
 
-        <div class="form-group" style="margin-top:16px;">
+        <div class="form-group" style="margin-top: 16px;">
             <label class="form-label">카테고리</label>
             <div class="category-list">
                 <button class="category-btn active" type="button" data-category="school" data-icon="S">학교</button>
@@ -97,7 +101,7 @@
         <div class="form-group">
             <label class="form-label">프로젝트 색상</label>
             <div class="color-list">
-                <button class="color-dot active" type="button" data-color="#4CAF7D" style="background:#4CAF7D;">v</button>
+                <button class="color-dot active" type="button" data-color="#4CAF7D" style="background:#4CAF7D;">✓</button>
                 <button class="color-dot" type="button" data-color="#7BC67E" style="background:#7BC67E;"></button>
                 <button class="color-dot" type="button" data-color="#D4A843" style="background:#D4A843;"></button>
                 <button class="color-dot" type="button" data-color="#E07B54" style="background:#E07B54;"></button>
@@ -114,6 +118,10 @@
             <button class="btn-submit" id="btnSubmit" type="button">추가하기</button>
         </div>
     </div>
+</div>
+
+<div class="project-context-menu hidden" id="projectContextMenu">
+    <button class="project-context-item project-context-item--danger" id="deleteProjectAction" type="button">삭제</button>
 </div>
 </body>
 </html>

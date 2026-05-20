@@ -1,7 +1,6 @@
 package com.danwoog.todo.service;
 
 import com.danwoog.todo.domain.todo.TodoAssignee;
-import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.note.MyNoteRequest;
@@ -68,13 +67,13 @@ public class PersonalTodoService {
                 .mapToInt(a -> a.getTodo().getGarlicReward() != null ? a.getTodo().getGarlicReward() : 0)
                 .sum();
 
-        Map<TodoCategory, List<TodoAssignee>> byCategory = allAssignees.stream()
+        Map<String, List<TodoAssignee>> byCategory = allAssignees.stream()
                 .filter(a -> a.getTodo().getCategory() != null)
                 .collect(Collectors.groupingBy(a -> a.getTodo().getCategory()));
 
         List<CategorySummaryDto> categorySummaries = byCategory.entrySet().stream()
                 .map(entry -> {
-                    TodoCategory category = entry.getKey();
+                    String category = entry.getKey();
                     int total = entry.getValue().size();
                     int completed = (int) entry.getValue().stream()
                             .filter(a -> a.getTodo().getStatus() == TodoStatus.COMPLETED)

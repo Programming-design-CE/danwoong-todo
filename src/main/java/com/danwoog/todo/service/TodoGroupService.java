@@ -37,6 +37,8 @@ public class TodoGroupService {
                 Priority.valueOf(request.getPriority()),
                 leader
         );
+        group.setGroupColor(parseGroupColor(request.getGroupIconUrl()));
+        group.setGroupCategory(normalizeGroupCategory(request.getGroupCategory()));
 
         TodoGroup savedGroup = todoGroupRepository.save(group);
 
@@ -84,6 +86,7 @@ public class TodoGroupService {
         List<MemberPreviewResponse> members = groupMembers.stream()
                 .map(groupMember -> new MemberPreviewResponse(
                         groupMember.getUser().getUserId(),
+                        groupMember.getUser().getNickname(),
                         groupMember.getUser().getProfileImage()
                 ))
                 .toList();
@@ -92,6 +95,8 @@ public class TodoGroupService {
         return new TodoGroupCreateResponse(
                 savedGroup.getGroupId(),
                 savedGroup.getGroupName(),
+                savedGroup.getGroupColor(),
+                savedGroup.getGroupCategory(),
                 savedGroup.getDeadline() != null ? savedGroup.getDeadline().toLocalDate() : null,
                 savedGroup.getPriority(),
                 savedGroup.getStatus(),
@@ -131,6 +136,7 @@ public class TodoGroupService {
 
                                 return new MemberPreviewResponse(
                                         memberUser.getUserId(),
+                                        memberUser.getNickname(),
                                         memberUser.getProfileImage()
                                 );
                             })
@@ -139,6 +145,8 @@ public class TodoGroupService {
                     return new TodoGroupSummaryResponse(
                             group.getGroupId(),
                             group.getGroupName(),
+                            group.getGroupColor(),
+                            group.getGroupCategory(),
                             group.getDeadline() != null ? group.getDeadline().toLocalDate() : null,
                             group.getPriority(),
                             group.getStatus(),
@@ -168,6 +176,8 @@ public class TodoGroupService {
         // 그룹 정보 수정
         group.update(
                 request.getGroupName(),
+                parseGroupColor(request.getGroupIconUrl()),
+                normalizeGroupCategory(request.getGroupCategory()),
                 request.getDeadline() != null ? request.getDeadline().atStartOfDay() : null,
                 Priority.valueOf(request.getPriority()),
                 GroupStatus.valueOf(request.getStatus())
@@ -176,6 +186,8 @@ public class TodoGroupService {
         return new TodoGroupUpdateResponse(
                 group.getGroupId(),
                 group.getGroupName(),
+                group.getGroupColor(),
+                group.getGroupCategory(),
                 group.getDeadline() != null ? group.getDeadline().toLocalDate() : null,
                 group.getPriority(),
                 group.getStatus(),
@@ -263,5 +275,41 @@ public class TodoGroupService {
                 groupId,
                 invitedCount
         );
+    }
+
+    private String normalizeGroupCategory(String groupCategory) {
+        if (groupCategory == null || groupCategory.isBlank()) {
+            return null;
+        }
+        return groupCategory.trim();
+    }
+
+    private String parseGroupColor(String groupIconUrl) {
+        if (groupIconUrl == null || groupIconUrl.isBlank()) {
+            return null;
+        }
+
+        int colorIndex = groupIconUrl.indexOf("\"color\"");
+        if (colorIndex < 0) {
+            return null;
+        }
+
+        int colonIndex = groupIconUrl.indexOf(':', colorIndex);
+        if (colonIndex < 0) {
+            return null;
+        }
+
+        int startQuote = groupIconUrl.indexOf('"', colonIndex + 1);
+        if (startQuote < 0) {
+            return null;
+        }
+
+        int endQuote = groupIconUrl.indexOf('"', startQuote + 1);
+        if (endQuote < 0) {
+            return null;
+        }
+
+        String color = groupIconUrl.substring(startQuote + 1, endQuote).trim();
+        return color.isBlank() ? null : color;
     }
 }

@@ -2,7 +2,6 @@ package com.danwoog.todo.global;
 
 import com.danwoog.todo.domain.todo.Todo;
 import com.danwoog.todo.domain.todo.TodoAssignee;
-import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todogroup.GroupMemberRole;
 import com.danwoog.todo.domain.todogroup.Priority;
 import com.danwoog.todo.domain.todogroup.TodoGroup;
@@ -41,6 +40,8 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(user);
 
         TodoGroup group = new TodoGroup("단웅의 전설", "단웅의 전설 그룹", user);
+        group.setGroupCategory("school");
+        group.setGroupColor("#4CAF7D");
         todoGroupRepository.save(group);
 
         TodoGroupMember member = new TodoGroupMember(group, user, GroupMemberRole.LEADER);
@@ -48,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Todo todo1 = new Todo(group, "API 명세서 작성", "API 명세를 구체적으로 작성하기", user);
         todo1.setDeadline(LocalDateTime.of(2026, 5, 10, 23, 59));
-        todo1.setCategory(TodoCategory.SCHOOL);
+        todo1.setCategory("보고서");
         todo1.setGarlicReward(5);
         todo1.setPriority(Priority.HIGH);
         todoRepository.save(todo1);
@@ -56,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Todo todo2 = new Todo(group, "ERD 작성", "데이터베이스 설계", user);
         todo2.setDeadline(LocalDateTime.of(2026, 5, 2, 23, 59));
-        todo2.setCategory(TodoCategory.SCHOOL);
+        todo2.setCategory("자료 조사");
         todo2.setGarlicReward(3);
         todo2.setPriority(Priority.MEDIUM);
         todo2.complete(user);
@@ -65,7 +66,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Todo todo3 = new Todo(group, "발표자료(PPT) 제작", "발표자료 준비", user);
         todo3.setDeadline(LocalDateTime.of(2026, 5, 30, 23, 59));
-        todo3.setCategory(TodoCategory.SCHOOL);
+        todo3.setCategory("발표 준비");
         todo3.setGarlicReward(4);
         todo3.setPriority(Priority.HIGH);
         todoRepository.save(todo3);
