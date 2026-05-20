@@ -24,13 +24,13 @@ const groupMembers = [
 
 const CATEGORY_MAP = {
   '발표 준비': { css: 'presentation', icon: '📋' },
-  '보고서':   { css: 'report',       icon: '📄' },
-  '기능 구현': { css: 'dev',          icon: '💻' },
-  '자료 조사': { css: 'research',     icon: '🔍' },
+  '보고서': { css: 'report', icon: '📄' },
+  '기능 구현': { css: 'dev', icon: '💻' },
+  '자료 조사': { css: 'research', icon: '🔍' },
 };
 
 const PRIORITY_LABELS = { HIGH: '높음', MEDIUM: '보통', LOW: '낮음' };
-const PRIORITY_CSS    = { HIGH: 'high', MEDIUM: 'medium', LOW: 'low' };
+const PRIORITY_CSS = { HIGH: 'high', MEDIUM: 'medium', LOW: 'low' };
 
 // ── 유틸 ─────────────────────────────────────────────
 function getAccessToken() { return localStorage.getItem('accessToken'); }
@@ -54,8 +54,8 @@ async function api(url, opts = {}) {
 function formatDeadline(d) {
   if (!d) return '';
   const dt = new Date(d);
-  const days = ['일','월','화','수','목','금','토'];
-  return `마감 ${dt.getMonth()+1}/${String(dt.getDate()).padStart(2,'0')}(${days[dt.getDay()]})`;
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  return `마감 ${dt.getMonth() + 1}/${String(dt.getDate()).padStart(2, '0')}(${days[dt.getDay()]})`;
 }
 
 function calcDday(d) {
@@ -124,10 +124,10 @@ async function loadTodos() {
   } else {
     // 프레젠테이션용 더미 데이터
     todos = [
-      { todo_id:1, todo_name:'발표자료(PPT) 제작', category:'발표 준비', deadline:'2026-05-30', priority:'HIGH', status:'IN_PROGRESS', progress:70, assignees:[{user_id:1,nickname:'민수'},{user_id:2,nickname:'지연'},{user_id:3,nickname:'예린'},{user_id:4,nickname:'준호'}] },
-      { todo_id:2, todo_name:'보고서 작성', category:'보고서', deadline:'2026-06-02', priority:'MEDIUM', status:'IN_PROGRESS', progress:40, assignees:[{user_id:1,nickname:'민수'},{user_id:2,nickname:'지연'},{user_id:3,nickname:'예린'}] },
-      { todo_id:3, todo_name:'기능 구현 및 테스트', category:'기능 구현', deadline:'2026-06-05', priority:'HIGH', status:'IN_PROGRESS', progress:85, assignees:[{user_id:1,nickname:'민수'},{user_id:2,nickname:'지연'},{user_id:3,nickname:'예린'}] },
-      { todo_id:4, todo_name:'자료 조사 및 아이디어 수집', category:'자료 조사', deadline:'2026-05-28', priority:'LOW', status:'IN_PROGRESS', progress:30, assignees:[{user_id:1,nickname:'민수'},{user_id:2,nickname:'지연'}] },
+      { todo_id: 1, todo_name: '발표자료(PPT) 제작', category: '발표 준비', deadline: '2026-05-30', priority: 'HIGH', status: 'IN_PROGRESS', progress: 70, assignees: [{ user_id: 1, nickname: '민수' }, { user_id: 2, nickname: '지연' }, { user_id: 3, nickname: '예린' }, { user_id: 4, nickname: '준호' }] },
+      { todo_id: 2, todo_name: '보고서 작성', category: '보고서', deadline: '2026-06-02', priority: 'MEDIUM', status: 'IN_PROGRESS', progress: 40, assignees: [{ user_id: 1, nickname: '민수' }, { user_id: 2, nickname: '지연' }, { user_id: 3, nickname: '예린' }] },
+      { todo_id: 3, todo_name: '기능 구현 및 테스트', category: '기능 구현', deadline: '2026-06-05', priority: 'HIGH', status: 'IN_PROGRESS', progress: 85, assignees: [{ user_id: 1, nickname: '민수' }, { user_id: 2, nickname: '지연' }, { user_id: 3, nickname: '예린' }] },
+      { todo_id: 4, todo_name: '자료 조사 및 아이디어 수집', category: '자료 조사', deadline: '2026-05-28', priority: 'LOW', status: 'IN_PROGRESS', progress: 30, assignees: [{ user_id: 1, nickname: '민수' }, { user_id: 2, nickname: '지연' }] },
     ];
   }
   renderTodoList();
@@ -151,7 +151,7 @@ function autoSaveMemo() {
     });
     const now = new Date();
     document.getElementById('memoSaveStatus').textContent =
-      `자동 저장됨 · 오늘 ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+      `자동 저장됨 · 오늘 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
   }, 1500);
 }
 
