@@ -1,6 +1,24 @@
 const API_BASE = "";
 const queryParams = new URLSearchParams(window.location.search);
 
+const PRESET_CATEGORIES = ["발표 준비", "보고서", "기능 구현", "자료 조사"];
+const CATEGORY_META = {
+    "발표 준비": { css: "presentation", icon: "P" },
+    "보고서": { css: "report", icon: "R" },
+    "기능 구현": { css: "dev", icon: "D" },
+    "자료 조사": { css: "research", icon: "S" }
+};
+const PRIORITY_LABELS = {
+    HIGH: "높음",
+    MEDIUM: "보통",
+    LOW: "낮음"
+};
+const PRIORITY_CSS = {
+    HIGH: "high",
+    MEDIUM: "medium",
+    LOW: "low"
+};
+
 let currentGroupId = Number(queryParams.get("groupId") || localStorage.getItem("currentGroupId") || 1);
 let currentUser = null;
 let todos = [];
@@ -11,30 +29,11 @@ let tempProjectMembers = [];
 let editingTodoId = null;
 let selectedAssignees = [];
 let selectedCategory = "";
+let customCategory = "";
 let selectedPriority = "MEDIUM";
 let garlicReward = 10;
 let distributionMode = "equal";
 let customDistribution = {};
-
-const CATEGORY_META = {
-    "학교": { css: "report", icon: "S" },
-    "대외활동": { css: "presentation", icon: "A" },
-    "스터디": { css: "dev", icon: "T" },
-    "개인": { css: "research", icon: "P" },
-    "기타": { css: "research", icon: "E" }
-};
-
-const PRIORITY_LABELS = {
-    HIGH: "높음",
-    MEDIUM: "보통",
-    LOW: "낮음"
-};
-
-const PRIORITY_CSS = {
-    HIGH: "high",
-    MEDIUM: "medium",
-    LOW: "low"
-};
 
 function getAccessToken() {
     return localStorage.getItem("accessToken") || "";
@@ -46,18 +45,16 @@ function getAuthHeaders(extraHeaders = {}) {
     if (token) {
         headers.Authorization = `Bearer ${token}`;
     }
+    if (!(headers instanceof FormData) && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
+    }
     return headers;
 }
 
 async function api(url, options = {}) {
-    const headers = getAuthHeaders(options.headers || {});
-    if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
-        headers["Content-Type"] = "application/json";
-    }
-
     const response = await fetch(API_BASE + url, {
         ...options,
-        headers
+        headers: getAuthHeaders(options.headers || {})
     });
 
     if (response.status === 401 || response.status === 403) {
@@ -83,18 +80,31 @@ function getAvatarInitial(name) {
     return name && name.trim() ? name.trim()[0] : "?";
 }
 
+function resolveCategoryMeta(category) {
+    const label = category || "기타";
+    const presetMeta = CATEGORY_META[label];
+    if (presetMeta) {
+        return presetMeta;
+    }
+
+    return {
+        css: "research",
+        icon: getAvatarInitial(label)
+    };
+}
+
 function formatDeadline(deadline) {
     if (!deadline) {
         return "";
     }
 
-    const date = new Date(deadline);
-    if (Number.isNaN(date.getTime())) {
+    const parsed = new Date(deadline);
+    if (Number.isNaN(parsed.getTime())) {
         return deadline;
     }
 
-    const labels = ["일", "월", "화", "수", "목", "금", "토"];
-    return `마감 ${date.getMonth() + 1}/${String(date.getDate()).padStart(2, "0")}(${labels[date.getDay()]})`;
+    const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+    return `마감 ${parsed.getMonth() + 1}/${String(parsed.getDate()).padStart(2, "0")}(${dayLabels[parsed.getDay()]})`;
 }
 
 function calculateDday(deadline) {
@@ -253,7 +263,7 @@ function renderTodoList() {
 
     todos.forEach((todo) => {
         const categoryLabel = todo.category || "기타";
-        const categoryMeta = CATEGORY_META[categoryLabel] || CATEGORY_META["기타"];
+        const categoryMeta = resolveCategoryMeta(categoryLabel);
         const priorityCss = PRIORITY_CSS[todo.priority] || "medium";
         const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
         const progress = getProgressPercent(todo);
@@ -360,7 +370,7 @@ async function loadGroupContext() {
     }
 
     (group.members || []).forEach((member) => {
-        upsertProjectMember(buildDisplayMember(member.user_id));
+        upsertProjectMember(buildDisplayMember(member.user_id, member.nickname));
     });
 
     renderGroupMemberAvatars();
@@ -421,10 +431,51 @@ function updateCharCounts() {
     document.getElementById("descCharCount").textContent = String(document.getElementById("todoDescInput").value.length);
 }
 
+function ensureCustomCategoryChip() {
+    const container = document.getElementById("categoryChips");
+    const addButton = document.getElementById("addCategoryBtn");
+    const existing = container.querySelector(".chip-custom");
+
+    if (!customCategory) {
+        existing?.remove();
+        return;
+    }
+
+    if (existing) {
+        existing.dataset.cat = customCategory;
+        existing.textContent = customCategory;
+        return;
+    }
+
+    const chip = document.createElement("button");
+    chip.className = "chip chip-custom";
+    chip.type = "button";
+    chip.dataset.cat = customCategory;
+    chip.textContent = customCategory;
+    container.insertBefore(chip, addButton);
+}
+
 function updateCategoryChips() {
+    ensureCustomCategoryChip();
     document.querySelectorAll("#categoryChips .chip").forEach((chip) => {
         chip.classList.toggle("active", chip.dataset.cat === selectedCategory);
     });
+}
+
+function promptCustomCategory() {
+    const entered = window.prompt("카테고리 이름을 입력하세요.", customCategory || "");
+    if (!entered) {
+        return;
+    }
+
+    const trimmed = entered.trim();
+    if (!trimmed) {
+        return;
+    }
+
+    customCategory = trimmed;
+    selectedCategory = trimmed;
+    updateCategoryChips();
 }
 
 function updatePriorityDisplay() {
@@ -587,18 +638,14 @@ function renderAssigneeOptions() {
         });
 }
 
-function openModal(mode, todoData = null) {
-    editingTodoId = mode === "edit" ? todoData?.todo_id : null;
-    document.getElementById("todoModal").classList.add("show");
-
-    document.getElementById("modalTitle").textContent = mode === "edit" ? "할 일 수정하기" : "할 일 추가하기";
-    document.getElementById("modalSubmitText").textContent = mode === "edit" ? "수정하기" : "추가하기";
-
+function applyTodoDataToForm(todoData) {
     document.getElementById("todoTitleInput").value = todoData?.todo_name || "";
     document.getElementById("todoDescInput").value = todoData?.description || "";
     document.getElementById("todoDeadlineInput").value = todoData?.deadline || "";
 
-    selectedCategory = todoData?.category || "";
+    const category = todoData?.category || "";
+    selectedCategory = category;
+    customCategory = category && !PRESET_CATEGORIES.includes(category) ? category : "";
     selectedPriority = todoData?.priority || "MEDIUM";
     garlicReward = todoData?.garlic_reward || 10;
     distributionMode = todoData?.distribution_type === "CUSTOM" ? "custom" : "equal";
@@ -612,6 +659,16 @@ function openModal(mode, todoData = null) {
             customDistribution[assignee.user_id] = Math.round((assignee.reward_amount / garlicReward) * 100);
         }
     });
+}
+
+function openModal(mode, todoData = null) {
+    editingTodoId = mode === "edit" ? todoData?.todo_id : null;
+    document.getElementById("todoModal").classList.add("show");
+
+    document.getElementById("modalTitle").textContent = mode === "edit" ? "할 일 수정하기" : "할 일 추가하기";
+    document.getElementById("modalSubmitText").textContent = mode === "edit" ? "수정하기" : "추가하기";
+
+    applyTodoDataToForm(todoData);
 
     document.getElementById("distEqualTab").classList.toggle("active", distributionMode === "equal");
     document.getElementById("distCustomTab").classList.toggle("active", distributionMode === "custom");
@@ -766,7 +823,7 @@ function renderMemberModal() {
 }
 
 function confirmMemberChanges() {
-    alert("멤버 변경 API는 아직 연결되지 않았습니다. 현재 화면에서는 조회만 실데이터를 사용합니다.");
+    alert("멤버 변경 API는 아직 연결되지 않았습니다. 현재는 조회용 화면입니다.");
     closeMemberModal();
 }
 
@@ -854,6 +911,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("categoryChips")?.addEventListener("click", (event) => {
         const chip = event.target.closest(".chip");
         if (!chip) {
+            return;
+        }
+
+        if (chip.id === "addCategoryBtn") {
+            promptCustomCategory();
             return;
         }
 
