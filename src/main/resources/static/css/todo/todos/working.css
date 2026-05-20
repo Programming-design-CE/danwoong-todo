@@ -56,10 +56,11 @@
 
 /* 카드 H 62px: border 2px + padding 12px*2 + icon 36px = 62px */
 .project-card {
-    display: flex;
+    display: grid;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    grid-template-columns: 36px 260px 210px 110px 1fr 18px;
+    column-gap: 18px;
+    padding: 12px 16px;
     background: #2a2723;
     border: 1px solid #3a3530;
     border-radius: 12px;
@@ -82,12 +83,15 @@
 .project-name-block {
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-width: 180px;
+    gap: 8px;
+    min-width: 0;
+    justify-self: start;
 }
 
 .project-name {
-    max-width: 150px;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 190px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -107,14 +111,18 @@
 }
 
 .project-progress-block {
-    min-width: 200px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    min-width: 0;
+    width: 210px;
+    justify-self: start;
 }
 
 .progress-bar {
-    flex: 1;
+    flex: 0 0 150px;
+    width: 150px;
+    max-width: 150px;
     height: 7px;
     border-radius: 999px;
     background: #5a544d;
@@ -137,6 +145,7 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    justify-self: start;
 }
 
 .member-avatar {
@@ -187,13 +196,14 @@
 }
 
 .project-priority {
-    min-width: 70px;
     display: flex;
     align-items: center;
     gap: 6px;
     color: #f4f0ea;
     font-size: 13px;
     flex-shrink: 0;
+    justify-self: end;
+    white-space: nowrap;
 }
 
 .project-priority-flag {
@@ -211,4 +221,43 @@
     line-height: .8;
     cursor: pointer;
     flex-shrink: 0;
+    grid-column: 6;
+    justify-self: end;
+}
+
+.project-context-menu {
+    position: fixed;
+    min-width: 112px;
+    padding: 6px;
+    border: 1px solid #3b352f;
+    border-radius: 10px;
+    background: #1f1c19;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+}
+
+.project-context-item {
+    width: 100%;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #f1e9de;
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 12px;
+    text-align: left;
+    padding: 0 12px;
+    cursor: pointer;
+}
+
+.project-context-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.project-context-item--danger {
+    color: #f18c82;
+}
+
+.hidden {
+    display: none !important;
 }

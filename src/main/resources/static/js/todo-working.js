@@ -2,17 +2,19 @@ let allGroups = [];
 let friends = [];
 let selectedAssignees = [];
 let selectedColor = "#4CAF7D";
+let selectedCategory = "school";
 let selectedIcon = "S";
+let activeProjectMenuGroupId = null;
 
 function getProgressPercent(group) {
-    const total = group.total_garlic_reward || 0;
-    const remaining = group.remaining_garlic_reward || 0;
+    const total = Number(group.total_garlic_reward || 0);
+    const remaining = Number(group.remaining_garlic_reward || 0);
 
     if (total <= 0) {
         return 0;
     }
 
-    return Math.round(((total - remaining) / total) * 100);
+    return Math.max(0, Math.min(100, Math.round(((total - remaining) / total) * 100)));
 }
 
 function formatDday(deadline) {
@@ -21,10 +23,16 @@ function formatDday(deadline) {
     }
 
     const target = new Date(deadline);
-    const today = new Date();
-    const diff = Math.ceil((target - today) / 86400000);
+    if (Number.isNaN(target.getTime())) {
+        return "";
+    }
 
-    return diff >= 0 ? "D-" + diff : "D+" + Math.abs(diff);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+
+    const diff = Math.ceil((target.getTime() - today.getTime()) / 86400000);
+    return diff >= 0 ? `D-${diff}` : `D+${Math.abs(diff)}`;
 }
 
 function getPriorityLabel(priority) {
@@ -37,28 +45,49 @@ function getPriorityLabel(priority) {
     return "보통";
 }
 
-function getGroupInitial(groupName) {
-    if (!groupName) {
+function getGroupInitial(group) {
+    if (!group.group_name) {
         return "?";
     }
 
-    return groupName.trim().charAt(0);
+    return group.group_name.trim().charAt(0);
+}
+
+function getGroupIconStyle(group) {
+    if (group.group_color) {
+        return `background:${group.group_color};`;
+    }
+
+    if (!group.group_icon_url) {
+        return "";
+    }
+
+    try {
+        const parsed = JSON.parse(group.group_icon_url);
+        if (parsed.color) {
+            return `background:${parsed.color};`;
+        }
+    } catch (error) {
+        console.warn("Failed to parse group icon color", error);
+    }
+
+    return "";
 }
 
 function buildMemberAvatars(group) {
     const members = Array.isArray(group.members) ? group.members : [];
     const visibleMembers = members.slice(0, 3).map((member) => {
         if (member.profile_image) {
-            return '<div class="member-avatar"><img src="' + member.profile_image + '" alt="member"></div>';
+            return `<div class="member-avatar"><img src="${member.profile_image}" alt="${member.nickname || "member"}"></div>`;
         }
 
-        return '<div class="member-avatar member-avatar--empty"></div>';
+        const initial = (member.nickname || "?").trim().charAt(0) || "?";
+        return `<div class="member-avatar member-avatar--empty">${initial}</div>`;
     }).join("");
 
-    const extraCount = Math.max((group.member_count || 0) - members.slice(0, 3).length, 0);
-    const more = extraCount > 0 ? '<div class="member-more">+' + extraCount + "</div>" : "";
-
-    return visibleMembers + more;
+    const extraCount = Math.max((group.member_count || 0) - Math.min(members.length, 3), 0);
+    const extra = extraCount > 0 ? `<div class="member-more">+${extraCount}</div>` : "";
+    return visibleMembers + extra;
 }
 
 function renderStatusMessage(message) {
@@ -67,7 +96,30 @@ function renderStatusMessage(message) {
         return;
     }
 
-    list.innerHTML = '<div class="todo-empty-state">' + message + "</div>";
+    list.innerHTML = `<div class="todo-empty-state">${message}</div>`;
+}
+
+function createProjectCard(group) {
+    const progress = getProgressPercent(group);
+    const dday = formatDday(group.deadline);
+    const priority = getPriorityLabel(group.priority);
+
+    return [
+        `<div class="project-card" data-group-id="${group.group_id}">`,
+        `  <div class="project-icon" style="${getGroupIconStyle(group)}">${getGroupInitial(group)}</div>`,
+        '  <div class="project-name-block">',
+        `      <span class="project-name">${group.group_name || "이름 없는 프로젝트"}</span>`,
+        dday ? `      <span class="project-dday">${dday}</span>` : "",
+        "  </div>",
+        '  <div class="project-progress-block">',
+        `      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>`,
+        `      <span class="project-percent">${progress} %</span>`,
+        "  </div>",
+        `  <div class="member-avatars">${buildMemberAvatars(group)}</div>`,
+        `  <div class="project-priority"><span class="project-priority-flag">&#9873;</span><span>${priority}</span></div>`,
+        `  <button class="project-more" type="button" data-group-id="${group.group_id}" aria-label="프로젝트 메뉴">&#8942;</button>`,
+        "</div>"
+    ].join("");
 }
 
 function renderProjects(groups) {
@@ -81,43 +133,79 @@ function renderProjects(groups) {
         return;
     }
 
-    const cards = groups.map((group) => {
-        const progress = getProgressPercent(group);
-        const dday = formatDday(group.deadline);
-        const priority = getPriorityLabel(group.priority);
-        const initial = getGroupInitial(group.group_name);
+    list.innerHTML = groups.map(createProjectCard).join("");
+}
 
-        return [
-            '<div class="project-card" data-group-id="' + group.group_id + '" style="cursor: pointer;">',
-            '  <div class="project-icon">' + initial + "</div>",
-            '  <div class="project-name-block">',
-            '      <span class="project-name">' + group.group_name + "</span>",
-            dday ? '      <span class="project-dday">' + dday + "</span>" : "",
-            "  </div>",
-            '  <div class="project-progress-block">',
-            '      <div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div>',
-            '      <span class="project-percent">' + progress + ' %</span>',
-            "  </div>",
-            '  <div class="member-avatars">' + buildMemberAvatars(group) + "</div>",
-            '  <div class="project-priority"><span class="project-priority-flag">⚑</span><span>' + priority + "</span></div>",
-            '  <button class="project-more" type="button">⋮</button>',
-            "</div>"
-        ].join("");
-    });
+function showProjectContextMenu(button) {
+    const menu = document.getElementById("projectContextMenu");
+    if (!menu || !button) {
+        return;
+    }
 
-    list.innerHTML = cards.join("");
+    const rect = button.getBoundingClientRect();
+    activeProjectMenuGroupId = Number(button.dataset.groupId);
+    menu.style.left = `${Math.max(16, rect.right - 112)}px`;
+    menu.style.top = `${rect.bottom + 6}px`;
+    menu.classList.remove("hidden");
+}
 
-    list.querySelectorAll(".project-card").forEach((card) => {
-        card.addEventListener("click", (event) => {
-            if (event.target.closest(".project-more")) {
-                event.stopPropagation();
-                return;
-            }
-            const groupId = card.dataset.groupId;
-            if (groupId) {
-                window.location.href = `/todos/detail?groupId=${groupId}`;
-            }
+function hideProjectContextMenu() {
+    const menu = document.getElementById("projectContextMenu");
+    if (!menu) {
+        return;
+    }
+
+    menu.classList.add("hidden");
+    activeProjectMenuGroupId = null;
+}
+
+async function deleteProject(groupId) {
+    if (!groupId) {
+        return;
+    }
+
+    const targetGroup = allGroups.find((group) => group.group_id === groupId);
+    const groupName = targetGroup?.group_name || "이 프로젝트";
+
+    if (!window.confirm(`${groupName} 프로젝트를 삭제할까요?`)) {
+        return;
+    }
+
+    try {
+        await fetchTodoJson(`/todo-groups/${groupId}`, {
+            method: "DELETE"
         });
+        await loadProjects();
+    } catch (error) {
+        console.error(error);
+        alert("프로젝트를 삭제하지 못했습니다.");
+    }
+}
+
+function bindProjectListEvents() {
+    const list = document.getElementById("projectList");
+    if (!list) {
+        return;
+    }
+
+    list.addEventListener("click", (event) => {
+        const moreButton = event.target.closest(".project-more");
+        if (moreButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            showProjectContextMenu(moreButton);
+            return;
+        }
+
+        const card = event.target.closest(".project-card");
+        if (!card) {
+            return;
+        }
+
+        const groupId = card.dataset.groupId;
+        if (groupId) {
+            window.location.href = `/todos/detail?groupId=${groupId}`;
+        }
     });
 }
 
@@ -144,18 +232,7 @@ async function loadProjects() {
     }
 }
 
-function closeModal() {
-    document.getElementById("modalOverlay")?.classList.remove("open");
-    document.getElementById("groupName").value = "";
-    document.getElementById("groupDesc").value = "";
-    document.getElementById("groupDeadline").value = "";
-    document.getElementById("groupGarlic").value = "";
-    document.getElementById("nameCount").textContent = "0";
-    document.getElementById("descCount").textContent = "0";
-    selectedAssignees = [];
-    selectedColor = "#4CAF7D";
-    selectedIcon = "S";
-
+function resetColorSelection() {
     document.querySelectorAll(".color-dot").forEach((dot) => {
         dot.classList.remove("active");
         dot.textContent = "";
@@ -164,20 +241,38 @@ function closeModal() {
     const defaultDot = document.querySelector('.color-dot[data-color="#4CAF7D"]');
     if (defaultDot) {
         defaultDot.classList.add("active");
-        defaultDot.textContent = "v";
+        defaultDot.textContent = "✓";
     }
+}
+
+function resetCategorySelection() {
+    selectedCategory = "school";
+    selectedIcon = "S";
 
     document.querySelectorAll(".category-btn").forEach((button, index) => {
         button.classList.toggle("active", index === 0);
     });
+}
 
+function closeModal() {
+    document.getElementById("modalOverlay")?.classList.remove("open");
+    document.getElementById("groupName").value = "";
+    document.getElementById("groupDesc").value = "";
+    document.getElementById("groupDeadline").value = "";
+    document.getElementById("groupGarlic").value = "";
+    document.getElementById("nameCount").textContent = "0";
+    document.getElementById("descCount").textContent = "0";
+
+    selectedAssignees = [];
+    selectedColor = "#4CAF7D";
+    resetColorSelection();
+    resetCategorySelection();
     renderAssignees();
 }
 
 function bindModalEvents() {
     ["modalClose", "btnCancel"].forEach((id) => {
-        const element = document.getElementById(id);
-        element?.addEventListener("click", closeModal);
+        document.getElementById(id)?.addEventListener("click", closeModal);
     });
 
     const overlay = document.getElementById("modalOverlay");
@@ -199,19 +294,16 @@ function bindModalEvents() {
         button.addEventListener("click", () => {
             document.querySelectorAll(".category-btn").forEach((item) => item.classList.remove("active"));
             button.classList.add("active");
+            selectedCategory = button.dataset.category || "school";
             selectedIcon = button.dataset.icon || "S";
         });
     });
 
     document.querySelectorAll(".color-dot").forEach((button) => {
         button.addEventListener("click", () => {
-            document.querySelectorAll(".color-dot").forEach((item) => {
-                item.classList.remove("active");
-                item.textContent = "";
-            });
-
+            resetColorSelection();
             button.classList.add("active");
-            button.textContent = "v";
+            button.textContent = "✓";
             selectedColor = button.dataset.color || "#4CAF7D";
         });
     });
@@ -248,13 +340,13 @@ function renderFriendPicker() {
     picker.innerHTML = friends.map((friend) => {
         const initial = friend.nickname ? friend.nickname.charAt(0) : "?";
         const avatar = friend.character_thumbnail_url
-            ? '<img src="' + friend.character_thumbnail_url + '" alt="' + friend.nickname + '">'
+            ? `<img src="${friend.character_thumbnail_url}" alt="${friend.nickname}">`
             : initial;
 
         return [
-            '<button class="friend-item" type="button" data-friend-id="' + friend.user_id + '">',
-            '  <div class="friend-avatar">' + avatar + "</div>",
-            "  " + friend.nickname,
+            `<button class="friend-item" type="button" data-friend-id="${friend.user_id}">`,
+            `  <div class="friend-avatar">${avatar}</div>`,
+            `  ${friend.nickname}`,
             "</button>"
         ].join("");
     }).join("");
@@ -264,11 +356,7 @@ function renderFriendPicker() {
             event.stopPropagation();
             const friendId = Number(item.dataset.friendId);
             const friend = friends.find((value) => value.user_id === friendId);
-            if (!friend) {
-                return;
-            }
-
-            if (selectedAssignees.some((value) => value.id === friendId)) {
+            if (!friend || selectedAssignees.some((value) => value.id === friendId)) {
                 return;
             }
 
@@ -292,13 +380,13 @@ function renderAssignees() {
 
     const chips = selectedAssignees.map((assignee) => {
         const avatar = assignee.thumbnail
-            ? '<img src="' + assignee.thumbnail + '" alt="' + assignee.nickname + '">'
-            : '<span class="chip-initial">' + assignee.nickname.charAt(0) + "</span>";
+            ? `<img src="${assignee.thumbnail}" alt="${assignee.nickname}">`
+            : `<span class="chip-initial">${assignee.nickname.charAt(0)}</span>`;
 
         return [
-            '<button class="assignee-chip" type="button" data-assignee-id="' + assignee.id + '">',
+            `<button class="assignee-chip" type="button" data-assignee-id="${assignee.id}">`,
             avatar,
-            '<span class="chip-remove">x</span>',
+            '<span class="chip-remove">×</span>',
             "</button>"
         ].join("");
     }).join("");
@@ -313,8 +401,7 @@ function renderAssignees() {
         });
     });
 
-    const addButton = document.getElementById("btnAddAssignee");
-    addButton?.addEventListener("click", (event) => {
+    document.getElementById("btnAddAssignee")?.addEventListener("click", (event) => {
         event.stopPropagation();
         document.getElementById("friendPicker")?.classList.toggle("open");
     });
@@ -332,6 +419,7 @@ async function createProject() {
         deadline: document.getElementById("groupDeadline").value || null,
         priority: document.getElementById("groupPriority").value,
         invitee_ids: selectedAssignees.map((assignee) => assignee.id),
+        group_category: selectedCategory,
         group_icon_url: JSON.stringify({
             icon: selectedIcon,
             color: selectedColor
@@ -346,7 +434,7 @@ async function createProject() {
         });
 
         if (!response.ok) {
-            throw new Error("Create failed: " + response.status);
+            throw new Error(`Create failed: ${response.status}`);
         }
 
         closeModal();
@@ -360,8 +448,21 @@ async function createProject() {
 document.addEventListener("DOMContentLoaded", () => {
     bindModalEvents();
     bindProjectAddButton();
+    bindProjectListEvents();
     renderAssignees();
     loadProjects();
 
     document.getElementById("btnSubmit")?.addEventListener("click", createProject);
+
+    document.getElementById("deleteProjectAction")?.addEventListener("click", async () => {
+        const groupId = activeProjectMenuGroupId;
+        hideProjectContextMenu();
+        await deleteProject(groupId);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".project-context-menu") && !event.target.closest(".project-more")) {
+            hideProjectContextMenu();
+        }
+    });
 });
