@@ -25,14 +25,14 @@ public class CalendarService {
 
     public CalendarDailyResponse getDailyTodos(LocalDate date) {
         List<Todo> todos = todoRepository.findByDeadlineBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
-        
+
         List<CalendarTodoDto> todoDtos = todos.stream()
                 .map(todo -> CalendarTodoDto.builder()
                         .todoId(todo.getTodoId())
                         .title(todo.getTodoName())
                         .date(todo.getDeadline() != null ? todo.getDeadline().toLocalDate() : null)
-                        .completed(false) // 임시: 전체 그룹의 할 일 조회이므로, 완료 여부는 false 로 고정
-                        .category(todo.getCategory())
+                        .completed(false)
+                        .category(todo.getCategory() != null ? todo.getCategory().getLabel() : null)
                         .priority(todo.getPriority() != null ? todo.getPriority().name() : null)
                         .build())
                 .collect(Collectors.toList());
@@ -47,7 +47,6 @@ public class CalendarService {
 
         List<Todo> todos = todoRepository.findByDeadlineBetween(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
 
-        // Group by date and count
         Map<LocalDate, Long> countByDate = todos.stream()
                 .filter(todo -> todo.getDeadline() != null)
                 .collect(Collectors.groupingBy(todo -> todo.getDeadline().toLocalDate(), Collectors.counting()));

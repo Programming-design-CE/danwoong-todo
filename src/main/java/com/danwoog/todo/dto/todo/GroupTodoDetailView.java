@@ -1,6 +1,7 @@
 package com.danwoog.todo.dto.todo;
 
 import com.danwoog.todo.domain.todo.GarlicDistributionType;
+import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.todogroup.Priority;
 
@@ -15,7 +16,7 @@ public class GroupTodoDetailView {
     private final Priority priority;
     private final TodoStatus status;
     private final Integer garlicReward;
-    private final String category;
+    private final TodoCategory category;
     private final GarlicDistributionType distributionType;
 
     public GroupTodoDetailView(
@@ -26,7 +27,7 @@ public class GroupTodoDetailView {
             Priority priority,
             TodoStatus status,
             Integer garlicReward,
-            String category,
+            TodoCategory category,
             GarlicDistributionType distributionType
     ) {
         this.todoId = todoId;
@@ -68,7 +69,7 @@ public class GroupTodoDetailView {
         return garlicReward;
     }
 
-    public String getCategory() {
+    public TodoCategory getCategory() {
         return category;
     }
 

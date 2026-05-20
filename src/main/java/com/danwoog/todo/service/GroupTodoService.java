@@ -4,6 +4,7 @@ import com.danwoog.todo.domain.note.GroupNote;
 import com.danwoog.todo.domain.todo.GarlicDistributionType;
 import com.danwoog.todo.domain.todo.Todo;
 import com.danwoog.todo.domain.todo.TodoAssignee;
+import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.todogroup.Priority;
 import com.danwoog.todo.domain.todogroup.TodoGroup;
@@ -68,7 +69,7 @@ public class GroupTodoService {
         todo.setDeadline(toStartOfDay(request.getDeadline()));
         todo.setGarlicReward(request.getGarlicReward());
         todo.setPriority(parsePriority(request.getPriority()));
-        todo.setCategory(request.getCategory());
+        todo.setCategory(parseCategory(request.getCategory()));
         todo.setDistributionType(parseDistributionType(request.getDistributionType()));
 
         List<AssigneeAllocation> allocations = buildValidatedAllocations(
@@ -148,7 +149,7 @@ public class GroupTodoService {
                 toStartOfDay(request.getDeadline()),
                 garlicReward,
                 parsePriority(request.getPriority()),
-                request.getCategory(),
+                parseCategory(request.getCategory()),
                 distributionType,
                 now
         );
@@ -388,6 +389,10 @@ public class GroupTodoService {
             return null;
         }
         return GarlicDistributionType.valueOf(distributionType.trim().toUpperCase());
+    }
+
+    private TodoCategory parseCategory(String category) {
+        return TodoCategory.from(category);
     }
 
     private TodoStatus parseStatus(String status) {

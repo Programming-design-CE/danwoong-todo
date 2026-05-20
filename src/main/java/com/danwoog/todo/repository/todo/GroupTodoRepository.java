@@ -2,6 +2,7 @@ package com.danwoog.todo.repository.todo;
 
 import com.danwoog.todo.domain.todo.GarlicDistributionType;
 import com.danwoog.todo.domain.todo.Todo;
+import com.danwoog.todo.domain.todo.TodoCategory;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.todogroup.Priority;
 import com.danwoog.todo.domain.user.User;
@@ -67,7 +68,7 @@ public interface GroupTodoRepository extends JpaRepository<Todo, Long> {
             @Param("deadline") LocalDateTime deadline,
             @Param("garlicReward") Integer garlicReward,
             @Param("priority") Priority priority,
-            @Param("category") String category,
+            @Param("category") TodoCategory category,
             @Param("distributionType") GarlicDistributionType distributionType,
             @Param("updatedAt") LocalDateTime updatedAt
     );
