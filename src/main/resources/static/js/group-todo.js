@@ -15,13 +15,30 @@ let garlicReward = 10;
 let distMode = 'equal';          // equal | custom
 let customDistMap = {};          // { userId: percent }
 
-// 더미 그룹 멤버 (서버 멤버 API 없으므로 프레젠테이션용)
-const groupMembers = [
-  { user_id: 1, nickname: '민수' },
-  { user_id: 2, nickname: '지연' },
-  { user_id: 3, nickname: '예린' },
-  { user_id: 4, nickname: '준호' },
+// 더미 데이터 및 멤버 상태 (프레젠테이션용)
+let friendList = [
+  { user_id: 2, nickname: 'lion_jiho', avatar: '🦁' },
+  { user_id: 3, nickname: 'coding_mj', avatar: '🐱' },
+  { user_id: 4, nickname: 'dev_kim', avatar: '🦊' },
+  { user_id: 5, nickname: 'bear_js', avatar: '🐻' },
+  { user_id: 6, nickname: 'fox_seo', avatar: '🦊' },
+  { user_id: 7, nickname: 'rabbit_lee', avatar: '🐰' },
+  { user_id: 8, nickname: 'uni_yoon', avatar: '🦄' },
 ];
+
+let currentProjectMembers = [
+  { user_id: 1, nickname: '나 (you)', avatar: '🐻', isMe: true },
+  { user_id: 2, nickname: 'lion_jiho', avatar: '🦁', isLeader: true },
+  { user_id: 3, nickname: 'coding_mj', avatar: '🐱' },
+  { user_id: 4, nickname: 'dev_kim', avatar: '🦊' },
+  { user_id: 5, nickname: 'bear_js', avatar: '🐻' },
+];
+
+// 할일 추가 팝업의 담당자 맵핑을 위해 groupMembers 가리키게 함
+const groupMembers = currentProjectMembers;
+
+let tempProjectMembers = [];
+
 
 const CATEGORY_MAP = {
   '발표 준비': { css: 'presentation', icon: '📋' },
@@ -394,52 +411,94 @@ async function submitTodo() {
     category: selectedCategory || null,
   };
 
+  const assigneesList = selectedAssignees.map(uid => {
+    const m = groupMembers.find(g => g.user_id === uid);
+    return m ? { user_id: m.user_id, nickname: m.nickname } : { user_id: uid, nickname: '멤버' };
+  });
+
+  let apiSuccess = false;
+
   if (editingTodoId) {
     body.status = 'IN_PROGRESS';
-    await api(`/todos/${editingTodoId}`, { method: 'PATCH', body: JSON.stringify(body) });
-  } else {
-    await api(`/todo-groups/${currentGroupId}/todos`, { method: 'POST', body: JSON.stringify(body) });
-  }
+    const result = await api(`/todos/${editingTodoId}`, { method: 'PATCH', body: JSON.stringify(body) });
+    apiSuccess = !!result;
 
-  // 담당자 지정
-  if (selectedAssignees.length > 0 && editingTodoId) {
-    await api(`/todos/${editingTodoId}/assignees`, {
-      method: 'PATCH',
-      body: JSON.stringify({ user_ids: selectedAssignees }),
-    });
+    // 담당자 지정
+    if (selectedAssignees.length > 0) {
+      await api(`/todos/${editingTodoId}/assignees`, {
+        method: 'PATCH',
+        body: JSON.stringify({ user_ids: selectedAssignees }),
+      });
+    }
+
+    // API 실패 시 로컬 데이터 수정 (프레젠테이션용)
+    if (!apiSuccess) {
+      const idx = todos.findIndex(t => t.todo_id == editingTodoId);
+      if (idx !== -1) {
+        todos[idx] = {
+          ...todos[idx],
+          todo_name: body.todo_name,
+          description: body.description,
+          deadline: body.deadline,
+          garlic_reward: body.garlic_reward,
+          priority: body.priority,
+          category: body.category,
+          assignees: assigneesList.length > 0 ? assigneesList : todos[idx].assignees,
+        };
+      }
+    }
+  } else {
+    const result = await api(`/todo-groups/${currentGroupId}/todos`, { method: 'POST', body: JSON.stringify(body) });
+    apiSuccess = !!result;
+
+    // API 실패 시 로컬 데이터에 추가 (프레젠테이션용)
+    if (!apiSuccess) {
+      const newId = todos.length > 0 ? Math.max(...todos.map(t => t.todo_id)) + 1 : 1;
+      todos.push({
+        todo_id: newId,
+        todo_name: body.todo_name,
+        description: body.description,
+        category: body.category || '기타',
+        deadline: body.deadline,
+        priority: body.priority,
+        status: 'IN_PROGRESS',
+        garlic_reward: body.garlic_reward,
+        progress: 0,
+        assignees: assigneesList,
+      });
+    }
   }
 
   closeModal();
-  await loadTodos();
+
+  // API 성공 시 서버에서 다시 로드, 실패 시 로컬 데이터로 렌더링
+  if (apiSuccess) {
+    await loadTodos();
+  } else {
+    renderTodoList();
+  }
 }
 
 // ── 할 일 삭제 ───────────────────────────────────────
 async function deleteTodo(todoId) {
   if (!confirm('정말 삭제하시겠습니까?')) return;
-  await api(`/todos/${todoId}`, { method: 'DELETE' });
-  await loadTodos();
+  const result = await api(`/todos/${todoId}`, { method: 'DELETE' });
+
+  // API 실패 시 로컬 데이터에서 제거 (프레젠테이션용)
+  if (result === null) {
+    todos = todos.filter(t => t.todo_id != todoId);
+    renderTodoList();
+  } else {
+    await loadTodos();
+  }
 }
 
 // ── 이벤트 바인딩 ────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadTodos();
-  loadMemo();
-
-  // 뒤로가기
-  document.getElementById('backBtn').addEventListener('click', () => {
-    window.location.href = '/main';
-  });
-
-  // 메모 자동저장
-  document.getElementById('memoTextarea').addEventListener('input', autoSaveMemo);
 
   // 할 일 추가 버튼
   document.getElementById('addTodoBtn').addEventListener('click', () => openModal('add'));
-
-  // 모드 토글
-  document.getElementById('viewToggle')?.addEventListener('change', () => {
-    window.location.href = '/mytodos/working';
-  });
 
   // 모달 닫기
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
@@ -547,4 +606,164 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('priorityDropdown')?.classList.add('hidden');
     }
   });
+
+  // 멤버 관리 모달 열기
+  const openMemberBtn = document.getElementById('openMemberModal');
+  if (openMemberBtn) openMemberBtn.addEventListener('click', openMemberModal);
+
+  // 멤버 관리 모달 닫기
+  const closeMemberBtn = document.getElementById('memberModalClose');
+  if (closeMemberBtn) closeMemberBtn.addEventListener('click', closeMemberModal);
+  const cancelMemberBtn = document.getElementById('memberModalCancel');
+  if (cancelMemberBtn) cancelMemberBtn.addEventListener('click', closeMemberModal);
+
+  const memberModalOverlay = document.getElementById('memberModal');
+  if (memberModalOverlay) {
+    memberModalOverlay.addEventListener('click', (e) => {
+      if (e.target.id === 'memberModal') closeMemberModal();
+    });
+  }
+
+  // 모두 제거 버튼
+  const removeAllBtn = document.getElementById('memberRemoveAll');
+  if (removeAllBtn) removeAllBtn.addEventListener('click', removeAllProjectMembers);
+
+  // 친구 검색
+  const searchInput = document.getElementById('memberSearchInput');
+  if (searchInput) searchInput.addEventListener('input', renderMemberModal);
+
+  // 확인 버튼
+  const confirmMemberBtn = document.getElementById('memberModalConfirm');
+  if (confirmMemberBtn) confirmMemberBtn.addEventListener('click', confirmMemberChanges);
+
+  // 초기 그룹 멤버 아바타 그리기
+  renderGroupMemberAvatars();
 });
+
+// ── 멤버 관리 모달 ───────────────────────────────────
+function openMemberModal() {
+  tempProjectMembers = [...currentProjectMembers];
+  document.getElementById('memberModal').classList.add('show');
+  renderMemberModal();
+}
+
+function closeMemberModal() {
+  document.getElementById('memberModal').classList.remove('show');
+}
+
+function renderMemberModal() {
+  const friendListArea = document.getElementById('friendListArea');
+  const projectMemberListArea = document.getElementById('projectMemberListArea');
+  const keyword = document.getElementById('memberSearchInput').value.toLowerCase();
+
+  // 1. 친구 목록 렌더링
+  friendListArea.innerHTML = '';
+  const filteredFriends = friendList.filter(f => f.nickname.toLowerCase().includes(keyword));
+  document.getElementById('friendCountLabel').textContent = `내 친구 (${friendList.length})`;
+
+  filteredFriends.forEach(f => {
+    const isAdded = tempProjectMembers.some(m => m.user_id === f.user_id);
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `
+      <div class="member-row-avatar">${f.avatar || '👤'}</div>
+      <span class="member-row-name">${f.nickname}</span>
+      <button class="member-row-action ${isAdded ? 'check' : 'add'}">${isAdded ? '✓' : '+'}</button>
+    `;
+    
+    row.addEventListener('click', () => {
+      if (isAdded) {
+        tempProjectMembers = tempProjectMembers.filter(m => m.user_id !== f.user_id);
+      } else {
+        if (tempProjectMembers.length >= 10) {
+          alert('프로젝트 멤버는 최대 10명까지 설정할 수 있습니다.');
+          return;
+        }
+        tempProjectMembers.push({
+          user_id: f.user_id,
+          nickname: f.nickname,
+          avatar: f.avatar
+        });
+      }
+      renderMemberModal();
+    });
+    friendListArea.appendChild(row);
+  });
+
+  // 2. 프로젝트 멤버 렌더링
+  projectMemberListArea.innerHTML = '';
+  document.getElementById('projectMemberCountLabel').textContent = `프로젝트 멤버 (${tempProjectMembers.length}/10)`;
+  document.getElementById('memberConfirmCount').textContent = tempProjectMembers.length;
+
+  tempProjectMembers.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    
+    let badgeHtml = '';
+    if (m.isMe) {
+      badgeHtml = `<span class="member-row-badge me">나</span>`;
+    } else if (m.isLeader) {
+      badgeHtml = `<span class="member-row-badge leader"><span style="color:#f5a623;">👑</span> 팀장</span>`;
+    }
+
+    let actionButtonHtml = '';
+    if (!m.isMe) {
+      actionButtonHtml = `<button class="member-row-action remove" data-uid="${m.user_id}">✕</button>`;
+    } else {
+      actionButtonHtml = `<span style="font-size:0.58vw;color:#8a8178;margin-right:0.3vw;">나</span>`;
+    }
+
+    row.innerHTML = `
+      <div class="member-row-avatar ${m.isMe ? 'me' : ''}">${m.avatar || '👤'}</div>
+      <span class="member-row-name">${m.nickname}</span>
+      ${badgeHtml}
+      ${actionButtonHtml}
+    `;
+
+    const removeBtn = row.querySelector('.member-row-action.remove');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tempProjectMembers = tempProjectMembers.filter(pm => pm.user_id !== m.user_id);
+        renderMemberModal();
+      });
+    }
+
+    projectMemberListArea.appendChild(row);
+  });
+}
+
+function confirmMemberChanges() {
+  currentProjectMembers.length = 0;
+  tempProjectMembers.forEach(m => currentProjectMembers.push(m));
+  closeMemberModal();
+  renderGroupMemberAvatars();
+  alert('프로젝트 멤버가 수정되었습니다.');
+}
+
+function removeAllProjectMembers() {
+  tempProjectMembers = tempProjectMembers.filter(m => m.isMe);
+  renderMemberModal();
+}
+
+function renderGroupMemberAvatars() {
+  const container = document.getElementById('groupMemberAvatars');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  currentProjectMembers.slice(0, 4).forEach(m => {
+    const mini = document.createElement('div');
+    mini.className = 'group-member-mini';
+    mini.textContent = m.nickname[0];
+    mini.title = m.nickname;
+    container.appendChild(mini);
+  });
+
+  if (currentProjectMembers.length > 4) {
+    const more = document.createElement('div');
+    more.className = 'group-member-mini';
+    more.textContent = `+${currentProjectMembers.length - 4}`;
+    container.appendChild(more);
+  }
+}
+

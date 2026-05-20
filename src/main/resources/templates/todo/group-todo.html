@@ -44,6 +44,12 @@
             <span class="dday-badge" id="ddayBadge">D-42</span>
           </div>
           <div class="group-info-right">
+            <button class="group-member-btn" id="openMemberModal" type="button">
+              <div class="group-member-avatars" id="groupMemberAvatars">
+                <!-- JS로 동적 생성 -->
+              </div>
+              <span>멤버 관리</span>
+            </button>
             <button class="filter-btn" id="filterCategory">
               <span class="filter-icon">👤</span>
               전체 카테고리 <span class="dropdown-arrow">▾</span>
@@ -247,6 +253,49 @@
     </div>
     <div class="assignee-options" id="assigneeOptions">
       <!-- JS로 동적 생성 -->
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 멤버 관리 모달 -->
+  <!-- ============================== -->
+  <div class="member-modal-overlay" id="memberModal">
+    <div class="member-modal">
+      <div class="member-modal-header">
+        <div class="member-modal-title-area">
+          <h2 class="member-modal-title">
+            <span class="member-modal-title-icon">👥</span> 멤버 관리
+          </h2>
+          <p class="member-modal-subtitle">프로젝트 멤버를 관리하고 역할을 설정하세요.</p>
+        </div>
+        <button class="member-modal-close" id="memberModalClose">✕</button>
+      </div>
+      <div class="member-modal-body">
+        <!-- 왼쪽: 내 친구 -->
+        <div class="member-col">
+          <div class="member-col-header">
+            <span class="member-col-title" id="friendCountLabel">내 친구 (0)</span>
+          </div>
+          <input type="text" class="member-search-input" id="memberSearchInput" placeholder="🔍 아이디로 검색하기" />
+          <div class="member-list" id="friendListArea">
+            <!-- JS로 동적 생성 -->
+          </div>
+        </div>
+        <!-- 오른쪽: 프로젝트 멤버 -->
+        <div class="member-col">
+          <div class="member-col-header">
+            <span class="member-col-title" id="projectMemberCountLabel">프로젝트 멤버 (0/10)</span>
+            <button class="member-remove-all" id="memberRemoveAll">모두 제거</button>
+          </div>
+          <div class="member-list" id="projectMemberListArea">
+            <!-- JS로 동적 생성 -->
+          </div>
+        </div>
+      </div>
+      <div class="member-modal-footer">
+        <button class="member-modal-cancel" id="memberModalCancel">취소</button>
+        <button class="member-modal-confirm" id="memberModalConfirm">확인 (<span id="memberConfirmCount">0</span>명 적용)</button>
+      </div>
     </div>
   </div>
 

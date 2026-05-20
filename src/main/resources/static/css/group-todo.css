@@ -149,9 +149,9 @@
     border-radius: 0.21vw;
 }
 
-/* 할일 W1263=65.78vw H103=9.54vh */
+/* 할일 - 패널 너비에 맞춤 */
 .todo-item {
-    width: 65.78vw;
+    width: 100%;
     min-height: 9.54vh;
     background: #272623;
     border: 1px solid #33302b;
@@ -162,6 +162,7 @@
     gap: 0.83vw;
     transition: all .2s;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .todo-item:hover {
@@ -204,12 +205,17 @@
     display: flex;
     flex-direction: column;
     gap: 0.37vh;
+    min-width: 0;
 }
 
 .todo-name {
     font-family: 'MaplestoryBold', sans-serif;
     font-size: 0.73vw;
     color: #e8e0d4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .todo-deadline {
@@ -419,14 +425,14 @@
 }
 
 .modal-container {
-    width: 42.71vw;
+    width: 53vw;
     background: #2a2825;
     border: 1px solid #3d3a34;
     border-radius: 0.73vw;
     box-shadow: 0 1.85vh 5.56vh rgba(0, 0, 0, .5);
     display: flex;
     flex-direction: column;
-    max-height: 57.41vh;
+    max-height: 80vh;
     animation: modalIn .25s ease;
 }
 
@@ -753,7 +759,7 @@
 }
 
 .modal-distribution {
-    width: 14.58vw;
+    width: 17vw;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -1128,4 +1134,303 @@
 
 .hidden {
     display: none !important;
+}
+
+/* ====== 멤버 관리 모달 ====== */
+.member-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    backdrop-filter: blur(4px);
+    z-index: 110;
+    align-items: center;
+    justify-content: center;
+}
+
+.member-modal-overlay.show {
+    display: flex;
+}
+
+.member-modal {
+    width: 28vw;
+    max-height: 70vh;
+    background: #2a2825;
+    border: 1px solid #3d3a34;
+    border-radius: 0.73vw;
+    box-shadow: 0 1.85vh 5.56vh rgba(0, 0, 0, .5);
+    display: flex;
+    flex-direction: column;
+    animation: modalIn .25s ease;
+}
+
+.member-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2vh 1.5vw 1.2vh;
+    border-bottom: 1px solid #33302b;
+}
+
+.member-modal-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vh;
+}
+
+.member-modal-title {
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 1vw;
+    color: #e8e0d4;
+    display: flex;
+    align-items: center;
+    gap: 0.4vw;
+}
+
+.member-modal-title-icon {
+    font-size: 1.1vw;
+}
+
+.member-modal-subtitle {
+    font-size: 0.58vw;
+    color: #8a8178;
+}
+
+.member-modal-close {
+    background: none;
+    border: none;
+    color: #8a8178;
+    font-size: 1.04vw;
+    cursor: pointer;
+}
+
+.member-modal-body {
+    display: flex;
+    gap: 1.2vw;
+    padding: 1.5vh 1.5vw;
+    flex: 1;
+    overflow: hidden;
+}
+
+.member-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8vh;
+    min-width: 0;
+}
+
+.member-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.63vw;
+    color: #9e9688;
+}
+
+.member-col-title {
+    font-family: 'MaplestoryBold', sans-serif;
+}
+
+.member-remove-all {
+    background: none;
+    border: none;
+    color: #d4675a;
+    font-size: 0.57vw;
+    cursor: pointer;
+}
+
+.member-search-input {
+    width: 100%;
+    background: #1F1E1C;
+    border: 1px solid #3d3a34;
+    border-radius: 0.42vw;
+    color: #e0d6c8;
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 0.63vw;
+    padding: 0.7vh 0.5vw;
+    outline: none;
+}
+
+.member-search-input:focus {
+    border-color: #8b6e4e;
+}
+
+.member-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2vh;
+}
+
+.member-list::-webkit-scrollbar {
+    width: 0.15vw;
+}
+
+.member-list::-webkit-scrollbar-thumb {
+    background: #3d3a34;
+    border-radius: 0.1vw;
+}
+
+.member-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    padding: 0.7vh 0.4vw;
+    border-radius: 0.42vw;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.member-row:hover {
+    background: rgba(139, 110, 78, .12);
+}
+
+.member-row-avatar {
+    width: 1.7vw;
+    height: 1.7vw;
+    border-radius: 50%;
+    background: #3d3a34;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.63vw;
+    color: #9e9688;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.member-row-avatar.me {
+    background: #8b6e4e;
+    color: #fff;
+}
+
+.member-row-name {
+    flex: 1;
+    font-size: 0.68vw;
+    color: #e0d6c8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.member-row-badge {
+    font-size: 0.52vw;
+    color: #c4a882;
+    display: flex;
+    align-items: center;
+    gap: 0.15vw;
+}
+
+.member-row-action {
+    width: 1.3vw;
+    height: 1.3vw;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.73vw;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .15s;
+}
+
+.member-row-action.add {
+    background: rgba(139, 110, 78, .2);
+    color: #c4a882;
+}
+
+.member-row-action.add:hover {
+    background: rgba(139, 110, 78, .4);
+}
+
+.member-row-action.check {
+    background: #8b6e4e;
+    color: #fff;
+}
+
+.member-row-action.remove {
+    background: rgba(180, 80, 60, .15);
+    color: #d4675a;
+}
+
+.member-row-action.remove:hover {
+    background: rgba(180, 80, 60, .3);
+}
+
+.member-modal-footer {
+    display: flex;
+    justify-content: stretch;
+    gap: 0.5vw;
+    padding: 1.2vh 1.5vw 1.8vh;
+    border-top: 1px solid #33302b;
+}
+
+.member-modal-cancel {
+    flex: 1;
+    background: #33302b;
+    border: 1px solid #3d3a34;
+    border-radius: 0.42vw;
+    color: #9e9688;
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 0.68vw;
+    padding: 1vh;
+    cursor: pointer;
+}
+
+.member-modal-confirm {
+    flex: 1.5;
+    background: linear-gradient(135deg, #8b6e4e, #a0845e);
+    border: none;
+    border-radius: 0.42vw;
+    color: #fff;
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 0.68vw;
+    padding: 1vh;
+    cursor: pointer;
+}
+
+/* 그룹 멤버 버튼 (그룹 정보 바 내) */
+.group-member-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3vw;
+    background: none;
+    border: 1px solid #3d3a34;
+    border-radius: 0.42vw;
+    color: #9e9688;
+    font-size: 0.63vw;
+    padding: 0.46vh 0.63vw;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.group-member-btn:hover {
+    border-color: #8b6e4e;
+    color: #e0d6c8;
+}
+
+.group-member-avatars {
+    display: flex;
+    align-items: center;
+}
+
+.group-member-mini {
+    width: 1.2vw;
+    height: 1.2vw;
+    border-radius: 50%;
+    background: #3d3a34;
+    border: 1px solid #2a2825;
+    margin-left: -0.3vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.42vw;
+    color: #9e9688;
+}
+
+.group-member-mini:first-child {
+    margin-left: 0;
 }
