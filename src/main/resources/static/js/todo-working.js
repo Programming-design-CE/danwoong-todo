@@ -88,7 +88,7 @@ function renderProjects(groups) {
         const initial = getGroupInitial(group.group_name);
 
         return [
-            '<div class="project-card">',
+            '<div class="project-card" data-group-id="' + group.group_id + '" style="cursor: pointer;">',
             '  <div class="project-icon">' + initial + "</div>",
             '  <div class="project-name-block">',
             '      <span class="project-name">' + group.group_name + "</span>",
@@ -106,6 +106,19 @@ function renderProjects(groups) {
     });
 
     list.innerHTML = cards.join("");
+
+    list.querySelectorAll(".project-card").forEach((card) => {
+        card.addEventListener("click", (event) => {
+            if (event.target.closest(".project-more")) {
+                event.stopPropagation();
+                return;
+            }
+            const groupId = card.dataset.groupId;
+            if (groupId) {
+                window.location.href = `/todos/detail?groupId=${groupId}`;
+            }
+        });
+    });
 }
 
 function bindProjectAddButton() {

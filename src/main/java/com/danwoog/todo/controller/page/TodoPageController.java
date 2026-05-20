@@ -7,6 +7,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TodoPageController {
 
     @GetMapping("/todos")
+    public String todosPage() {
+        return "redirect:/todos/working";
+    }
+
+    @GetMapping("/todos/detail")
+    public String todosDetailPage() {
+        return "todo/group-todo";
+    }
+
+    @GetMapping("/todo")
     public String todoPage() {
         return "redirect:/todos/working";
     }

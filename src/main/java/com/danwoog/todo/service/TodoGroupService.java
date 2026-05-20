@@ -33,7 +33,7 @@ public class TodoGroupService {
         TodoGroup group = new TodoGroup(
                 request.getGroupName(),
                 null,
-                request.getDeadline().atStartOfDay(),
+                request.getDeadline() != null ? request.getDeadline().atStartOfDay() : null,
                 Priority.valueOf(request.getPriority()),
                 leader
         );
@@ -92,7 +92,7 @@ public class TodoGroupService {
         return new TodoGroupCreateResponse(
                 savedGroup.getGroupId(),
                 savedGroup.getGroupName(),
-                savedGroup.getDeadline().toLocalDate(),
+                savedGroup.getDeadline() != null ? savedGroup.getDeadline().toLocalDate() : null,
                 savedGroup.getPriority(),
                 savedGroup.getStatus(),
                 savedGroup.getTotalGarlicReward(),
@@ -139,7 +139,7 @@ public class TodoGroupService {
                     return new TodoGroupSummaryResponse(
                             group.getGroupId(),
                             group.getGroupName(),
-                            group.getDeadline().toLocalDate(),
+                            group.getDeadline() != null ? group.getDeadline().toLocalDate() : null,
                             group.getPriority(),
                             group.getStatus(),
                             group.getTotalGarlicReward(),
@@ -168,7 +168,7 @@ public class TodoGroupService {
         // 그룹 정보 수정
         group.update(
                 request.getGroupName(),
-                request.getDeadline().atStartOfDay(),
+                request.getDeadline() != null ? request.getDeadline().atStartOfDay() : null,
                 Priority.valueOf(request.getPriority()),
                 GroupStatus.valueOf(request.getStatus())
         );
@@ -176,7 +176,7 @@ public class TodoGroupService {
         return new TodoGroupUpdateResponse(
                 group.getGroupId(),
                 group.getGroupName(),
-                group.getDeadline().toLocalDate(),
+                group.getDeadline() != null ? group.getDeadline().toLocalDate() : null,
                 group.getPriority(),
                 group.getStatus(),
                 group.getTotalGarlicReward(),
