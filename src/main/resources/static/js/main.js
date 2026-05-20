@@ -90,7 +90,7 @@ function bindMenuEvents() {
     const shopBtn = document.getElementById("shopBtn");
 
     todoBtn.addEventListener("click", function () {
-        window.location.href = "/todos";
+        window.location.href = "/todos/working";
     });
 
     closetBtn.addEventListener("click", function () {
