@@ -5,23 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>개인 할 일</title>
     <link rel="stylesheet" href="/css/todo/common.css">
-    <link rel="stylesheet" href="/css/todo/mytodos/placeholder.css">
+    <link rel="stylesheet" href="/css/todo/mytodos/mytodos.css">
     <script src="/js/todo-common.js" defer></script>
+    <script src="/js/mytodos-working.js" defer></script>
 </head>
 <body>
 <div class="todo-page">
-    <div th:replace="~{todo/fragments/header :: header('개인 할 일', '내가 담당하고 있는 오늘의 할 일을 모아봤어요.', true, '/todos/working')}"></div>
+    <div th:replace="~{todo/fragments/header :: header('개인 할 일', '내가 담당하고 있는 모든 할 일', true, '/todos/working')}"></div>
 
     <div class="todo-body">
         <main class="todo-main">
-            <div th:replace="~{todo/fragments/tabs :: tabs('mytodos', 'working', '5', '23')}"></div>
+            <div th:replace="~{todo/fragments/tabs :: tabs('mytodos', 'working', '0', '0')}"></div>
 
-            <section class="todo-content-placeholder">
-                <div class="todo-placeholder-card">
-                    <h2>개인 진행중인 할 일 페이지</h2>
-                    <p>개인 할 일 리스트는 여기서 별도 API와 화면으로 붙이면 됩니다.</p>
-                </div>
-            </section>
+            <div class="filter-bar">
+                <button class="filter-btn" type="button">전체 카테고리 <span class="filter-caret">∨</span></button>
+                <button class="filter-btn" type="button">최신 순 <span class="filter-caret">∨</span></button>
+            </div>
+
+            <div class="mytodo-scroll-area">
+                <div class="mytodo-list" id="mytodoList"></div>
+            </div>
         </main>
 
         <div th:replace="~{todo/fragments/memo-panel :: memo('/todos/my/note')}"></div>
