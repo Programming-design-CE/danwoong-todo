@@ -36,10 +36,8 @@ async function requestAuthApi(url, options = {}) {
         ...(options.headers || {})
     };
 
-    /**
-     * 파일 업로드 FormData는 Content-Type을 직접 넣으면 안 됨.
-     * 브라우저가 multipart/form-data boundary를 자동으로 넣어야 함.
-     */
+    // FormData는 Content-Type 직접 넣으면 안 됨.
+    // 브라우저가 multipart/form-data boundary를 자동으로 넣어야 함.
     if (!isFormData) {
         headers["Content-Type"] = "application/json";
     }
@@ -72,13 +70,17 @@ async function requestAuthApi(url, options = {}) {
         throw new Error(`API 요청 실패: ${response.status}`);
     }
 
-    const contentType = response.headers.get("content-type");
+    const text = await response.text();
 
-    if (contentType && contentType.includes("application/json")) {
-        return await response.json();
+    if (!text) {
+        return null;
     }
 
-    return await response.blob();
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return text;
+    }
 }
 
 async function initFilesPage() {
@@ -101,7 +103,7 @@ function bindFilesEvents() {
     const fileTypeFilter = document.getElementById("fileTypeFilter");
     const sortOption = document.getElementById("sortOption");
 
-    if (!createFolderBtn || !uploadFileBtn || !fileInput) {
+    if (!createFolderBtn || !uploadFileBtn || !fileInput || !fileTypeFilter || !sortOption) {
         console.warn("파일 페이지 HTML 요소를 찾지 못했습니다.");
         return;
     }
@@ -136,22 +138,22 @@ function bindFilesEvents() {
  */
 async function loadRootFolder() {
     try {
-        const data = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/root`);
+        const response = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/root`);
 
-        console.log("루트 폴더 응답:", data);
+        console.log("루트 폴더 응답:", response);
 
-        if (!data) {
+        if (!response) {
             return;
         }
 
-        rootFolderId = getFolderId(data);
-        currentFolderId = getFolderId(data);
+        rootFolderId = getFolderId(response);
+        currentFolderId = getFolderId(response);
 
         console.log("rootFolderId:", rootFolderId);
         console.log("currentFolderId:", currentFolderId);
 
         if (!currentFolderId) {
-            alert("루트 폴더 ID를 찾을 수 없습니다. 백엔드 응답 필드명을 확인해주세요.");
+            alert("루트 폴더 ID를 찾을 수 없습니다. 콘솔의 루트 폴더 응답을 확인해주세요.");
             return;
         }
 
@@ -175,16 +177,18 @@ async function loadFolderItems(folderId) {
     }
 
     try {
-        const data = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${folderId}/items`);
+        const response = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${folderId}/items`);
 
-        console.log("폴더 내부 항목 응답:", data);
+        console.log("폴더 내부 항목 응답:", response);
 
-        if (!data) {
+        if (!response) {
             return;
         }
 
         currentFolderId = folderId;
-        currentItems = data.items || [];
+        currentItems = getItemsFromResponse(response);
+
+        console.log("렌더링할 항목:", currentItems);
 
         renderItems(currentItems);
 
@@ -242,17 +246,23 @@ function renderItems(items) {
             <td>
                 <button class="file-name-btn" type="button">
                     <span class="file-icon">${kind === "FOLDER" ? "📁" : "📄"}</span>
-                    <span>${name}</span>
+                    <span>${escapeHtml(name)}</span>
                 </button>
             </td>
-            <td>${date}</td>
-            <td>${size}</td>
+            <td>${escapeHtml(date)}</td>
+            <td>${escapeHtml(size)}</td>
             <td>
                 <button class="file-more-btn" type="button">⋮</button>
             </td>
         `;
 
         tr.querySelector(".file-name-btn").addEventListener("click", function () {
+            if (!id) {
+                alert("항목 ID를 찾을 수 없습니다.");
+                console.log("문제 항목:", item);
+                return;
+            }
+
             if (kind === "FOLDER") {
                 loadFolderItems(id);
             } else {
@@ -262,6 +272,12 @@ function renderItems(items) {
 
         tr.querySelector(".file-more-btn").addEventListener("click", function (event) {
             event.stopPropagation();
+
+            if (!id) {
+                alert("항목 ID를 찾을 수 없습니다.");
+                console.log("문제 항목:", item);
+                return;
+            }
 
             if (kind === "FOLDER") {
                 deleteFolder(id);
@@ -351,13 +367,16 @@ async function createFolder(folderName, rowElement) {
     }
 
     try {
-        console.log("폴더 생성 요청 URL:", `/todo-groups/${currentGroupId}/folders/${currentFolderId}/folders`);
+        const requestUrl = `/todo-groups/${currentGroupId}/folders/${currentFolderId}/folders`;
+
+        console.log("폴더 생성 요청 URL:", requestUrl);
         console.log("폴더명:", folderName);
 
-        await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${currentFolderId}/folders`, {
+        await requestAuthApi(requestUrl, {
             method: "POST",
             body: JSON.stringify({
-                folder_name: folderName
+                folder_name: folderName,
+                folderName: folderName
             })
         });
 
@@ -386,16 +405,16 @@ async function uploadFile(file) {
     try {
         const formData = new FormData();
 
-        /**
-         * 백엔드가 @RequestParam("file") MultipartFile file 이면 이게 맞음.
-         * 만약 백엔드가 @RequestParam("files")면 아래를 files로 바꿔야 함.
-         */
+        // 백엔드가 @RequestParam("file") MultipartFile file이면 이게 맞음.
+        // 만약 백엔드가 @RequestParam("files")면 "file"을 "files"로 바꿔야 함.
         formData.append("file", file);
 
-        console.log("업로드 요청 URL:", `/todo-groups/${currentGroupId}/folders/${currentFolderId}/files`);
+        const requestUrl = `/todo-groups/${currentGroupId}/folders/${currentFolderId}/files`;
+
+        console.log("업로드 요청 URL:", requestUrl);
         console.log("업로드 파일:", file);
 
-        await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${currentFolderId}/files`, {
+        await requestAuthApi(requestUrl, {
             method: "POST",
             body: formData
         });
@@ -492,31 +511,153 @@ function showEmpty(message) {
     const table = document.getElementById("fileTable");
     const empty = document.getElementById("fileEmpty");
 
+    if (!table || !empty) {
+        return;
+    }
+
     table.style.display = "none";
     empty.style.display = "flex";
 
     empty.innerHTML = `
         <div class="files-empty-icon">📁</div>
-        <h3>${message}</h3>
+        <h3>${escapeHtml(message)}</h3>
         <p>잠시 후 다시 시도해주세요.</p>
     `;
 }
 
 /**
- * 백엔드 응답 필드 보정
+ * 응답 구조 보정 함수
  */
-function getFolderId(folder) {
-    return folder.folder_id
-        || folder.folderId
-        || folder.id;
+function getResponseBody(response) {
+    if (!response) {
+        return null;
+    }
+
+    return response.data
+        || response.result
+        || response.body
+        || response;
+}
+
+/**
+ * 현재 폴더 내부 목록 응답에서 folders + files를 합쳐서 렌더링용 배열로 변환
+ *
+ * 실제 응답 예:
+ * {
+ *   data: {
+ *     currentFolder: {...},
+ *     files: Array(1),
+ *     folders: Array(3)
+ *   },
+ *   success: true
+ * }
+ */
+function getItemsFromResponse(response) {
+    if (!response) {
+        return [];
+    }
+
+    if (Array.isArray(response)) {
+        return response;
+    }
+
+    const body = getResponseBody(response);
+
+    if (!body) {
+        return [];
+    }
+
+    if (Array.isArray(body)) {
+        return body;
+    }
+
+    const directItems = body.items
+        || body.folder_items
+        || body.folderItems;
+
+    if (Array.isArray(directItems)) {
+        return directItems;
+    }
+
+    const folders = Array.isArray(body.folders) ? body.folders : [];
+    const files = Array.isArray(body.files) ? body.files : [];
+
+    const normalizedFolders = folders.map(folder => ({
+        ...folder,
+        item_type: "FOLDER"
+    }));
+
+    const normalizedFiles = files.map(file => ({
+        ...file,
+        item_type: "FILE"
+    }));
+
+    return [
+        ...normalizedFolders,
+        ...normalizedFiles
+    ];
+}
+
+function getFolderId(response) {
+    if (!response) {
+        return null;
+    }
+
+    const body = getResponseBody(response);
+
+    return response.folder_id
+        || response.folderId
+        || response.id
+        || response.root_folder_id
+        || response.rootFolderId
+
+        || body?.folder_id
+        || body?.folderId
+        || body?.id
+        || body?.root_folder_id
+        || body?.rootFolderId
+
+        || body?.current_folder?.folder_id
+        || body?.current_folder?.folderId
+        || body?.current_folder?.id
+
+        || body?.currentFolder?.folder_id
+        || body?.currentFolder?.folderId
+        || body?.currentFolder?.id
+
+        || body?.folder?.folder_id
+        || body?.folder?.folderId
+        || body?.folder?.id
+
+        || null;
 }
 
 function getItemKind(item) {
-    return item.item_type
+    const rawKind = item.item_type
         || item.itemType
         || item.type
         || item.kind
-        || (item.folder_id || item.folderId ? "FOLDER" : "FILE");
+        || item.itemKind;
+
+    if (rawKind) {
+        const upperKind = String(rawKind).toUpperCase();
+
+        if (upperKind.includes("FOLDER")) {
+            return "FOLDER";
+        }
+
+        if (upperKind.includes("FILE")) {
+            return "FILE";
+        }
+
+        return upperKind;
+    }
+
+    if (item.folder_id || item.folderId) {
+        return "FOLDER";
+    }
+
+    return "FILE";
 }
 
 function getItemId(item) {
@@ -526,7 +667,8 @@ function getItemId(item) {
         || item.fileId
         || item.item_id
         || item.itemId
-        || item.id;
+        || item.id
+        || null;
 }
 
 function getItemName(item) {
@@ -537,6 +679,8 @@ function getItemName(item) {
         || item.file_name
         || item.fileName
         || item.name
+        || item.item_name
+        || item.itemName
         || "이름 없음";
 }
 
@@ -594,4 +738,13 @@ function formatDate(value) {
     const day = String(date.getDate()).padStart(2, "0");
 
     return `${year}.${month}.${day}`;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
