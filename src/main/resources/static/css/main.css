@@ -71,7 +71,7 @@ body {
     z-index: 2;
 }
 
-/* 닉네임 - 메이플스토리 라이트 */
+/* 닉네임 */
 .nickname {
     position: absolute;
     left: 200px;
@@ -83,7 +83,7 @@ body {
     letter-spacing: -1px;
 }
 
-/* 건드리지 마 - 윤차일드 */
+/* 건드리지 마 */
 .touch-text {
     position: absolute;
     left: 400px;
@@ -124,8 +124,8 @@ body {
     paint-order: stroke fill;
 
     filter:
-            drop-shadow(0 4px 10px rgba(var(--shadow-color), 1))
-            drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.8));
+        drop-shadow(0 4px 10px rgba(var(--shadow-color), 1))
+        drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.8));
 
     transition: transform 0.15s ease, filter 0.15s ease;
 }
@@ -133,26 +133,301 @@ body {
 /* 오늘의 할 일 */
 #todoBtn,
 .menu-btn:nth-child(1) {
-    --shadow-color: 67, 74, 97; /* #434A61 */
+    --shadow-color: 67, 74, 97;
 }
 
 /* 단웅이의 옷장 */
 #closetBtn,
 .menu-btn:nth-child(2) {
-    --shadow-color: 210, 116, 55; /* #D27437 */
+    --shadow-color: 210, 116, 55;
 }
 
 /* 마늘 상점 */
 #shopBtn,
 .menu-btn:nth-child(3) {
-    --shadow-color: 67, 74, 95; /* #434A5F */
+    --shadow-color: 67, 74, 95;
 }
 
 .menu-btn:hover {
     transform: translateX(8px);
     filter:
-            drop-shadow(0 4px 10px rgba(var(--shadow-color), 0.3))
-            drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.3));
+        drop-shadow(0 4px 10px rgba(var(--shadow-color), 0.3))
+        drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.3));
+}
+
+/* 오른쪽 아래 친구 아이콘 */
+.friend-icon-btn {
+    position: fixed;
+    right: 34px;
+    bottom: 34px;
+    z-index: 9999;
+
+    width: 72px;
+    height: 72px;
+
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+
+    background: rgba(55, 39, 24, 0.88);
+    color: #ffffff;
+
+    font-size: 34px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.55),
+        inset 0 0 10px rgba(255, 255, 255, 0.18);
+
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.friend-icon-btn:hover {
+    transform: scale(1.08);
+    filter: brightness(1.12);
+}
+
+/* 친구 패널 전체 */
+.friend-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
+
+    padding-right: 8%;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.friend-panel.active {
+    display: flex;
+}
+
+/* 친구창 나무판 */
+.friend-board {
+    position: relative;
+    width: 470px;
+    height: 470px;
+    padding: 42px 34px;
+
+    display: flex;
+
+    color: #ffffff;
+    font-family: 'MaplestoryLight', sans-serif;
+
+    background:
+        linear-gradient(
+            rgba(70, 43, 20, 0.97),
+            rgba(70, 43, 20, 0.97)
+        );
+
+    border: 4px solid #2d1a0d;
+    border-radius: 10px;
+
+    box-shadow:
+        inset 0 0 30px rgba(0, 0, 0, 0.45),
+        0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* 닫기 버튼 */
+.friend-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+
+    border: none;
+    background: transparent;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 28px;
+
+    cursor: pointer;
+}
+
+/* 친구창 컬럼 */
+.friend-column {
+    flex: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.friend-column h2 {
+    margin: 0 0 22px;
+
+    text-align: center;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* 구분선 */
+.friend-divider {
+    width: 3px;
+    height: 330px;
+    margin: 0 22px;
+
+    background: rgba(230, 220, 200, 0.6);
+}
+
+/* 친구 목록 / 요청 목록 / 검색 결과 한 줄 */
+.friend-item,
+.request-item,
+.search-user-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 14px;
+
+    font-size: 15px;
+}
+
+/* 친구 썸네일 */
+.friend-thumb {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    background: #ffffff;
+}
+
+/* 친구 이름 */
+.friend-name {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* 요청 버튼 묶음 */
+.request-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.request-actions button,
+.add-request-btn {
+    border: none;
+    border-radius: 5px;
+
+    padding: 3px 6px;
+
+    font-family: inherit;
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+.accept-btn {
+    background: #7abf5a;
+    color: #ffffff;
+}
+
+.reject-btn {
+    background: #b75b4f;
+    color: #ffffff;
+}
+
+.add-request-btn {
+    background: #8f6d3d;
+    color: #ffffff;
+}
+
+/* 친구 추가 버튼 */
+.open-add-friend-btn {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    border: none;
+    background: transparent;
+    color: #ffffff;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+/* 친구 추가 팝업 */
+.friend-search-box {
+    position: absolute;
+    right: 70px;
+    bottom: 80px;
+
+    width: 230px;
+    min-height: 155px;
+
+    padding: 16px;
+
+    display: none;
+
+    background: rgba(61, 37, 19, 0.96);
+    border: 3px solid #2b1609;
+
+    color: #ffffff;
+    z-index: 5;
+}
+
+.friend-search-box.active {
+    display: block;
+}
+
+.friend-search-box h3 {
+    margin: 0 0 10px;
+
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.friend-search-input-wrap {
+    display: flex;
+
+    height: 30px;
+
+    background: #f0e8d8;
+}
+
+.friend-search-input-wrap input {
+    flex: 1;
+
+    border: none;
+    padding: 0 8px;
+
+    font-family: inherit;
+
+    outline: none;
+}
+
+.friend-search-input-wrap button {
+    width: 34px;
+
+    border: none;
+    background: #3b2a1c;
+    color: #ffffff;
+
+    cursor: pointer;
+}
+
+.friend-search-result {
+    margin-top: 12px;
+
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+.empty-friend-message {
+    margin-top: 20px;
+
+    text-align: center;
+    font-size: 13px;
+
+    opacity: 0.85;
 }
 
 /* 작은 화면 대응 */
@@ -160,6 +435,7 @@ body {
     .character-area {
         left: 5%;
         bottom: 7%;
+
         transform: scale(0.9);
         transform-origin: left bottom;
     }
@@ -171,5 +447,20 @@ body {
 
     .menu-btn {
         font-size: 42px;
+    }
+
+    .friend-board {
+        width: 430px;
+        height: 440px;
+    }
+
+    .friend-icon-btn {
+        right: 24px;
+        bottom: 24px;
+
+        width: 64px;
+        height: 64px;
+
+        font-size: 30px;
     }
 }

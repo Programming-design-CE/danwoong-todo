@@ -11,6 +11,7 @@
 
   <section class="character-area">
     <img class="rock" th:src="@{/assets/rock.png}" alt="바위">
+
     <img class="danwoong" th:src="@{/assets/danwoong.png}" alt="단웅">
     <img class="danbi" th:src="@{/assets/danbi.png}" alt="단비">
 
@@ -22,6 +23,53 @@
     <button class="menu-btn" id="todoBtn">오늘의 할 일</button>
     <button class="menu-btn" id="closetBtn">단웅이의 옷장</button>
     <button class="menu-btn" id="shopBtn">마늘 상점</button>
+  </section>
+
+  <button class="friend-icon-btn" id="friendIconBtn" type="button">
+    👥
+  </button>
+
+  <!-- 친구창 -->
+  <section class="friend-panel" id="friendPanel">
+    <div class="friend-board">
+
+      <button class="friend-close-btn" id="friendCloseBtn" type="button">×</button>
+
+      <div class="friend-column my-friend-column">
+        <h2>👥</h2>
+        <div class="friend-list" id="friendList">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+
+      <div class="friend-divider"></div>
+
+      <div class="friend-column request-column">
+        <h2>친구 요청 목록</h2>
+        <div class="request-list" id="requestList">
+          <!-- JS 렌더링 -->
+        </div>
+
+        <button class="open-add-friend-btn" id="openAddFriendBtn" type="button">
+          친구 추가
+        </button>
+      </div>
+
+      <!-- 친구 추가 팝업 -->
+      <div class="friend-search-box" id="friendSearchBox">
+        <h3>친구 추가</h3>
+
+        <div class="friend-search-input-wrap">
+          <input id="friendSearchInput" type="text" placeholder="친구 닉네임 검색">
+          <button id="friendSearchBtn" type="button">🔍</button>
+        </div>
+
+        <div class="friend-search-result" id="friendSearchResult">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+
+    </div>
   </section>
 
 </main>
