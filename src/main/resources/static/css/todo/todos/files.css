@@ -1,0 +1,212 @@
+.files-page-section {
+    padding: 22px 24px 18px;
+}
+
+.files-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.files-title-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.files-title-box h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.files-title-box p {
+    margin: 0 0 2px;
+    font-size: 12px;
+    color: #9d9d9d;
+}
+
+.files-action-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.files-select {
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid #2c2c2c;
+    border-radius: 8px;
+    background: #151515;
+    color: #ffffff;
+    font-size: 12px;
+    outline: none;
+}
+
+.btn-create-folder,
+.btn-upload-file {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-create-folder {
+    border: none;
+    background: #f2ae63;
+    color: #1a1a1a;
+}
+
+.btn-upload-file {
+    border: 1px solid #333333;
+    background: #171717;
+    color: #ffffff;
+}
+
+.files-table-area {
+    position: relative;
+    min-height: 300px;
+    border: 1px solid #2b2b2b;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.files-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #d8d8d8;
+    font-size: 13px;
+}
+
+.files-table thead {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.files-table th {
+    height: 38px;
+    padding: 0 16px;
+    text-align: left;
+    font-weight: 500;
+    color: #9c9c9c;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.files-table td {
+    height: 38px;
+    padding: 0 16px;
+    border-bottom: 1px solid #282828;
+}
+
+.files-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.file-name-btn {
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.file-icon {
+    font-size: 16px;
+}
+
+.file-more-btn {
+    border: none;
+    background: transparent;
+    color: #8d8d8d;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.file-more-btn:hover {
+    color: #ffffff;
+}
+
+.files-empty {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    text-align: center;
+}
+
+.files-empty-icon {
+    font-size: 72px;
+    margin-bottom: 14px;
+}
+
+.files-empty h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+
+.files-empty p {
+    margin: 0;
+    font-size: 13px;
+    color: #bdbdbd;
+}
+
+.files-tip {
+    margin-top: 14px;
+    width: fit-content;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #bdbdbd;
+    font-size: 13px;
+}
+
+.files-tip strong {
+    color: #e0bd43;
+}
+
+.new-folder-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.new-folder-input {
+    width: 260px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid #c78338;
+    border-radius: 5px;
+    background: #1a1a1a;
+    color: #ffffff;
+    font-family: inherit;
+    outline: none;
+}
+
+.inline-confirm-btn,
+.inline-cancel-btn {
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 8px;
+}
+
+.inline-confirm-btn:hover {
+    color: #f2ae63;
+}
+
+.inline-cancel-btn:hover {
+    color: #d46b6b;
+}

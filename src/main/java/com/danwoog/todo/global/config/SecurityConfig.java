@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/todo",
                                 "/shop",
                                 "/closet",
+                                "/favicon.ico",
                                 "/todos/working",
                                 "/todos/detail",
                                 "/todos/completed",
