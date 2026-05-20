@@ -8,6 +8,11 @@ public class TodoPageController {
 
     @GetMapping("/todos")
     public String todosPage() {
+        return "redirect:/todos/working";
+    }
+
+    @GetMapping("/todos/detail")
+    public String todosDetailPage() {
         return "todo/group-todo";
     }
 

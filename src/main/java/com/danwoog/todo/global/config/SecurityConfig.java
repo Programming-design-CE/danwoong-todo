@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/todos",
                                 "/todo",
                                 "/todos/working",
+                                "/todos/detail",
                                 "/todos/completed",
                                 "/todos/calendar",
                                 "/todos/files",

@@ -30,39 +30,53 @@ body {
     position: relative;
 }
 
-/* 헤더 X30/1920=1.56vw  Y38/1080=3.52vh  W317/1920=16.51vw  H62/1080=5.74vh */
+/* 헤더 X30/1920=1.56vw  Y32/1080=2.96vh  W480/1920=25vw  H60/1080=5.56vh */
 .page-header {
     position: absolute;
     left: 1.56vw;
-    top: 3.52vh;
-    width: 16.51vw;
-    height: 5.74vh;
+    top: 2.96vh;
+    width: 25vw;
+    height: 5.56vh;
     display: flex;
     align-items: center;
-    gap: 0.73vw;
+    gap: 1.25vw;
 }
 
 .back-btn {
-    background: none;
-    border: none;
-    color: #9e9688;
-    font-size: 1.35vw;
+    width: 3.12vw;
+    height: 3.12vw;
+    border: 1px solid #2f2b26;
+    border-radius: 999px;
+    background: #201e1b;
+    color: #e8c89a;
+    font-size: 1.46vw;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    border-color: #8b6e4e;
+    color: #f7f5f1;
 }
 
 .page-title {
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 1.35vw;
-    color: #fff;
+    font-size: 2.92vw;
+    line-height: 1;
+    color: #f7f5f1;
     white-space: nowrap;
 }
 
-/* 토글 스위치 */
+/* 토글 스위치 W42/1920=2.19vw H23/1080=2.13vh */
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 2.6vw;
-    height: 1.4vw;
+    width: 2.19vw;
+    height: 1.2vw;
     cursor: pointer;
 }
 
@@ -76,7 +90,7 @@ body {
     position: absolute;
     inset: 0;
     background: #3d3a34;
-    border-radius: 0.7vw;
+    border-radius: 0.6vw;
     transition: .3s;
 }
 
@@ -86,8 +100,8 @@ body {
     left: 0.15vw;
     top: 50%;
     transform: translateY(-50%);
-    width: 1.1vw;
-    height: 1.1vw;
+    width: 0.88vw;
+    height: 0.88vw;
     background: #8b6e4e;
     border-radius: 50%;
     transition: .3s;

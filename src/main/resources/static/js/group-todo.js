@@ -4,7 +4,8 @@
 
 // ── 상수 / 상태 ──────────────────────────────────────
 const API_BASE = '';
-let currentGroupId = 1;          // 기본 그룹 (추후 동적)
+const urlParams = new URLSearchParams(window.location.search);
+let currentGroupId = Number(urlParams.get('groupId') || localStorage.getItem('currentGroupId') || 1);          // 기본 그룹 (동적 로드)
 let todos = [];
 let editingTodoId = null;        // null → 추가, 숫자 → 수정
 let selectedAssignees = [];
@@ -432,6 +433,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 할 일 추가 버튼
   document.getElementById('addTodoBtn').addEventListener('click', () => openModal('add'));
+
+  // 모드 토글
+  document.getElementById('viewToggle')?.addEventListener('change', () => {
+    window.location.href = '/mytodos/working';
+  });
 
   // 모달 닫기
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
