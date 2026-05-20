@@ -4,23 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>파일과 자료</title>
+
     <link rel="stylesheet" href="/css/todo/common.css">
-    <link rel="stylesheet" href="/css/todo/todos/placeholder.css">
+    <link rel="stylesheet" href="/css/todo/todos/files.css">
+
     <script src="/js/todo-common.js" defer></script>
+    <script src="/js/files.js" defer></script>
 </head>
 <body>
 <div class="todo-page">
+
     <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '프로젝트에 필요한 파일과 자료를 모아둘 수 있어요.', false, '/mytodos/working')}"></div>
 
     <div class="todo-body">
         <main class="todo-main">
+
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'files', '4', '2')}"></div>
 
-            <section class="todo-content-placeholder">
-                <div class="todo-placeholder-card">
-                    <h2>파일과 자료 페이지</h2>
-                    <p>파일 목록, 폴더 구조, 업로드 버튼을 이 페이지에서 독립적으로 붙이면 됩니다.</p>
+            <section class="files-page-section">
+
+                <div class="files-header">
+                    <div class="files-title-box">
+                        <h2>파일 & 자료</h2>
+                        <p>팀에 공유하는 파일과 자료를 확인할 수 있어요.</p>
+                    </div>
+
+                    <div class="files-action-box">
+                        <select id="fileTypeFilter" class="files-select">
+                            <option value="ALL">전체 파일</option>
+                            <option value="FOLDER">폴더</option>
+                            <option value="FILE">파일</option>
+                        </select>
+
+                        <select id="sortOption" class="files-select">
+                            <option value="LATEST">최신순</option>
+                            <option value="NAME">이름순</option>
+                        </select>
+
+                        <button id="createFolderBtn" class="btn-create-folder" type="button">
+                            + 새 폴더 만들기
+                        </button>
+
+                        <button id="uploadFileBtn" class="btn-upload-file" type="button">
+                            ⬆ 파일 업로드
+                        </button>
+
+                        <input id="fileInput" type="file" hidden>
+                    </div>
                 </div>
+
+                <div class="files-table-area">
+
+                    <table id="fileTable" class="files-table">
+                        <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>업로드 날짜</th>
+                            <th>크기</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="fileTableBody">
+                        <!-- JS 렌더링 -->
+                        </tbody>
+                    </table>
+
+                    <div id="fileEmpty" class="files-empty">
+                        <div class="files-empty-icon">📁</div>
+                        <h3>아직 만들어진 프로젝트가 없어요!</h3>
+                        <p>프로젝트를 만들면 자동으로 자료 폴더가 생성돼요.</p>
+                    </div>
+
+                </div>
+
+                <div class="files-tip">
+                    💡 할일을 완료하면 <strong>기여도</strong>가 올라가고, <strong>마늘을 획득</strong>할 수 있어요!
+                </div>
+
             </section>
         </main>
 
