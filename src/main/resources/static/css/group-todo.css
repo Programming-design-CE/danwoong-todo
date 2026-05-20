@@ -30,21 +30,21 @@ body {
     position: relative;
 }
 
-/* 헤더 X30/1920=1.56vw  Y32/1080=2.96vh  W480/1920=25vw  H60/1080=5.56vh */
+/* 헤더 X30/1920=1.56vw  Y38/1080=3.52vh  W600/1920=31.25vw  H98/1080=9.07vh */
 .page-header {
     position: absolute;
     left: 1.56vw;
-    top: 2.96vh;
-    width: 25vw;
-    height: 5.56vh;
+    top: 3.52vh;
+    width: 31.25vw;
+    height: 9.07vh;
     display: flex;
     align-items: center;
     gap: 1.25vw;
 }
 
 .back-btn {
-    width: 3.12vw;
-    height: 3.12vw;
+    width: 3.125vw;
+    height: 3.125vw;
     border: 1px solid #2f2b26;
     border-radius: 999px;
     background: #201e1b;
@@ -76,7 +76,7 @@ body {
     position: relative;
     display: inline-block;
     width: 2.19vw;
-    height: 1.2vw;
+    height: 2.13vh;
     cursor: pointer;
 }
 
@@ -89,31 +89,30 @@ body {
 .toggle-slider {
     position: absolute;
     inset: 0;
-    background: #3d3a34;
-    border-radius: 0.6vw;
+    background: #555;
+    border-radius: 2.13vh;
     transition: .3s;
 }
 
 .toggle-slider::before {
     content: '';
     position: absolute;
-    left: 0.15vw;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0.156vw;
+    top: 0.28vh;
     width: 0.88vw;
     height: 0.88vw;
-    background: #8b6e4e;
+    background: #fff;
     border-radius: 50%;
     transition: .3s;
 }
 
 .toggle-switch input:checked+.toggle-slider {
-    background: #5a4d3a;
+    background: #b8a07a;
 }
 
 .toggle-switch input:checked+.toggle-slider::before {
-    transform: translateY(-50%) translateX(1.2vw);
-    background: #c4a882;
+    transform: translateX(0.99vw);
+    background: #fff;
 }
 
 /* 왼쪽 패널 X30=1.56vw Y150=13.89vh W1327=69.11vw H881=81.57vh */
