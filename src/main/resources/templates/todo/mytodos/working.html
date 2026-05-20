@@ -30,5 +30,53 @@
         <div th:replace="~{todo/fragments/memo-panel :: memo('/todos/my/note')}"></div>
     </div>
 </div>
+
+<!-- 할 일 상세 모달 -->
+<div class="mtm-overlay" id="mytodoModalOverlay">
+    <div class="mtm-modal">
+        <div class="mtm-header">
+            <div class="mtm-icon">📋</div>
+            <div class="mtm-title-block">
+                <div class="mtm-title">할 일 제목</div>
+                <div class="mtm-category"></div>
+            </div>
+            <button class="mtm-close" type="button">✕</button>
+        </div>
+
+        <div class="mtm-progress-block">
+            <div class="mtm-progress-label">현재 진행률</div>
+            <div class="mtm-progress-pct">0%</div>
+            <div class="mtm-progress-bar">
+                <div class="mtm-progress-fill" style="width:0%"></div>
+            </div>
+            <div class="mtm-progress-pct-right">0%</div>
+        </div>
+
+        <div class="mtm-row">
+            <span class="mtm-label">📅 마감일</span>
+            <span class="mtm-val mtm-deadline-val">-</span>
+        </div>
+        <div class="mtm-row">
+            <span class="mtm-label">🧄 예상 마늘</span>
+            <span class="mtm-val mtm-garlic-val">-</span>
+        </div>
+        <div class="mtm-row">
+            <span class="mtm-label">⚑ 우선순위</span>
+            <span class="mtm-val mtm-priority-val">-</span>
+        </div>
+        <div class="mtm-row mtm-desc-row">
+            <span class="mtm-label">📄 설명</span>
+            <span class="mtm-val mtm-desc-val">-</span>
+        </div>
+
+        <div class="mtm-section-title">담당자별 완료 여부</div>
+        <div class="mtm-assignee-list"></div>
+
+        <div class="mtm-actions">
+            <button class="mtm-detail-btn" type="button">상세 보기</button>
+            <button class="mtm-complete-btn" type="button">✓ 할 일 완료</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
