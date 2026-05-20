@@ -134,3 +134,257 @@
     font-size: 16px;
     flex-shrink: 0;
 }
+/* 모달 */
+.mtm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.mtm-overlay.active {
+    display: flex;
+}
+
+.mtm-modal {
+    background: #1e1c19;
+    border: 1px solid #3a342e;
+    border-radius: 20px;
+    padding: 28px 32px;
+    width: 520px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.mtm-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.mtm-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.mtm-title-block {
+    flex: 1;
+    min-width: 0;
+}
+
+.mtm-title {
+    color: #f7f5f1;
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 20px;
+}
+
+.mtm-category {
+    color: #c9a96e;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.mtm-close {
+    background: none;
+    border: none;
+    color: #7a7268;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.mtm-progress-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mtm-progress-label {
+    color: #9d9790;
+    font-size: 13px;
+}
+
+.mtm-progress-pct {
+    color: #c9a96e;
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 28px;
+}
+
+.mtm-progress-bar {
+    height: 8px;
+    background: #3a342e;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.mtm-progress-fill {
+    height: 100%;
+    background: #c9a96e;
+    border-radius: 999px;
+    transition: width .3s ease;
+}
+
+.mtm-progress-pct-right {
+    color: #7a7268;
+    font-size: 13px;
+    text-align: right;
+}
+
+.mtm-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 4px 0;
+    border-bottom: 1px solid #2b2724;
+}
+
+.mtm-label {
+    color: #9d9790;
+    font-size: 14px;
+    min-width: 100px;
+    flex-shrink: 0;
+}
+
+.mtm-val {
+    color: #f4f1eb;
+    font-size: 14px;
+    flex: 1;
+}
+
+.mtm-desc-row {
+    align-items: flex-start;
+}
+
+.mtm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.mtm-detail-btn {
+    flex: 1;
+    padding: 14px;
+    border: 1px solid #3a342e;
+    border-radius: 12px;
+    background: #2a2723;
+    color: #f4f1eb;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.mtm-complete-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #c9a96e;
+    color: #1e1c19;
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.mtm-complete-btn:hover {
+    background: #d4b87a;
+}
+
+/* 담당자 아바타 */
+.mytodo-assignees {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.mytodo-assignees-label {
+    color: #7a7268;
+    font-size: 12px;
+}
+
+.mytodo-avatars {
+    display: flex;
+    align-items: center;
+}
+
+.mytodo-avatar {
+    width: 28px;
+    height: 28px;
+    margin-left: -6px;
+    border: 2px solid #2a2723;
+    border-radius: 50%;
+    background: #394248;
+    color: #9ec9e5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.mytodo-avatar:first-child {
+    margin-left: 0;
+}
+
+/* 모달 담당자 */
+.mtm-section-title {
+    color: #9d9790;
+    font-size: 13px;
+    padding-top: 4px;
+}
+
+.mtm-assignee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mtm-assignee-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mtm-assignee-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #394248;
+    color: #9ec9e5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.mtm-assignee-name {
+    flex: 1;
+    color: #f4f1eb;
+    font-size: 14px;
+}
+
+.mtm-assignee-status {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.mtm-status--done {
+    background: #2e4a38;
+    color: #6fcf97;
+}
+
+.mtm-status--progress {
+    background: #3a3020;
+    color: #c9a96e;
+}
+
+.mtm-status--none {
+    background: #3a2020;
+    color: #e07b54;
+}
