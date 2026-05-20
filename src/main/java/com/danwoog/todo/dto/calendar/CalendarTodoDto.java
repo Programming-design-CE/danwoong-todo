@@ -14,6 +14,8 @@ public class CalendarTodoDto {
     private String date;
     @JsonProperty("isCompleted")
     private boolean completed;
+    @JsonProperty("group_name")
+    private String groupName;
     private String category;
     private String priority;
 }

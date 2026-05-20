@@ -69,6 +69,7 @@ public class CalendarService {
                 .title(todo.getTodoName())
                 .date(todo.getDeadline() != null ? todo.getDeadline().toLocalDate().toString() : null)
                 .completed(todo.getStatus() == TodoStatus.COMPLETED)
+                .groupName(todo.getGroup() != null ? todo.getGroup().getGroupName() : null)
                 .category(todo.getCategory() != null ? todo.getCategory().getLabel() : null)
                 .priority(todo.getPriority() != null ? todo.getPriority().name() : null)
                 .build();
