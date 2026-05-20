@@ -138,22 +138,24 @@ async function loadTodos() {
 async function loadMemo() {
   const data = await api(`/todo-groups/${currentGroupId}/note`);
   const ta = document.getElementById('memoTextarea');
-  if (data && data.content) ta.value = data.content;
+  if (data && data.content) ta.textContent = data.content;
 }
 
 let memoTimer = null;
 function autoSaveMemo() {
   clearTimeout(memoTimer);
   memoTimer = setTimeout(async () => {
-    const content = document.getElementById('memoTextarea').value;
+    const content = document.getElementById('memoTextarea').textContent;
     await api(`/todo-groups/${currentGroupId}/note`, {
       method: 'PUT',
       body: JSON.stringify({ content }),
     });
     const now = new Date();
-    document.getElementById('memoSaveStatus').textContent =
-      `자동 저장됨 · 오늘 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-  }, 1500);
+    const footer = document.getElementById('memoFooter');
+    if (footer) {
+      footer.textContent = `자동 저장됨 · 오늘 ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+  }, 800);
 }
 
 // ── 컨텍스트 메뉴 (수정/삭제) ────────────────────────

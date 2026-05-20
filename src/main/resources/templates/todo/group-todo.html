@@ -3,94 +3,84 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1920">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>오늘의 할 일</title>
+  <link rel="stylesheet" href="/css/todo/common.css">
   <link rel="stylesheet" th:href="@{/css/group-todo.css}">
+  <script src="/js/todo-common.js" defer></script>
 </head>
 
 <body>
-  <div class="page-wrapper">
+  <div class="todo-page">
 
     <!-- ===== 상단 헤더 ===== -->
-    <header class="page-header" id="pageHeader">
-      <button class="back-btn" id="backBtn">←</button>
-      <h1 class="page-title">오늘의 할 일</h1>
-      <label class="toggle-switch">
-        <input type="checkbox" id="viewToggle" />
-        <span class="toggle-slider"></span>
-      </label>
-    </header>
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '공동 할 일을 관리하고 진행상황을 공유해요.', false, '/mytodos/working')}"></div>
 
-    <!-- 왼쪽 영역 -->
-    <section class="left-panel" id="leftPanel">
+    <div class="todo-body">
+      <!-- 왼쪽 영역 -->
+      <main class="todo-main" id="leftPanel">
 
-      <!-- 탭 바 -->
-      <nav class="tab-bar" id="tabBar">
-        <button class="tab-item active" data-tab="in-progress">
-          <span class="tab-icon">☰</span> 진행 중인 할 일 <span class="tab-count" id="inProgressCount">0</span>
-        </button>
-        <button class="tab-item" data-tab="completed">
-          <span class="tab-icon">✓</span> 완료된 할 일
-        </button>
-        <button class="tab-item" data-tab="calendar">
-          <span class="tab-icon">📅</span> 캘린더
-        </button>
-        <button class="tab-item" data-tab="files">
-          <span class="tab-icon">📎</span> 파일 &amp; 자료
-        </button>
-      </nav>
-
-      <!-- 그룹 정보 & 필터 -->
-      <div class="group-info-bar">
-        <div class="group-info-left">
-          <span class="group-label">그룹 이름</span>
-          <span class="group-name" id="groupName">문제해결프로그래밍 팀플</span>
-          <span class="dday-badge" id="ddayBadge">D-42</span>
-        </div>
-        <div class="group-info-right">
-          <button class="filter-btn" id="filterCategory">
-            <span class="filter-icon">👤</span>
-            전체 카테고리 <span class="dropdown-arrow">▾</span>
+        <!-- 탭 바 -->
+        <nav class="tab-bar" id="tabBar">
+          <button class="tab-item active" data-tab="in-progress">
+            <span class="tab-icon">☰</span> 진행 중인 할 일 <span class="tab-count" id="inProgressCount">0</span>
           </button>
-          <button class="filter-btn" id="filterSort">
-            최근 추가순 <span class="dropdown-arrow">▾</span>
+          <button class="tab-item" data-tab="completed">
+            <span class="tab-icon">✓</span> 완료된 할 일
           </button>
+          <button class="tab-item" data-tab="calendar">
+            <span class="tab-icon">📅</span> 캘린더
+          </button>
+          <button class="tab-item" data-tab="files">
+            <span class="tab-icon">📎</span> 파일 &amp; 자료
+          </button>
+        </nav>
+
+        <!-- 그룹 정보 & 필터 -->
+        <div class="group-info-bar">
+          <div class="group-info-left">
+            <span class="group-label">그룹 이름</span>
+            <span class="group-name" id="groupName">문제해결프로그래밍 팀플</span>
+            <span class="dday-badge" id="ddayBadge">D-42</span>
+          </div>
+          <div class="group-info-right">
+            <button class="filter-btn" id="filterCategory">
+              <span class="filter-icon">👤</span>
+              전체 카테고리 <span class="dropdown-arrow">▾</span>
+            </button>
+            <button class="filter-btn" id="filterSort">
+              최근 추가순 <span class="dropdown-arrow">▾</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- 할 일 목록 -->
-      <div class="todo-list" id="todoList">
-        <!-- JS로 동적 생성 -->
-      </div>
+        <!-- 할 일 목록 -->
+        <div class="todo-list" id="todoList">
+          <!-- JS로 동적 생성 -->
+        </div>
 
-      <!-- 할 일 추가 버튼 -->
-      <button class="add-todo-btn" id="addTodoBtn">
-        <span class="add-icon">+</span> 할 일 추가하기
-      </button>
+        <!-- 할 일 추가 버튼 -->
+        <button class="add-todo-btn" id="addTodoBtn">
+          <span class="add-icon">+</span> 할 일 추가하기
+        </button>
 
-    </section>
+      </main>
 
-    <!-- 오른쪽 메모장 영역 -->
-    <aside class="right-panel" id="rightPanel">
-      <div class="memo-header">
-        <span class="memo-title">메모장</span>
-        <button class="memo-edit-btn" id="memoEditBtn">✏️</button>
-        <button class="memo-more-btn" id="memoMoreBtn">⋮</button>
-      </div>
-      <div class="memo-body" id="memoBody">
-        <textarea class="memo-textarea" id="memoTextarea" placeholder="메모를 입력하세요..."></textarea>
-      </div>
-      <div class="memo-footer">
-        <span class="memo-save-status" id="memoSaveStatus">자동 저장됨 · 오늘 14:30</span>
-      </div>
-    </aside>
-
-    <!-- 하단 팁 -->
-    <footer class="page-footer">
-      <span class="tip-icon">💡</span>
-      <span class="tip-label">Tip</span>
-      <span class="tip-text">할 일을 완료하면 기여도가 올라가고, 마늘을 획득 할 수 있어요!</span>
-    </footer>
+      <!-- 오른쪽 메모장 영역 -->
+      <aside class="memo-panel" id="rightPanel">
+        <div class="memo-header">
+          <div class="memo-header-btn">
+            <span class="memo-label">메모장</span>
+            <span class="memo-pencil">✎</span>
+          </div>
+          <button class="memo-more" type="button" id="memoMoreBtn">⋮</button>
+        </div>
+        <div class="memo-body" id="memoBody">
+          <div class="memo-textarea" id="memoTextarea" contenteditable="true" data-placeholder="메모를 입력하세요..."></div>
+        </div>
+        <div class="memo-footer" id="memoFooter">자동 저장됨 · 오늘 14:30</div>
+      </aside>
+    </div>
   </div>
 
   <!-- ============================== -->
