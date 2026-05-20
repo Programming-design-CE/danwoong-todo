@@ -30,8 +30,8 @@ body {
 }
 
 .btn-back {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border: 1px solid #2f2b26;
     border-radius: 999px;
     background: #201e1b;
@@ -57,7 +57,7 @@ body {
 
 .todo-title {
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 56px;
+    font-size: 36px;
     line-height: 1;
     color: #f7f5f1;
 }
