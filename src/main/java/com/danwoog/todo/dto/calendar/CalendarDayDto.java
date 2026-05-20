@@ -3,11 +3,12 @@ package com.danwoog.todo.dto.calendar;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class CalendarDayDto {
-    private LocalDate date;
+    private String date;
     private int count;
+    private List<CalendarTodoDto> todos;
 }
