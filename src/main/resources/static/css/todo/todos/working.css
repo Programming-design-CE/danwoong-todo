@@ -1,74 +1,80 @@
-.project-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.project-scroll-area {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 4px;
+    display: flex;
+    flex-direction: column;
+    padding-right: 6px;
 }
 
-.project-list::-webkit-scrollbar {
+.project-scroll-area::-webkit-scrollbar {
     width: 8px;
 }
 
-.project-list::-webkit-scrollbar-thumb {
+.project-scroll-area::-webkit-scrollbar-thumb {
     background: #2b2723;
     border-radius: 999px;
 }
 
-.project-actions {
-    padding-top: 14px;
+.project-list {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.project-actions {
+    padding-top: 10px;
+    flex-shrink: 0;
 }
 
 .btn-add-project {
-    min-width: 180px;
-    padding: 11px 20px 10px;
-    border: 1px solid #3b352f;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px dashed #3b352f;
     border-radius: 10px;
-    background: #35312c;
-    color: #f2ede5;
+    background: #252220;
+    color: #7a7268;
     font-family: 'MaplestoryBold', sans-serif;
     font-size: 13px;
     cursor: pointer;
-    transition: background .15s ease, border-color .15s ease;
+    text-align: center;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
 .btn-add-project:hover {
-    background: #3b3631;
+    background: #2e2b27;
     border-color: #4a433b;
+    color: #c9c3bb;
 }
 
 .todo-empty-state {
     color: #7a7268;
     text-align: center;
     padding: 40px 0;
-    font-size: 12px;
+    font-size: 13px;
 }
 
+/* 카드 H 62px: border 2px + padding 12px*2 + icon 36px = 62px */
 .project-card {
     display: flex;
     align-items: center;
-    gap: 18px;
-    min-height: 52px;
-    padding: 14px 18px;
+    gap: 12px;
+    padding: 12px 14px;
     background: #2a2723;
     border: 1px solid #3a3530;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
 .project-icon {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #394248;
     color: #9ec9e5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
     flex-shrink: 0;
 }
@@ -76,42 +82,40 @@
 .project-name-block {
     display: flex;
     align-items: center;
-    gap: 14px;
-    min-width: 0;
-    width: 28%;
+    gap: 10px;
+    min-width: 180px;
 }
 
 .project-name {
-    max-width: 100%;
+    max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #fcfbf8;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .project-dday {
-    padding: 7px 12px 6px;
+    padding: 3px 8px;
     border: 1px solid #4a433b;
     border-radius: 999px;
     background: #332f2a;
     color: #e3c894;
-    font-size: 11px;
+    font-size: 12px;
     flex-shrink: 0;
 }
 
 .project-progress-block {
-    min-width: 0;
-    width: 26%;
+    min-width: 200px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .progress-bar {
     flex: 1;
-    height: 6px;
+    height: 7px;
     border-radius: 999px;
     background: #5a544d;
     overflow: hidden;
@@ -125,7 +129,7 @@
 
 .project-percent {
     color: #f4f1eb;
-    font-size: 11px;
+    font-size: 13px;
     flex-shrink: 0;
 }
 
@@ -133,12 +137,11 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    width: 15%;
 }
 
 .member-avatar {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     margin-left: -6px;
     border: 2px solid #2a2723;
     border-radius: 50%;
@@ -148,7 +151,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .member-avatar:first-child {
@@ -170,8 +173,8 @@
 }
 
 .member-more {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
     margin-left: -6px;
     border: 1px solid #45403a;
     border-radius: 50%;
@@ -180,16 +183,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 .project-priority {
-    min-width: 72px;
+    min-width: 70px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     color: #f4f0ea;
-    font-size: 11px;
+    font-size: 13px;
     flex-shrink: 0;
 }
 
@@ -204,22 +207,8 @@
     border: none;
     background: none;
     color: #e8c0a2;
-    font-size: 24px;
+    font-size: 20px;
     line-height: .8;
     cursor: pointer;
     flex-shrink: 0;
-}
-
-@media (max-width: 1440px) {
-    .project-name-block {
-        width: 32%;
-    }
-
-    .project-progress-block {
-        width: 24%;
-    }
-
-    .member-avatars {
-        width: auto;
-    }
 }
