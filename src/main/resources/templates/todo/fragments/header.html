@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="header(title, subtitle, personalMode, toggleUrl)" class="todo-header">
     <button class="btn-back" type="button" onclick="window.location.href='/main'">&lt;</button>
@@ -9,10 +9,10 @@
             <h1 class="todo-title" th:text="${title}">오늘의 할 일</h1>
             <label class="toggle-switch" th:if="${toggleUrl != null and !#strings.isEmpty(toggleUrl)}">
                 <input
-                    id="todoModeToggle"
-                    type="checkbox"
-                    th:checked="${personalMode}"
-                    th:attr="data-toggle-url=${toggleUrl}">
+                        id="todoModeToggle"
+                        type="checkbox"
+                        th:checked="${personalMode}"
+                        th:attr="data-toggle-url=${toggleUrl}">
                 <span class="toggle-slider"></span>
             </label>
         </div>

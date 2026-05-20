@@ -10,7 +10,7 @@ const calendarState = {
     viewYear: 0,
     viewMonth: 0,
     selectedDate: "",
-    selectedCategory: "all",
+    selectedGroup: "all",
     monthDays: []
 };
 
@@ -60,9 +60,7 @@ function getCategoryColor(todo) {
 }
 
 function getCurrentMonthMap() {
-    return new Map(
-        calendarState.monthDays.map((day) => [day.date, day])
-    );
+    return new Map(calendarState.monthDays.map((day) => [day.date, day]));
 }
 
 function buildCalendarCells() {
@@ -89,7 +87,7 @@ function buildCalendarCells() {
         const isToday = isoDate === todayIso;
         const isSelected = isoDate === calendarState.selectedDate;
         const filteredTodos = (dayData.todos || []).filter((todo) => {
-            return calendarState.selectedCategory === "all" || todo.category === calendarState.selectedCategory;
+            return calendarState.selectedGroup === "all" || todo.group_name === calendarState.selectedGroup;
         });
         const visibleTodos = filteredTodos.slice(0, 3);
         const hiddenCount = Math.max(filteredTodos.length - visibleTodos.length, 0);
@@ -115,6 +113,7 @@ function applyCalendarRowHeights(cells) {
     const tabs = document.querySelector(".calendar-main .todo-tabs");
     const toolbar = document.querySelector(".calendar-toolbar");
     const weekdays = document.querySelector(".calendar-weekdays");
+
     if (!grid) {
         return;
     }
@@ -243,29 +242,31 @@ function escapeCalendarHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-function renderCategoryFilter() {
-    const select = document.getElementById("calendarCategoryFilter");
+function renderGroupFilter() {
+    const select = document.getElementById("calendarGroupFilter");
     if (!select) {
         return;
     }
 
-    const categories = Array.from(new Set(
-        calendarState.monthDays.flatMap((day) => (day.todos || []).map((todo) => todo.category)).filter(Boolean)
+    const groupNames = Array.from(new Set(
+        calendarState.monthDays
+            .flatMap((day) => (day.todos || []).map((todo) => todo.group_name))
+            .filter(Boolean)
     ));
 
-    const previousValue = calendarState.selectedCategory;
+    const previousValue = calendarState.selectedGroup;
     const options = ['<option value="all">전체</option>']
-        .concat(categories.map((category) => {
-            return '<option value="' + escapeCalendarHtml(category) + '">' + escapeCalendarHtml(category) + "</option>";
+        .concat(groupNames.map((groupName) => {
+            return '<option value="' + escapeCalendarHtml(groupName) + '">' + escapeCalendarHtml(groupName) + "</option>";
         }));
 
     select.innerHTML = options.join("");
-    if (previousValue !== "all" && categories.includes(previousValue)) {
+    if (previousValue !== "all" && groupNames.includes(previousValue)) {
         select.value = previousValue;
-        calendarState.selectedCategory = previousValue;
+        calendarState.selectedGroup = previousValue;
     } else {
         select.value = "all";
-        calendarState.selectedCategory = "all";
+        calendarState.selectedGroup = "all";
     }
 }
 
@@ -301,7 +302,7 @@ async function loadCalendarMonth() {
             "/calendar/month?year=" + calendarState.viewYear + "&month=" + calendarState.viewMonth
         );
         calendarState.monthDays = Array.isArray(data?.days) ? data.days : [];
-        renderCategoryFilter();
+        renderGroupFilter();
         renderCalendarGrid();
     } catch (error) {
         console.error(error);
@@ -324,6 +325,7 @@ function moveCalendarMonth(offset) {
     } else {
         calendarState.selectedDate = "";
     }
+
     loadCalendarMonth();
 }
 
@@ -342,8 +344,8 @@ function bindCalendarControls() {
         loadCalendarMonth();
     });
 
-    document.getElementById("calendarCategoryFilter")?.addEventListener("change", (event) => {
-        calendarState.selectedCategory = event.target.value;
+    document.getElementById("calendarGroupFilter")?.addEventListener("change", (event) => {
+        calendarState.selectedGroup = event.target.value;
         renderCalendarGrid();
     });
 }

@@ -5,7 +5,7 @@ function getTodoAccessToken() {
 function getTodoAuthHeaders() {
     return {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + getTodoAccessToken()
+        Authorization: "Bearer " + getTodoAccessToken()
     };
 }
 
@@ -60,6 +60,10 @@ function initMemoPanel() {
     let memoTimer;
 
     textarea.addEventListener("input", () => {
+        if (!noteUrl) {
+            return;
+        }
+
         clearTimeout(memoTimer);
         memoTimer = window.setTimeout(async () => {
             try {
