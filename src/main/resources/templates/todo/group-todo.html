@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>오늘의 할 일</title>
+  <link rel="stylesheet" th:href="@{/css/group-todo.css}">
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ===== 상단 헤더 ===== -->
+  <header class="page-header" id="pageHeader">
+    <button class="back-btn" id="backBtn">←</button>
+    <h1 class="page-title">오늘의 할 일</h1>
+    <label class="toggle-switch">
+      <input type="checkbox" id="viewToggle" />
+      <span class="toggle-slider"></span>
+    </label>
+  </header>
+
+  <!-- 왼쪽 영역 -->
+  <section class="left-panel" id="leftPanel">
+
+      <!-- 탭 바 -->
+      <nav class="tab-bar" id="tabBar">
+        <button class="tab-item active" data-tab="in-progress">
+          <span class="tab-icon">☰</span> 진행 중인 할 일 <span class="tab-count" id="inProgressCount">0</span>
+        </button>
+        <button class="tab-item" data-tab="completed">
+          <span class="tab-icon">✓</span> 완료된 할 일
+        </button>
+        <button class="tab-item" data-tab="calendar">
+          <span class="tab-icon">📅</span> 캘린더
+        </button>
+        <button class="tab-item" data-tab="files">
+          <span class="tab-icon">📎</span> 파일 &amp; 자료
+        </button>
+      </nav>
+
+      <!-- 그룹 정보 & 필터 -->
+      <div class="group-info-bar">
+        <div class="group-info-left">
+          <span class="group-label">그룹 이름</span>
+          <span class="group-name" id="groupName">문제해결프로그래밍 팀플</span>
+          <span class="dday-badge" id="ddayBadge">D-42</span>
+        </div>
+        <div class="group-info-right">
+          <button class="filter-btn" id="filterCategory">
+            <span class="filter-icon">👤</span>
+            전체 카테고리 <span class="dropdown-arrow">▾</span>
+          </button>
+          <button class="filter-btn" id="filterSort">
+            최근 추가순 <span class="dropdown-arrow">▾</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 할 일 목록 -->
+      <div class="todo-list" id="todoList">
+        <!-- JS로 동적 생성 -->
+      </div>
+
+      <!-- 할 일 추가 버튼 -->
+      <button class="add-todo-btn" id="addTodoBtn">
+        <span class="add-icon">+</span> 할 일 추가하기
+      </button>
+
+  </section>
+
+  <!-- 오른쪽 메모장 영역 -->
+  <aside class="right-panel" id="rightPanel">
+      <div class="memo-header">
+        <span class="memo-title">메모장</span>
+        <button class="memo-edit-btn" id="memoEditBtn">✏️</button>
+        <button class="memo-more-btn" id="memoMoreBtn">⋮</button>
+      </div>
+      <div class="memo-body" id="memoBody">
+        <textarea class="memo-textarea" id="memoTextarea" placeholder="메모를 입력하세요..."></textarea>
+      </div>
+      <div class="memo-footer">
+        <span class="memo-save-status" id="memoSaveStatus">자동 저장됨 · 오늘 14:30</span>
+      </div>
+  </aside>
+
+  <!-- 하단 팁 -->
+  <footer class="page-footer">
+    <span class="tip-icon">💡</span>
+    <span class="tip-label">Tip</span>
+    <span class="tip-text">할 일을 완료하면 기여도가 올라가고, 마늘을 획득 할 수 있어요!</span>
+  </footer>
+</div>
+
+<!-- ============================== -->
+<!-- 할 일 추가 / 수정 모달 -->
+<!-- ============================== -->
+<div class="modal-overlay" id="todoModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">할 일 추가하기</h2>
+      <button class="modal-close-btn" id="modalCloseBtn">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- 왼쪽: 폼 -->
+      <div class="modal-form">
+        <div class="form-group">
+          <label class="form-label">할 일 제목 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="todoTitleInput" placeholder="예) 발표자료(PPT) 제작" maxlength="50" />
+          <span class="char-count"><span id="titleCharCount">0</span>/50</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">설명 (선택)</label>
+          <textarea class="form-textarea" id="todoDescInput" placeholder="할 일에 대한 내용을 입력하세요 (선택)" maxlength="200"></textarea>
+          <span class="char-count"><span id="descCharCount">0</span>/200</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">카테고리 (선택)</label>
+          <div class="category-chips" id="categoryChips">
+            <button class="chip" data-cat="발표 준비">발표 준비</button>
+            <button class="chip" data-cat="보고서">보고서</button>
+            <button class="chip" data-cat="기능 구현">기능 구현</button>
+            <button class="chip" data-cat="자료 조사">자료 조사</button>
+            <button class="chip chip-add" id="addCategoryBtn">+ 직접 입력</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label class="form-label">담당자</label>
+            <div class="assignee-area" id="assigneeArea">
+              <!-- JS로 동적 생성 -->
+              <button class="assignee-add-btn" id="assigneeAddBtn">+</button>
+            </div>
+          </div>
+          <div class="form-group half">
+            <label class="form-label">우선순위</label>
+            <div class="priority-select" id="prioritySelect">
+              <span class="priority-icon">🏴</span>
+              <span class="priority-text" id="priorityText">보통</span>
+              <span class="dropdown-arrow">▾</span>
+            </div>
+            <!-- 우선순위 드롭다운 -->
+            <div class="priority-dropdown hidden" id="priorityDropdown">
+              <button class="priority-option" data-priority="HIGH"><span class="priority-flag high">🏴</span> 높음</button>
+              <button class="priority-option" data-priority="MEDIUM"><span class="priority-flag medium">🏴</span> 보통</button>
+              <button class="priority-option" data-priority="LOW"><span class="priority-flag low">🏴</span> 낮음</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label class="form-label">마감일</label>
+            <div class="date-input-wrapper">
+              <span class="date-icon">📅</span>
+              <input type="date" class="form-input date-input" id="todoDeadlineInput" />
+              <span class="date-placeholder" id="datePlaceholder">날짜 선택</span>
+            </div>
+          </div>
+          <div class="form-group half">
+            <label class="form-label">마늘 보상</label>
+            <div class="garlic-input-wrapper">
+              <span class="garlic-icon">🧄</span>
+              <span class="garlic-label">총 마늘 보상</span>
+              <button class="garlic-btn minus" id="garlicMinus">−</button>
+              <span class="garlic-count" id="garlicCount">10</span>
+              <button class="garlic-btn plus" id="garlicPlus">+</button>
+              <span class="garlic-unit">개</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="garlic-project-info">
+          <span class="garlic-icon">🧄</span>
+          해당 프로젝트에 배정된 총 마늘 수: <strong id="projectGarlicTotal">362</strong>개
+        </div>
+      </div>
+
+      <!-- 오른쪽: 마늘 분배 -->
+      <div class="modal-distribution">
+        <label class="form-label">마늘 분배 방식</label>
+        <div class="dist-tabs">
+          <button class="dist-tab active" data-dist="equal" id="distEqualTab">
+            <span class="dist-tab-icon">👥</span> 균등 분배
+          </button>
+          <button class="dist-tab" data-dist="custom" id="distCustomTab">
+            <span class="dist-tab-icon">⚙️</span> 직접 조절
+          </button>
+        </div>
+
+        <!-- 균등 분배 뷰 -->
+        <div class="dist-view" id="distEqualView">
+          <p class="dist-desc">모든 담당자에게 균등하게 분배됩니다.</p>
+          <p class="dist-subtitle">미리보기 <span class="dist-info-icon">ⓘ</span></p>
+          <div class="dist-preview" id="distEqualPreview">
+            <!-- JS 동적 생성 -->
+          </div>
+          <p class="dist-or">또는</p>
+          <div class="dist-custom-guide">
+            <img th:src="@{/assets/danwoong.png}" alt="마늘" class="garlic-guide-img" />
+            <p class="guide-title">직접 조절로 더 세밀하게 분배해보세요!</p>
+            <p class="guide-desc">각 담당자에게 원하는 비율로 마늘을 배정할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <!-- 직접 조절 뷰 -->
+        <div class="dist-view hidden" id="distCustomView">
+          <p class="dist-desc">담당자별로 마늘을 직접 분배할 수 있습니다.</p>
+          <div class="dist-total-info">
+            총 마늘 보상 <strong id="distTotalGarlic">10</strong>개
+          </div>
+          <div class="dist-sliders" id="distSliders">
+            <!-- JS 동적 생성 -->
+          </div>
+          <div class="dist-summary">
+            <span>총합 <strong id="distSumPercent">100</strong>%</span>
+            <span>총 <strong id="distSumCount">10</strong>개</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="modal-cancel-btn" id="modalCancelBtn">취소</button>
+      <button class="modal-submit-btn" id="modalSubmitBtn">
+        <span class="submit-icon">✓</span> <span id="modalSubmitText">추가하기</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- 수정/삭제 컨텍스트 메뉴 -->
+<!-- ============================== -->
+<div class="context-menu hidden" id="contextMenu">
+  <button class="context-item" id="contextEdit">
+    <span class="context-icon">✏️</span> 수정
+  </button>
+  <button class="context-item" id="contextDelete">
+    <span class="context-icon">🗑️</span> 삭제
+  </button>
+</div>
+
+<!-- 담당자 선택 드롭다운 -->
+<div class="assignee-dropdown hidden" id="assigneeDropdown">
+  <div class="assignee-search-wrap">
+    <input type="text" class="assignee-search" id="assigneeSearch" placeholder="멤버 검색..." />
+  </div>
+  <div class="assignee-options" id="assigneeOptions">
+    <!-- JS로 동적 생성 -->
+  </div>
+</div>
+
+<script th:src="@{/js/group-todo.js}"></script>
+</body>
+</html>
