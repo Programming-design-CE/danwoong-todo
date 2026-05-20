@@ -1,6 +1,10 @@
 package com.danwoog.todo.controller;
 
-import com.danwoog.todo.dto.*;
+import com.danwoog.todo.dto.note.MyNoteRequest;
+import com.danwoog.todo.dto.note.MyNoteResponse;
+import com.danwoog.todo.dto.todo.MyCompletedTodoResponse;
+import com.danwoog.todo.dto.todo.MyTodoResponse;
+import com.danwoog.todo.dto.todo.MyTodoStatisticsResponse;
 import com.danwoog.todo.service.PersonalTodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

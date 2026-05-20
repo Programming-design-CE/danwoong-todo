@@ -45,4 +45,16 @@ public class CharacterEquippedItem {
     public String getSlotType() {
         return slotType;
     }
+
+    public CharacterEquippedItem(UserCharacter character, ShopItem item, String slotType) {
+        this.character = character;
+        this.item = item;
+        this.slotType = slotType;
+        this.equippedAt = LocalDateTime.now();
+    }
+
+    public void changeItem(ShopItem newItem) {
+        this.item = newItem;
+        this.equippedAt = LocalDateTime.now();
+    }
 }

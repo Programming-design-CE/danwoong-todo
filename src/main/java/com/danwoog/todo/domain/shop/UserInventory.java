@@ -1,6 +1,7 @@
 package com.danwoog.todo.domain.shop;
 
 import com.danwoog.todo.domain.user.User;
+import com.danwoog.todo.exception.CustomException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -30,30 +31,31 @@ public class UserInventory {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected UserInventory() {
-    }
+    protected UserInventory() {}
 
     public UserInventory(User user, ShopItem item, Integer quantity) {
         this.user = user;
         this.item = item;
-        this.quantity = quantity;
+        this.quantity = quantity != null ? quantity : 0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Long getInventoryId() {
-        return inventoryId;
+    public void addQuantity(int count) {
+        this.quantity += count;
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public User getUser() {
-        return user;
+    public void useQuantity(int count) {
+        if (this.quantity < count) {
+            throw new CustomException.BusinessException("수량이 부족합니다.");
+        }
+        this.quantity -= count;
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public ShopItem getItem() {
-        return item;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
+    public Long getInventoryId() { return inventoryId; }
+    public User getUser() { return user; }
+    public ShopItem getItem() { return item; }
+    public Integer getQuantity() { return quantity; }
 }

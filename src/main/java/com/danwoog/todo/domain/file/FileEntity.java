@@ -44,8 +44,7 @@ public class FileEntity {
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
-    protected FileEntity() {
-    }
+    protected FileEntity() {}
 
     public FileEntity(TodoGroup group, Folder folder, User uploadedBy,
                       String originalName, String storedName, String fileUrl,
@@ -61,7 +60,13 @@ public class FileEntity {
         this.uploadedAt = LocalDateTime.now();
     }
 
-    public Long getFileId() {
-        return fileId;
-    }
+    public Long getFileId() { return fileId; }
+    public TodoGroup getGroup() { return group; }
+    public Folder getFolder() { return folder; }
+    public String getOriginalName() { return originalName; }
+    public String getStoredName() { return storedName; }
+    public String getFileUrl() { return fileUrl; }
+    public Long getFileSize() { return fileSize; }
+    public String getFileType() { return fileType; }
+    public LocalDateTime getUploadedAt() { return uploadedAt; }
 }

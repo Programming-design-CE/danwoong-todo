@@ -10,4 +10,9 @@ public class TodoPageController {
     public String todosPage() {
         return "todo/group-todo";
     }
+
+    @GetMapping("/todo")
+    public String todoPage() {
+        return "todo/todo";
+    }
 }

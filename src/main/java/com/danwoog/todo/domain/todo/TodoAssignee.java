@@ -21,6 +21,9 @@ public class TodoAssignee {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "reward_amount")
+    private Integer rewardAmount;
+
     @Column(name = "assigned_at")
     private LocalDateTime assignedAt;
 
@@ -30,6 +33,14 @@ public class TodoAssignee {
     public TodoAssignee(Todo todo, User user) {
         this.todo = todo;
         this.user = user;
+        this.rewardAmount = 0;
+        this.assignedAt = LocalDateTime.now();
+    }
+
+    public TodoAssignee(Todo todo, User user, Integer rewardAmount) {
+        this.todo = todo;
+        this.user = user;
+        this.rewardAmount = rewardAmount;
         this.assignedAt = LocalDateTime.now();
     }
 
@@ -43,5 +54,9 @@ public class TodoAssignee {
 
     public User getUser() {
         return user;
+    }
+
+    public Integer getRewardAmount() {
+        return rewardAmount;
     }
 }
