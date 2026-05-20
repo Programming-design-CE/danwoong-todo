@@ -1,11 +1,11 @@
 .project-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 6px;
+    padding-right: 4px;
 }
 
 .project-list::-webkit-scrollbar {
@@ -18,20 +18,20 @@
 }
 
 .project-actions {
-    padding-top: 18px;
+    padding-top: 14px;
     display: flex;
     justify-content: center;
 }
 
 .btn-add-project {
-    min-width: 240px;
-    padding: 15px 26px 13px;
+    min-width: 180px;
+    padding: 11px 20px 10px;
     border: 1px solid #3b352f;
-    border-radius: 14px;
+    border-radius: 10px;
     background: #35312c;
     color: #f2ede5;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 18px;
+    font-size: 13px;
     cursor: pointer;
     transition: background .15s ease, border-color .15s ease;
 }
@@ -44,30 +44,31 @@
 .todo-empty-state {
     color: #7a7268;
     text-align: center;
-    padding: 64px 0;
-    font-size: 14px;
+    padding: 40px 0;
+    font-size: 12px;
 }
 
 .project-card {
     display: flex;
     align-items: center;
-    gap: 28px;
-    padding: 20px 22px;
+    gap: 18px;
+    min-height: 52px;
+    padding: 14px 18px;
     background: #2a2723;
     border: 1px solid #3a3530;
-    border-radius: 16px;
+    border-radius: 10px;
 }
 
 .project-icon {
-    width: 62px;
-    height: 62px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: #394248;
     color: #9ec9e5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 20px;
     line-height: 1;
     flex-shrink: 0;
 }
@@ -75,40 +76,42 @@
 .project-name-block {
     display: flex;
     align-items: center;
-    gap: 22px;
-    min-width: 360px;
+    gap: 14px;
+    min-width: 0;
+    width: 28%;
 }
 
 .project-name {
-    max-width: 240px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #fcfbf8;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 24px;
+    font-size: 13px;
 }
 
 .project-dday {
-    padding: 12px 18px 10px;
+    padding: 7px 12px 6px;
     border: 1px solid #4a433b;
     border-radius: 999px;
     background: #332f2a;
     color: #e3c894;
-    font-size: 18px;
+    font-size: 11px;
     flex-shrink: 0;
 }
 
 .project-progress-block {
-    min-width: 320px;
+    min-width: 0;
+    width: 26%;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
 }
 
 .progress-bar {
     flex: 1;
-    height: 10px;
+    height: 6px;
     border-radius: 999px;
     background: #5a544d;
     overflow: hidden;
@@ -122,7 +125,7 @@
 
 .project-percent {
     color: #f4f1eb;
-    font-size: 20px;
+    font-size: 11px;
     flex-shrink: 0;
 }
 
@@ -130,12 +133,13 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
+    width: 15%;
 }
 
 .member-avatar {
-    width: 48px;
-    height: 48px;
-    margin-left: -10px;
+    width: 34px;
+    height: 34px;
+    margin-left: -6px;
     border: 2px solid #2a2723;
     border-radius: 50%;
     background: #e5e5e5;
@@ -144,7 +148,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .member-avatar:first-child {
@@ -166,9 +170,9 @@
 }
 
 .member-more {
-    width: 48px;
-    height: 48px;
-    margin-left: -10px;
+    width: 34px;
+    height: 34px;
+    margin-left: -6px;
     border: 1px solid #45403a;
     border-radius: 50%;
     background: #2b2824;
@@ -176,22 +180,22 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .project-priority {
-    min-width: 116px;
+    min-width: 72px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     color: #f4f0ea;
-    font-size: 18px;
+    font-size: 11px;
     flex-shrink: 0;
 }
 
 .project-priority-flag {
     color: #ffffff;
-    font-size: 26px;
+    font-size: 16px;
     line-height: 1;
 }
 
@@ -200,8 +204,22 @@
     border: none;
     background: none;
     color: #e8c0a2;
-    font-size: 36px;
+    font-size: 24px;
     line-height: .8;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+@media (max-width: 1440px) {
+    .project-name-block {
+        width: 32%;
+    }
+
+    .project-progress-block {
+        width: 24%;
+    }
+
+    .member-avatars {
+        width: auto;
+    }
 }
