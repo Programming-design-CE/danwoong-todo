@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>캘린더</title>
+    <link rel="stylesheet" href="/css/todo/common.css">
+    <link rel="stylesheet" href="/css/todo/todos/placeholder.css">
+    <script src="/js/todo-common.js" defer></script>
+</head>
+<body>
+<div class="todo-page">
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '일정과 마감일을 캘린더에서 확인할 수 있어요.', false, '')}"></div>
+
+    <div class="todo-body">
+        <main class="todo-main">
+            <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'calendar', '4', '2')}"></div>
+
+            <section class="todo-content-placeholder">
+                <div class="todo-placeholder-card">
+                    <h2>캘린더 페이지</h2>
+                    <p>월간 캘린더와 일간 상세를 이 영역에서 독립적으로 개발하면 됩니다.</p>
+                </div>
+            </section>
+        </main>
+
+        <div th:replace="~{todo/fragments/memo-panel :: memo('/todos/my/note')}"></div>
+    </div>
+</div>
+</body>
+</html>
