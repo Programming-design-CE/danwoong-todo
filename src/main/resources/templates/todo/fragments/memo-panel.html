@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<aside th:fragment="memo(noteUrl)" class="memo-panel" th:attr="data-note-url=${noteUrl}">
+    <div class="memo-header">
+        <div class="memo-header-btn">
+            <span class="memo-label">메모장 (기본)</span>
+            <span class="memo-pencil">✎</span>
+        </div>
+        <button class="memo-more" type="button">⋮</button>
+    </div>
+
+    <div class="memo-body">
+        <div class="memo-textarea" id="memoTextarea" contenteditable="true" data-placeholder="메모를 입력하세요..."></div>
+    </div>
+
+    <div class="memo-footer" id="memoFooter"></div>
+</aside>
+</body>
+</html>

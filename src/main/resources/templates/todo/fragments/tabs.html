@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<div th:fragment="tabs(scope, activeTab, workingCount, completedCount)" class="todo-tabs">
+    <th:block th:if="${scope == 'todos'}">
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'working'} ? ' active'"
+           th:href="@{/todos/working}">
+            <span class="todo-tab-icon">☷</span>
+            <span>진행 중인 프로젝트</span>
+        </a>
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'completed'} ? ' active'"
+           th:href="@{/todos/completed}">
+            <span class="todo-tab-icon">✓</span>
+            <span>완료된 프로젝트</span>
+        </a>
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'calendar'} ? ' active'"
+           th:href="@{/todos/calendar}">
+            <span class="todo-tab-icon">◫</span>
+            <span>캘린더</span>
+        </a>
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'files'} ? ' active'"
+           th:href="@{/todos/files}">
+            <span class="todo-tab-icon">▤</span>
+            <span>파일&자료</span>
+        </a>
+    </th:block>
+
+    <th:block th:if="${scope == 'mytodos'}">
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'working'} ? ' active'"
+           th:href="@{/mytodos/working}">
+            <span class="todo-tab-icon">☷</span>
+            <span>진행 중인 할 일</span>
+        </a>
+        <a class="todo-tab"
+           th:classappend="${activeTab == 'completed'} ? ' active'"
+           th:href="@{/mytodos/completed}">
+            <span class="todo-tab-icon">✓</span>
+            <span>완료된 할 일</span>
+        </a>
+    </th:block>
+</div>
+</body>
+</html>
