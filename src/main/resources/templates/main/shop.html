@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상점</title>
+
+    <link rel="stylesheet" th:href="@{/css/shop.css}">
+</head>
+<body>
+
+<div class="shop-page">
+
+    <header class="shop-header">
+        <div class="left-header">
+            <button class="back-button" type="button" onclick="history.back()">‹</button>
+            <span class="page-title">상점</span>
+        </div>
+
+        <div class="garlic-status">
+            <img th:src="@{/assets/garlic.png}" alt="마늘" class="garlic-icon">
+            <span id="garlicCount">0</span>
+            <button class="plus-button" type="button">+</button>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section id="itemList" class="item-grid">
+            <!-- JS에서 아이템 렌더링 -->
+        </section>
+    </main>
+
+</div>
+
+<script th:src="@{/js/shop.js}"></script>
+</body>
+</html>
