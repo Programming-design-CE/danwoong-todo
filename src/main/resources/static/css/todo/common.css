@@ -16,8 +16,11 @@ body {
 }
 
 .todo-page {
+    height: 100vh;
     min-height: 100vh;
-    padding: 32px 30px 28px;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 30px 20px;
     display: flex;
     flex-direction: column;
 }
@@ -25,18 +28,18 @@ body {
 .todo-header {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 6px 0 32px;
+    gap: 16px;
+    padding: 0 0 18px;
 }
 
 .btn-back {
-    width: 60px;
-    height: 60px;
+    width: 38px;
+    height: 38px;
     border: 1px solid #2f2b26;
     border-radius: 999px;
     background: #201e1b;
     color: #e8c89a;
-    font-size: 28px;
+    font-size: 20px;
     line-height: 1;
     display: inline-flex;
     align-items: center;
@@ -52,20 +55,20 @@ body {
 .todo-heading-top {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 12px;
 }
 
 .todo-title {
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 56px;
-    line-height: 1;
+    font-size: 32px;
+    line-height: 1.1;
     color: #f7f5f1;
 }
 
 .todo-subtitle {
-    margin-top: 8px;
+    margin-top: 4px;
     color: #8c8377;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .todo-header-spacer {
@@ -114,7 +117,7 @@ body {
 .todo-body {
     display: flex;
     flex: 1;
-    gap: 28px;
+    gap: 14px;
     min-height: 0;
 }
 
@@ -123,28 +126,28 @@ body {
     min-width: 0;
     background: #221f1c;
     border: 1px solid #332e28;
-    border-radius: 16px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
-    padding: 18px 28px 24px;
+    padding: 12px 14px 14px;
 }
 
 .todo-tabs {
     display: flex;
-    gap: 34px;
-    padding: 2px 0 18px;
+    gap: 24px;
+    padding: 0 0 12px;
     border-bottom: 1px solid #332f2b;
 }
 
 .todo-tab {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 0 16px;
-    border-bottom: 3px solid transparent;
+    gap: 8px;
+    padding: 0 0 10px;
+    border-bottom: 2px solid transparent;
     color: #f2efea;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -155,34 +158,34 @@ body {
 
 .todo-tab-icon {
     color: inherit;
-    font-size: 22px;
+    font-size: 14px;
     line-height: 1;
 }
 
 .filter-bar {
     display: flex;
     justify-content: flex-end;
-    gap: 14px;
-    padding: 20px 0 28px;
+    gap: 10px;
+    padding: 14px 0 18px;
 }
 
 .filter-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 14px 18px;
+    gap: 6px;
+    padding: 10px 14px;
     border: 1px solid #3a342e;
-    border-radius: 20px;
+    border-radius: 16px;
     background: #211e1b;
     color: #f2efe8;
     font-family: 'MaplestoryLight', sans-serif;
-    font-size: 14px;
+    font-size: 11px;
     cursor: pointer;
 }
 
 .filter-caret {
     color: #e5d2a8;
-    font-size: 14px;
+    font-size: 11px;
 }
 
 .todo-content-placeholder {
@@ -215,21 +218,21 @@ body {
 }
 
 .memo-panel {
-    width: 500px;
+    width: clamp(420px, 26vw, 503px);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     background: #221f1c;
     border: 1px solid #332e28;
-    border-radius: 16px;
-    padding: 18px 20px 20px;
+    border-radius: 8px;
+    padding: 12px 12px 14px;
 }
 
 .memo-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 4px 18px;
+    gap: 8px;
+    padding: 4px 2px 10px;
 }
 
 .memo-header-btn {
@@ -241,12 +244,12 @@ body {
 .memo-label {
     color: #fbfaf6;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 22px;
+    font-size: 14px;
 }
 
 .memo-pencil {
     color: #ffffff;
-    font-size: 24px;
+    font-size: 16px;
     line-height: 1;
 }
 
@@ -255,7 +258,7 @@ body {
     border: none;
     background: none;
     color: #e8c0a2;
-    font-size: 28px;
+    font-size: 18px;
     cursor: pointer;
 }
 
@@ -268,14 +271,14 @@ body {
 .memo-textarea {
     width: 100%;
     min-height: 100%;
-    padding: 22px 22px 28px;
+    padding: 14px 14px 18px;
     border: 1px solid #3a342d;
-    border-radius: 16px;
+    border-radius: 10px;
     background: #221f1c;
     color: #b7b2aa;
     font-family: 'MaplestoryLight', sans-serif;
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 10px;
+    line-height: 1.9;
     white-space: pre-wrap;
     word-break: break-word;
     overflow-y: auto;
@@ -289,10 +292,16 @@ body {
 }
 
 .memo-footer {
-    padding: 14px 4px 0;
+    padding: 10px 2px 0;
     text-align: right;
     color: #6f685f;
-    font-size: 12px;
+    font-size: 10px;
+}
+
+@media (max-width: 1440px) {
+    .memo-panel {
+        width: clamp(320px, 24vw, 420px);
+    }
 }
 
 .modal-overlay {

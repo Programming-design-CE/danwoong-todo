@@ -5,22 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>캘린더</title>
     <link rel="stylesheet" href="/css/todo/common.css">
-    <link rel="stylesheet" href="/css/todo/todos/placeholder.css">
+    <link rel="stylesheet" href="/css/todo/todos/calendar.css">
     <script src="/js/todo-common.js" defer></script>
+    <script src="/js/todo-calendar.js" defer></script>
 </head>
 <body>
 <div class="todo-page">
-    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '일정과 마감일을 캘린더에서 확인할 수 있어요.', false, '')}"></div>
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '', false, '')}"></div>
 
     <div class="todo-body">
-        <main class="todo-main">
+        <main class="todo-main calendar-main">
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'calendar', '4', '2')}"></div>
 
-            <section class="todo-content-placeholder">
-                <div class="todo-placeholder-card">
-                    <h2>캘린더 페이지</h2>
-                    <p>월간 캘린더와 일간 상세를 이 영역에서 독립적으로 개발하면 됩니다.</p>
+            <section class="calendar-toolbar">
+                <div class="calendar-month-nav">
+                    <button class="calendar-nav-btn" id="calendarPrevBtn" type="button" aria-label="이전 달">&lt;</button>
+                    <h2 class="calendar-month-label" id="calendarMonthLabel">2026년 5월</h2>
+                    <button class="calendar-nav-btn" id="calendarNextBtn" type="button" aria-label="다음 달">&gt;</button>
                 </div>
+
+                <div class="calendar-controls">
+                    <select class="calendar-filter-select" id="calendarCategoryFilter" aria-label="카테고리 필터">
+                        <option value="all">전체</option>
+                    </select>
+                    <button class="calendar-today-btn" id="calendarTodayBtn" type="button">오늘</button>
+                </div>
+            </section>
+
+            <section class="calendar-board">
+                <div class="calendar-weekdays">
+                    <span>일</span>
+                    <span>월</span>
+                    <span>화</span>
+                    <span>수</span>
+                    <span>목</span>
+                    <span>금</span>
+                    <span>토</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
             </section>
         </main>
 
