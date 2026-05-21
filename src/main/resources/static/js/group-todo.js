@@ -20,6 +20,7 @@ const PRIORITY_CSS = {
 };
 
 let currentGroupId = Number(queryParams.get("groupId") || localStorage.getItem("currentGroupId") || 1);
+const currentDetailTab = (queryParams.get("tab") || "in-progress").toLowerCase();
 let currentUser = null;
 let todos = [];
 let friendList = [];
@@ -34,6 +35,14 @@ let selectedPriority = "MEDIUM";
 let garlicReward = 10;
 let distributionMode = "equal";
 let customDistribution = {};
+
+function getCurrentTodoStatus() {
+    return currentDetailTab === "completed" ? "COMPLETED" : "IN_PROGRESS";
+}
+
+function getDetailBackUrl() {
+    return `/todos/detail?groupId=${currentGroupId}`;
+}
 
 function getAccessToken() {
     return localStorage.getItem("accessToken") || "";
@@ -190,9 +199,9 @@ function buildRewardMap() {
     }
 
     if (distributionMode === "custom") {
+        syncCustomDistribution();
         selectedAssignees.forEach((userId) => {
-            const percent = customDistribution[userId] ?? 0;
-            rewardMap[userId] = Math.round(garlicReward * percent / 100);
+            rewardMap[userId] = customDistribution[userId] ?? 0;
         });
         return rewardMap;
     }
@@ -203,6 +212,113 @@ function buildRewardMap() {
         rewardMap[userId] = base + (index < remainder ? 1 : 0);
     });
     return rewardMap;
+}
+
+function allocateAmounts(total, userIds, weightMap = {}) {
+    const allocation = {};
+    if (!userIds.length) {
+        return allocation;
+    }
+
+    if (total <= 0) {
+        userIds.forEach((userId) => {
+            allocation[userId] = 0;
+        });
+        return allocation;
+    }
+
+    const weights = userIds.map((userId) => Math.max(0, Number(weightMap[userId] ?? 0)));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+
+    if (totalWeight <= 0) {
+        const base = Math.floor(total / userIds.length);
+        let remainder = total % userIds.length;
+        userIds.forEach((userId) => {
+            allocation[userId] = base + (remainder > 0 ? 1 : 0);
+            remainder = Math.max(0, remainder - 1);
+        });
+        return allocation;
+    }
+
+    const rawAllocations = userIds.map((userId, index) => {
+        const rawAmount = (total * weights[index]) / totalWeight;
+        const flooredAmount = Math.floor(rawAmount);
+        return {
+            userId,
+            amount: flooredAmount,
+            fraction: rawAmount - flooredAmount
+        };
+    });
+
+    let remainder = total - rawAllocations.reduce((sum, item) => sum + item.amount, 0);
+    rawAllocations
+        .sort((left, right) => right.fraction - left.fraction)
+        .forEach((item) => {
+            if (remainder <= 0) {
+                return;
+            }
+            item.amount += 1;
+            remainder -= 1;
+        });
+
+    rawAllocations.forEach((item) => {
+        allocation[item.userId] = item.amount;
+    });
+
+    return allocation;
+}
+
+function syncCustomDistribution() {
+    if (distributionMode !== "custom") {
+        return;
+    }
+
+    if (!selectedAssignees.length) {
+        customDistribution = {};
+        return;
+    }
+
+    if (selectedAssignees.length === 1) {
+        customDistribution = {
+            [selectedAssignees[0]]: garlicReward
+        };
+        return;
+    }
+
+    const sanitized = {};
+    selectedAssignees.forEach((userId) => {
+        sanitized[userId] = Math.max(0, Number(customDistribution[userId] ?? 0));
+    });
+
+    customDistribution = allocateAmounts(garlicReward, selectedAssignees, sanitized);
+}
+
+function redistributeRewards(changedUserId, requestedAmount) {
+    if (!selectedAssignees.length) {
+        customDistribution = {};
+        return;
+    }
+
+    if (selectedAssignees.length === 1) {
+        customDistribution = {
+            [selectedAssignees[0]]: garlicReward
+        };
+        return;
+    }
+
+    const nextAmount = Math.max(0, Math.min(garlicReward, Number(requestedAmount)));
+    const otherUserIds = selectedAssignees.filter((userId) => userId !== changedUserId);
+    const remainingReward = garlicReward - nextAmount;
+
+    const weightMap = {};
+    otherUserIds.forEach((userId) => {
+        weightMap[userId] = customDistribution[userId] ?? 0;
+    });
+
+    customDistribution = {
+        ...allocateAmounts(remainingReward, otherUserIds, weightMap),
+        [changedUserId]: nextAmount
+    };
 }
 
 function buildAssigneePayload() {
@@ -253,7 +369,7 @@ function renderTodoList() {
 
     list.innerHTML = "";
     if (count) {
-        count.textContent = String(todos.filter((todo) => todo.status !== "COMPLETED").length);
+        count.textContent = String(todos.length);
     }
 
     if (!todos.length) {
@@ -378,7 +494,7 @@ async function loadGroupContext() {
 
 async function loadTodos() {
     try {
-        const data = await api(`/todo-groups/${currentGroupId}/todos?status=IN_PROGRESS`);
+        const data = await api(`/todo-groups/${currentGroupId}/todos?status=${getCurrentTodoStatus()}`);
         todos = Array.isArray(data?.todos) ? data.todos : [];
         syncProjectMembersFromTodos();
         renderGroupMemberAvatars();
@@ -513,11 +629,10 @@ function updateAssigneeDisplay() {
 
 function recalculateDistributionSummary() {
     const rewardMap = buildRewardMap();
-    const totalPercent = distributionMode === "custom"
-        ? selectedAssignees.reduce((sum, userId) => sum + (customDistribution[userId] ?? 0), 0)
-        : (selectedAssignees.length ? 100 : 0);
-
     const totalReward = selectedAssignees.reduce((sum, userId) => sum + (rewardMap[userId] ?? 0), 0);
+    const totalPercent = garlicReward > 0
+        ? Math.round((totalReward / garlicReward) * 100)
+        : 0;
     document.getElementById("distSumPercent").textContent = String(totalPercent);
     document.getElementById("distSumCount").textContent = String(totalReward);
 }
@@ -525,25 +640,14 @@ function recalculateDistributionSummary() {
 function onSliderChange(event) {
     const userId = Number(event.target.dataset.uid);
     const value = Number(event.target.value);
-    customDistribution[userId] = value;
-    event.target.style.setProperty("--val", `${value}%`);
-    event.target.closest(".slider-track").style.setProperty("--val", `${value}%`);
-
-    const rewardMap = buildRewardMap();
-    const percent = document.querySelector(`[data-uid-pct="${userId}"]`);
-    const count = document.querySelector(`[data-uid-cnt="${userId}"]`);
-    if (percent) {
-        percent.textContent = `${value}%`;
-    }
-    if (count) {
-        count.textContent = `${rewardMap[userId] ?? 0}개`;
-    }
-    recalculateDistributionSummary();
+    redistributeRewards(userId, value);
+    updateDistribution();
 }
 
 function updateDistribution() {
     const equalPreview = document.getElementById("distEqualPreview");
     const sliders = document.getElementById("distSliders");
+    syncCustomDistribution();
     const rewardMap = buildRewardMap();
 
     equalPreview.innerHTML = "";
@@ -563,23 +667,25 @@ function updateDistribution() {
         `;
     });
 
-    const defaultPercent = selectedAssignees.length ? Math.floor(100 / selectedAssignees.length) : 0;
     selectedAssignees.forEach((userId) => {
         const member = getProjectMember(userId);
         if (!member) {
             return;
         }
 
-        const percent = customDistribution[userId] ?? defaultPercent;
+        const rewardAmount = rewardMap[userId] ?? 0;
+        const percent = garlicReward > 0
+            ? Math.round((rewardAmount / garlicReward) * 100)
+            : 0;
         sliders.innerHTML += `
             <div class="slider-row">
                 <div class="slider-avatar">${getAvatarInitial(member.nickname)}</div>
                 <span class="slider-name">${member.nickname}</span>
                 <div class="slider-track" style="--val:${percent}%">
-                    <input type="range" class="slider-input" min="0" max="100" value="${percent}" data-uid="${userId}" style="--val:${percent}%">
+                    <input type="range" class="slider-input" min="0" max="${garlicReward}" value="${rewardAmount}" data-uid="${userId}" style="--val:${percent}%">
                 </div>
                 <span class="slider-percent" data-uid-pct="${userId}">${percent}%</span>
-                <span class="slider-count" data-uid-cnt="${userId}">${rewardMap[userId] ?? 0}개</span>
+                <span class="slider-count" data-uid-cnt="${userId}">${rewardAmount}개</span>
             </div>
         `;
     });
@@ -655,8 +761,8 @@ function applyTodoDataToForm(todoData) {
 
     customDistribution = {};
     (todoData?.assignees || []).forEach((assignee) => {
-        if (assignee.reward_amount != null && garlicReward > 0) {
-            customDistribution[assignee.user_id] = Math.round((assignee.reward_amount / garlicReward) * 100);
+        if (assignee.reward_amount != null) {
+            customDistribution[assignee.user_id] = assignee.reward_amount;
         }
     });
 }
@@ -832,11 +938,26 @@ function removeAllProjectMembers() {
     renderMemberModal();
 }
 
+function syncDetailTabState() {
+    document.querySelectorAll("#tabBar .tab-item").forEach((tab) => {
+        const isActive = (currentDetailTab === "completed" && tab.dataset.tab === "completed")
+            || (currentDetailTab !== "completed" && tab.dataset.tab === "in-progress");
+        tab.classList.toggle("active", isActive);
+    });
+
+    const addTodoButton = document.getElementById("addTodoBtn");
+    if (addTodoButton) {
+        addTodoButton.style.display = currentDetailTab === "completed" ? "none" : "";
+    }
+}
+
 function initDetailTabs() {
     const tabBar = document.getElementById("tabBar");
     if (!tabBar) {
         return;
     }
+
+    syncDetailTabState();
 
     tabBar.addEventListener("click", (event) => {
         const tab = event.target.closest(".tab-item");
@@ -845,19 +966,12 @@ function initDetailTabs() {
         }
 
         if (tab.dataset.tab === "in-progress") {
-            window.location.href = `/todos/detail?groupId=${currentGroupId}`;
+            window.location.href = `/todos/detail?groupId=${currentGroupId}&tab=in-progress`;
             return;
         }
         if (tab.dataset.tab === "completed") {
-            window.location.href = "/todos/completed";
+            window.location.href = `/todos/detail?groupId=${currentGroupId}&tab=completed`;
             return;
-        }
-        if (tab.dataset.tab === "calendar") {
-            window.location.href = "/todos/calendar";
-            return;
-        }
-        if (tab.dataset.tab === "files") {
-            window.location.href = "/todos/files";
         }
     });
 }
