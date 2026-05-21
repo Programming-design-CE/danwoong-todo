@@ -107,13 +107,21 @@ function showModal(todo) {
     overlay.querySelector(".mtm-priority-val").innerHTML = '<span style="color:' + priorityColor + '">⚑ ' + priorityLabel + '</span>';
     overlay.querySelector(".mtm-desc-val").textContent = todo.description || "-";
 
-    // 진행률
+    // 왼쪽 담당자 아바타
+    const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
+    if (avatarWrap && todo.assignees && todo.assignees.length) {
+        avatarWrap.innerHTML = todo.assignees.map(a =>
+            '<div class="mtm-assignee-avatar" title="' + a.nickname + '">' + getInitial(a.nickname) + '</div>'
+        ).join('');
+    }
+
+    // 오른쪽 진행률
     const pct = 0;
     overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
     overlay.querySelector(".mtm-progress-pct").textContent = pct + "%";
     overlay.querySelector(".mtm-progress-pct-right").textContent = pct + "%";
 
-    // 담당자별 완료 여부
+    // 오른쪽 담당자별 완료 여부
     const assigneeList = overlay.querySelector(".mtm-assignee-list");
     if (assigneeList && todo.assignees && todo.assignees.length) {
         assigneeList.innerHTML = todo.assignees.map(a => {

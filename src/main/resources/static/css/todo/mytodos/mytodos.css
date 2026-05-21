@@ -153,12 +153,38 @@
     background: #1e1c19;
     border: 1px solid #3a342e;
     border-radius: 20px;
-    padding: 28px 32px;
-    width: 520px;
-    max-width: 90vw;
+    padding: 36px 40px;
+    width: 660px;
+    max-width: 94vw;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 24px;
+    height: 600px;
+}
+
+.mtm-body {
+    display: flex;
+    gap: 24px;
+}
+
+.mtm-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    flex: 1;
+    min-height: 0;
+    justify-content: space-between;
+}
+
+.mtm-right {
+    width: 210px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: flex-start;
 }
 
 .mtm-header {
@@ -168,7 +194,7 @@
 }
 
 .mtm-icon {
-    font-size: 28px;
+    font-size: 36px;
     flex-shrink: 0;
 }
 
@@ -212,7 +238,8 @@
 .mtm-progress-pct {
     color: #c9a96e;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 28px;
+    font-size: 24px;
+    margin: 2px 0;
 }
 
 .mtm-progress-bar {
@@ -231,15 +258,16 @@
 
 .mtm-progress-pct-right {
     color: #7a7268;
-    font-size: 13px;
+    font-size: 12px;
     text-align: right;
+    margin-bottom: 16px;
 }
 
 .mtm-row {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 4px 0;
+    padding: 10px 0;
     border-bottom: 1px solid #2b2724;
 }
 
@@ -264,28 +292,32 @@
     display: flex;
     gap: 12px;
     margin-top: 4px;
+    margin-top: auto;
+    justify-content: flex-end;
 }
 
 .mtm-detail-btn {
-    flex: 1;
-    padding: 14px;
+    flex: none;
+    width: 160px;
+    padding: 10px;
     border: 1px solid #3a342e;
     border-radius: 12px;
     background: #2a2723;
     color: #f4f1eb;
-    font-size: 15px;
+    font-size: 13px;
     cursor: pointer;
 }
 
 .mtm-complete-btn {
-    flex: 1;
-    padding: 14px;
+    flex: none;
+    width: 160px;
+    padding: 10px;
     border: none;
     border-radius: 12px;
     background: #c9a96e;
     color: #1e1c19;
     font-family: 'MaplestoryBold', sans-serif;
-    font-size: 15px;
+    font-size: 13px;
     cursor: pointer;
 }
 
@@ -387,4 +419,20 @@
 .mtm-status--none {
     background: #3a2020;
     color: #e07b54;
+}
+
+.mtm-assignee-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.mytodo-garlic-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #c9a96e;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-left: 4px;
 }
