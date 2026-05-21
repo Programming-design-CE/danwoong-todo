@@ -11,6 +11,7 @@ import com.danwoog.todo.dto.todo.MyCompletedTodoResponse;
 import com.danwoog.todo.dto.todo.MyTodoDto;
 import com.danwoog.todo.dto.todo.MyTodoResponse;
 import com.danwoog.todo.dto.todo.MyTodoStatisticsResponse;
+import com.danwoog.todo.repository.todo.GroupTodoAssigneeRepository;
 import com.danwoog.todo.repository.todo.TodoAssigneeRepository;
 import com.danwoog.todo.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 public class PersonalTodoService {
     private final UserRepository userRepository;
     private final TodoAssigneeRepository todoAssigneeRepository;
+    private final GroupTodoAssigneeRepository groupTodoAssigneeRepository;
 
     public MyTodoResponse getMyTodos(Long memberId) {
         List<TodoAssignee> assignees = todoAssigneeRepository.findByMemberIdAndStatusWithTodoAndGroup(memberId, TodoStatus.IN_PROGRESS);
@@ -36,7 +38,12 @@ public class PersonalTodoService {
 
     public MyCompletedTodoResponse getMyCompletedTodos(Long memberId) {
         List<TodoAssignee> assignees = todoAssigneeRepository.findByMemberIdAndStatusWithTodoAndGroup(memberId, TodoStatus.COMPLETED);
-        List<MyCompletedTodoDto> dtos = assignees.stream().map(MyCompletedTodoDto::new).collect(Collectors.toList());
+        List<Long> todoIds = assignees.stream().map(ta -> ta.getTodo().getTodoId()).collect(Collectors.toList());
+        Map<Long, List<TodoAssignee>> assigneeMap = groupTodoAssigneeRepository.findByTodoIdsWithUser(todoIds).stream()
+                .collect(Collectors.groupingBy(a -> a.getTodo().getTodoId()));
+        List<MyCompletedTodoDto> dtos = assignees.stream()
+                .map(ta -> new MyCompletedTodoDto(ta, assigneeMap.getOrDefault(ta.getTodo().getTodoId(), List.of())))
+                .collect(Collectors.toList());
         return new MyCompletedTodoResponse(dtos);
     }
 
