@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,8 +22,6 @@ public class FileController {
 
     private final FileService fileService;
 
-    private final Long TEMP_MEMBER_ID = 1L;
-
     // FileService와 동일한 경로 — application.properties 변경 시 자동 반영
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
@@ -30,18 +29,20 @@ public class FileController {
     /** GET /todo-groups/{groupId}/folders/root — 루트 폴더 조회 */
     @GetMapping("/todo-groups/{groupId}/folders/root")
     public ResponseEntity<ApiResponse<FolderResponse>> getRootFolder(
+            Authentication authentication,
             @PathVariable Long groupId) {
-        return ResponseEntity.ok(ApiResponse.ok(fileService.getRootFolder(groupId, TEMP_MEMBER_ID)));
+        return ResponseEntity.ok(ApiResponse.ok(fileService.getRootFolder(groupId, getLoginUserId(authentication))));
     }
 
     /** POST /todo-groups/{groupId}/folders/{folderId}/folders — 하위 폴더 생성 */
     @PostMapping("/todo-groups/{groupId}/folders/{folderId}/folders")
     public ResponseEntity<ApiResponse<FolderResponse>> createSubFolder(
+            Authentication authentication,
             @PathVariable Long groupId,
             @PathVariable Long folderId,
             @RequestBody FolderCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(fileService.createSubFolder(groupId, folderId, request, TEMP_MEMBER_ID)));
+                .body(ApiResponse.ok(fileService.createSubFolder(groupId, folderId, request, getLoginUserId(authentication))));
     }
 
     /** GET /todo-groups/{groupId}/folders/{folderId}/items — 폴더 내부 항목 조회 */
@@ -56,11 +57,12 @@ public class FileController {
     @PostMapping(value = "/todo-groups/{groupId}/folders/{folderId}/files", 
                 consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<FileResponse>> uploadFile(
+            Authentication authentication,
             @PathVariable Long groupId,
             @PathVariable Long folderId,
             @RequestPart("file") MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(fileService.uploadFile(groupId, folderId, file, TEMP_MEMBER_ID)));
+                .body(ApiResponse.ok(fileService.uploadFile(groupId, folderId, file, getLoginUserId(authentication))));
     }
 
     /** GET /files/{fileId} — 파일 다운로드 */
@@ -88,5 +90,9 @@ public class FileController {
     public ResponseEntity<ApiResponse<Void>> deleteFolder(@PathVariable Long folderId) {
         fileService.deleteFolder(folderId);
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    private Long getLoginUserId(Authentication authentication) {
+        return (Long) authentication.getPrincipal();
     }
 }

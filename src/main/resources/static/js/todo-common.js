@@ -49,6 +49,27 @@ function initTodoModeToggle() {
     });
 }
 
+function initBackButton() {
+    const button = document.querySelector(".btn-back");
+    if (!button) {
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const queryBack = params.get("back");
+    const pageBack = document.querySelector(".todo-page")?.dataset.backUrl;
+    const nextUrl = queryBack ? decodeURIComponent(queryBack) : pageBack;
+
+    if (!nextUrl) {
+        return;
+    }
+
+    button.onclick = null;
+    button.addEventListener("click", () => {
+        window.location.href = nextUrl;
+    });
+}
+
 function initMemoPanel() {
     const panel = document.querySelector(".memo-panel");
     const textarea = document.getElementById("memoTextarea");
@@ -103,6 +124,7 @@ function initMemoPanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    initBackButton();
     initTodoModeToggle();
     initMemoPanel();
 });

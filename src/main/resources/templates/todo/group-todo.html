@@ -10,7 +10,7 @@
   <script th:src="@{/js/group-todo.js}" defer></script>
 </head>
 <body>
-  <div class="todo-page">
+  <div class="todo-page" data-back-url="/todos/working">
     <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '', false, '/mytodos/working')}"></div>
 
     <div class="todo-body">
@@ -18,20 +18,11 @@
         <nav class="tab-bar" id="tabBar">
           <button class="tab-item active" data-tab="in-progress" type="button">
             <span class="tab-icon">☰</span>
-            진행 중인 할 일
-            <span class="tab-count" id="inProgressCount">0</span>
+            진행 중인 할 일 <span class="tab-count" id="inProgressCount">0</span>
           </button>
           <button class="tab-item" data-tab="completed" type="button">
             <span class="tab-icon">✓</span>
             완료된 할 일
-          </button>
-          <button class="tab-item" data-tab="calendar" type="button">
-            <span class="tab-icon">📅</span>
-            캘린더
-          </button>
-          <button class="tab-item" data-tab="files" type="button">
-            <span class="tab-icon">📎</span>
-            파일 &amp; 자료
           </button>
         </nav>
 
