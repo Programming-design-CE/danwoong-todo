@@ -1,0 +1,137 @@
+@font-face {
+    font-family: 'MaplestoryBold';
+    src: url('/fonts/Maplestory%20Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* 전체 페이지 */
+.boss-page {
+    width: 100vw;
+    height: 100vh;
+    background-color: #777777;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: 'MaplestoryBold', sans-serif;
+}
+
+/* 실제 게임 박스 */
+.boss-game-box {
+    position: relative;
+
+    width: 960px;
+    height: 540px;
+
+    border: 4px solid #0099ff;
+
+    background-image: url('/assets/boss_background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* 각 화면 공통 */
+.boss-screen {
+    position: absolute;
+    inset: 0;
+
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    text-align: center;
+    color: white;
+}
+
+/* 현재 보이는 화면 */
+.boss-screen.active {
+    display: flex;
+}
+
+/* 1번 화면 */
+.boss-title {
+    margin: 0;
+
+    color: #fff200;
+    font-size: 58px;
+    line-height: 1;
+    letter-spacing: -2px;
+
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.boss-subtitle {
+    margin-top: 18px;
+
+    color: #ffffff;
+    font-size: 22px;
+    line-height: 1.4;
+
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* 2번 화면 */
+.guide-title {
+    margin: 0 0 24px 0;
+
+    color: #fff200;
+    font-size: 30px;
+    line-height: 1.2;
+
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.guide-text-box {
+    color: #ffffff;
+    font-size: 21px;
+    line-height: 1.65;
+
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.guide-text-box p {
+    margin: 4px 0;
+}
+
+/* 작은 화면 대응 */
+@media (max-width: 1000px) {
+    .boss-game-box {
+        width: 90vw;
+        height: calc(90vw * 9 / 16);
+    }
+
+    .boss-title {
+        font-size: 44px;
+    }
+
+    .boss-subtitle {
+        font-size: 18px;
+    }
+
+    .guide-title {
+        font-size: 26px;
+    }
+
+    .guide-text-box {
+        font-size: 17px;
+    }
+}
