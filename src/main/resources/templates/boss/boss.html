@@ -10,7 +10,7 @@
 <div class="boss-page">
   <section id="bossGameBox" class="boss-game-box">
 
-    <!-- 1번 화면 -->
+    <!-- 1번 시작 화면 -->
     <div id="startScreen" class="boss-screen active">
       <div class="start-content">
         <h1 class="boss-title">BONUS GAME</h1>
@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <!-- 2번 화면 -->
+    <!-- 2번 설명 화면 -->
     <div id="guideScreen" class="boss-screen guide-screen">
       <div id="guideContent" class="guide-content">
         <h2 class="guide-title">게임 설명</h2>
@@ -30,15 +30,46 @@
       </div>
     </div>
 
-    <!-- 3번 화면 : 카운트다운 / START -->
+    <!-- 3번 실제 게임 화면 -->
     <div id="playScreen" class="boss-screen play-screen">
       <p class="play-title">화면을 연타해 단비에게 마늘을 먹여주자!</p>
       <p id="playTimer" class="play-timer">00:15</p>
 
       <div id="countdownText" class="countdown-text"></div>
+      <div id="hitCount" class="hit-count">x0</div>
+      <div id="finishText" class="finish-text">FINISH !</div>
 
-      <img class="boss-danbi" th:src="@{/assets/boss_danbi.png}" alt="단비">
-      <img class="boss-hand" th:src="@{/assets/hand.png}" alt="손">
+      <!-- 단비 기본 -->
+      <img
+              id="danbiNormal"
+              class="boss-danbi danbi-state visible-state"
+              th:src="@{/assets/boss_danbi.png}"
+              alt="단비 기본"
+      >
+
+      <!-- 단비 입벌림 -->
+      <img
+              id="danbiMouth"
+              class="boss-danbi danbi-state"
+              th:src="@{/assets/mouth_danbi.png}"
+              alt="단비 입벌림"
+      >
+
+      <!-- 마늘 든 손 -->
+      <img
+              id="handWithGarlic"
+              class="boss-hand hand-state visible-state"
+              th:src="@{/assets/hand.png}"
+              alt="마늘 든 손"
+      >
+
+      <!-- 마늘 없는 손 -->
+      <img
+              id="handWithoutGarlic"
+              class="boss-hand hand-state"
+              th:src="@{/assets/hand2.png}"
+              alt="마늘 없는 손"
+      >
     </div>
 
   </section>
