@@ -15,29 +15,27 @@ body {
     padding: 0;
     width: 100%;
     height: 100%;
+
+    overflow: hidden;
 }
 
 /* 전체 페이지 */
 .boss-page {
     width: 100vw;
     height: 100vh;
-    background-color: #777777;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     font-family: 'MaplestoryBold', sans-serif;
+    overflow: hidden;
 }
 
-/* 실제 게임 박스 */
+/* 실제 게임 화면 */
 .boss-game-box {
     position: relative;
 
-    width: 960px;
-    height: 540px;
+    width: 100vw;
+    height: 100vh;
 
-    border: 4px solid #0099ff;
+    border: none;
 
     background-image: url('/assets/boss_background.png');
     background-size: cover;
@@ -46,6 +44,20 @@ body {
 
     overflow: hidden;
     cursor: pointer;
+}
+
+/* 두 번째 화면에서만 배경 어둡게 */
+.boss-game-box.dark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-color: rgba(0, 0, 0, 0.45);
+
+    z-index: 1;
+    pointer-events: none;
+
+    animation: fadeInOverlay 0.45s ease forwards;
 }
 
 /* 각 화면 공통 */
@@ -60,6 +72,8 @@ body {
 
     text-align: center;
     color: white;
+
+    z-index: 2;
 }
 
 /* 현재 보이는 화면 */
@@ -72,55 +86,82 @@ body {
     margin: 0;
 
     color: #fff200;
-    font-size: 58px;
+    font-size: 70px;
     line-height: 1;
     letter-spacing: -2px;
 
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
 }
 
 .boss-subtitle {
-    margin-top: 18px;
+    margin-top: 22px;
 
     color: #ffffff;
-    font-size: 22px;
+    font-size: 26px;
     line-height: 1.4;
 
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
 }
 
 /* 2번 화면 */
 .guide-title {
-    margin: 0 0 24px 0;
+    margin: 0 0 36px 0;
 
     color: #fff200;
-    font-size: 30px;
+    font-size: 42px;
     line-height: 1.2;
 
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
 }
 
 .guide-text-box {
     color: #ffffff;
-    font-size: 21px;
-    line-height: 1.65;
+    font-size: 28px;
+    line-height: 1.7;
 
-    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
 .guide-text-box p {
-    margin: 4px 0;
+    margin: 8px 0;
+}
+
+/* 두 번째 화면 글자 올라오는 애니메이션 */
+.guide-content {
+    opacity: 0;
+    transform: translateY(45px);
+}
+
+.guide-content.show {
+    animation: slideUpText 0.7s ease-out forwards;
+}
+
+@keyframes slideUpText {
+    0% {
+        opacity: 0;
+        transform: translateY(45px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInOverlay {
+    0% {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        background-color: rgba(0, 0, 0, 0.45);
+    }
 }
 
 /* 작은 화면 대응 */
-@media (max-width: 1000px) {
-    .boss-game-box {
-        width: 90vw;
-        height: calc(90vw * 9 / 16);
-    }
-
+@media (max-width: 768px) {
     .boss-title {
-        font-size: 44px;
+        font-size: 42px;
     }
 
     .boss-subtitle {
@@ -128,10 +169,11 @@ body {
     }
 
     .guide-title {
-        font-size: 26px;
+        font-size: 30px;
     }
 
     .guide-text-box {
-        font-size: 17px;
+        font-size: 18px;
+        padding: 0 20px;
     }
 }

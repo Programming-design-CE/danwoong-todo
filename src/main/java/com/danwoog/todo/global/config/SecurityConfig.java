@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/assets/**",
                                 "/fonts/**",
-
+                                "/boss",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
