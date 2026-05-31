@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Bonus Game</title>
 
-  <link rel="stylesheet" href="/css/boss.css">
+  <link rel="stylesheet" th:href="@{/css/boss.css}">
 </head>
 <body>
 
@@ -30,6 +30,6 @@
   </section>
 </div>
 
-<script src="/js/boss.js"></script>
+<script th:src="@{/js/boss.js}"></script>
 </body>
 </html>
