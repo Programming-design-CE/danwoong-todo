@@ -5,6 +5,13 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'MaplestoryLight';
+    src: url('/fonts/Maplestory%20Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -20,6 +27,10 @@ body {
 
 body {
     font-family: 'MaplestoryBold', sans-serif;
+}
+
+button {
+    font-family: inherit;
 }
 
 .boss-page {
@@ -107,7 +118,6 @@ body {
 .guide-content {
     position: relative;
     z-index: 2;
-
     text-align: center;
     opacity: 0;
     transform: translateY(45px);
@@ -188,23 +198,9 @@ body {
     z-index: 5;
 }
 
-.play-timer.timer-warning {
-    animation: timerShakeLight 0.18s infinite alternate;
-}
-
 .play-timer.timer-danger {
     color: #ff1717;
     animation: timerShakeStrong 0.1s infinite alternate;
-}
-
-@keyframes timerShakeLight {
-    0% {
-        transform: translateX(calc(-50% - 1px)) rotate(-1deg);
-    }
-
-    100% {
-        transform: translateX(calc(-50% + 1px)) rotate(1deg);
-    }
 }
 
 @keyframes timerShakeStrong {
@@ -286,7 +282,7 @@ body {
 .hit-count {
     position: absolute;
     top: 50%;
-    left: 35%;
+    left: 34%;
     transform: translate(-50%, -50%);
 
     margin: 0;
@@ -355,7 +351,7 @@ body {
     }
 }
 
-/* 왼쪽 단비 - 네 원래 크기 그대로 */
+/* 왼쪽 단비 - 기존 게임 화면 크기 유지 */
 .boss-danbi {
     position: absolute;
     left: 36px;
@@ -369,7 +365,7 @@ body {
     pointer-events: none;
 }
 
-/* 오른쪽 손 - 네 원래 크기 그대로 */
+/* 오른쪽 손 - 기존 게임 화면 크기 유지 */
 .boss-hand {
     position: absolute;
     right: -90px;
@@ -383,7 +379,7 @@ body {
     pointer-events: none;
 }
 
-/* 단비 이미지 상태 전환 */
+/* 단비 상태 전환 */
 .danbi-state {
     opacity: 0;
     transition: opacity 0.06s linear;
@@ -393,7 +389,7 @@ body {
     opacity: 1;
 }
 
-/* 손 이미지 상태 전환 */
+/* 손 상태 전환 */
 .hand-state {
     opacity: 0;
     transition:
@@ -405,17 +401,224 @@ body {
     opacity: 1;
 }
 
-/* 클릭했을 때 마늘 든 손이 단비 입 쪽으로 이동 */
 .boss-hand.hit-move {
     transform: translateX(-430px) translateY(-120px);
 }
 
-/* 마늘 없는 손이 잠깐 보이는 위치 */
 .boss-hand.after-move {
     transform: translateX(-360px) translateY(-90px);
 }
 
-/* 반응형 */
+/* =======================
+   4번 결과 화면
+======================= */
+.result-screen {
+    justify-content: flex-start;
+    align-items: stretch;
+    cursor: default;
+}
+
+.result-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.42);
+    z-index: 1;
+}
+
+/* 결과 화면 단비 */
+.result-danbi {
+    position: absolute;
+    left: 36px;
+    bottom: -35px;
+
+    width: clamp(300px, 35vw, 500px);
+    height: auto;
+
+    z-index: 2;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 아우.. 배불러 */
+.result-message {
+    position: absolute;
+    left: 500px;
+    top: 305px;
+
+    margin: 0;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 1.3;
+
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    z-index: 3;
+}
+
+/* 결산 박스 */
+.result-card {
+    position: absolute;
+    right: 54px;
+    top: 48px;
+
+    width: 470px;
+    min-height: 540px;
+
+    padding: 42px 34px 30px;
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.88);
+    z-index: 3;
+}
+
+/* 결산 한 줄 */
+.result-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-bottom: 32px;
+
+    opacity: 0;
+    transform: translateY(18px);
+}
+
+.result-row.show {
+    animation: resultLineShow 0.65s ease forwards;
+}
+
+@keyframes resultLineShow {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-label {
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 36px;
+    color: #000000;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.result-value {
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 32px;
+    line-height: 1.2;
+}
+
+.result-value-soft {
+    color: #ffffff;
+    text-shadow: 0 2px 30px rgba(210, 116, 55, 1);
+}
+
+.result-value-garlic {
+    color: #FAEA07;
+    text-shadow: 0 2px 30px rgba(255, 0, 0, 1);
+}
+
+.result-divider {
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background-color: #000000;
+    margin: 4px 0 24px;
+}
+
+/* 등급 도장 */
+.grade-stamp {
+    width: 170px;
+    height: 170px;
+    margin: 26px auto 0;
+
+    border: 6px solid #ff0000;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+}
+
+.grade-stamp.show {
+    animation: stampDrop 0.45s ease forwards;
+}
+
+@keyframes stampDrop {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(-8deg);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1.08) rotate(-8deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(-8deg);
+    }
+}
+
+.grade-stamp span {
+    color: #ff0000;
+    font-size: 108px;
+    line-height: 1;
+}
+
+/* 돌아가기 */
+.back-button {
+    position: absolute;
+    right: 28px;
+    bottom: 18px;
+
+    border: none;
+    background: transparent;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 26px;
+    color: #000000;
+    cursor: pointer;
+
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.back-button.show {
+    animation: backBtnShow 0.45s ease forwards;
+}
+
+@keyframes backBtnShow {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.back-arrow {
+    display: inline-block;
+    margin-left: 4px;
+}
+
+/* =======================
+   반응형
+======================= */
 @media (max-width: 1024px) {
     .boss-title {
         font-size: 54px;
@@ -454,7 +657,7 @@ body {
     }
 
     .hit-count {
-        left: 34%;
+        left: 36%;
         font-size: 70px;
     }
 
@@ -468,6 +671,46 @@ body {
 
     .boss-hand.after-move {
         transform: translateX(-280px) translateY(-70px);
+    }
+
+    .result-danbi {
+        width: clamp(260px, 34vw, 400px);
+        bottom: -28px;
+    }
+
+    .result-card {
+        width: 390px;
+        right: 28px;
+        top: 44px;
+        min-height: 470px;
+        padding: 30px 24px 22px;
+    }
+
+    .result-label {
+        font-size: 28px;
+    }
+
+    .result-value {
+        font-size: 26px;
+    }
+
+    .grade-stamp {
+        width: 138px;
+        height: 138px;
+    }
+
+    .grade-stamp span {
+        font-size: 84px;
+    }
+
+    .result-message {
+        left: 250px;
+        top: 270px;
+        font-size: 22px;
+    }
+
+    .back-button {
+        font-size: 21px;
     }
 }
 
@@ -510,7 +753,7 @@ body {
     }
 
     .hit-count {
-        left: 35%;
+        left: 36%;
         font-size: 46px;
     }
 
@@ -532,5 +775,59 @@ body {
 
     .boss-hand.after-move {
         transform: translateX(-95px) translateY(-25px);
+    }
+
+    .result-danbi {
+        width: clamp(170px, 34vw, 230px);
+        bottom: -8px;
+    }
+
+    .result-card {
+        width: 285px;
+        right: 14px;
+        top: 42px;
+        min-height: 340px;
+        padding: 20px 16px 16px;
+    }
+
+    .result-row {
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .result-label {
+        font-size: 18px;
+    }
+
+    .result-value {
+        font-size: 18px;
+    }
+
+    .result-divider {
+        height: 4px;
+        margin: 0 0 14px;
+    }
+
+    .grade-stamp {
+        width: 96px;
+        height: 96px;
+        border-width: 4px;
+        margin-top: 12px;
+    }
+
+    .grade-stamp span {
+        font-size: 54px;
+    }
+
+    .result-message {
+        left: 165px;
+        top: 225px;
+        font-size: 15px;
+    }
+
+    .back-button {
+        right: 12px;
+        bottom: 8px;
+        font-size: 15px;
     }
 }

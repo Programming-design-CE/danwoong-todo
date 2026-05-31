@@ -72,6 +72,45 @@
       >
     </div>
 
+    <!-- 4번 결과 화면 -->
+    <div id="resultScreen" class="boss-screen result-screen">
+      <img
+              id="resultDanbi"
+              class="result-danbi"
+              th:src="@{/assets/full_danbi.png}"
+              alt="결산 단비"
+      >
+
+      <p class="result-message">아우.. 배불러 .. ㅠㅠ</p>
+
+      <div class="result-card">
+        <div id="resultRowPlayer" class="result-row">
+          <span class="result-label">플레이어 :</span>
+          <span id="resultPlayerName" class="result-value result-value-soft">플레이어</span>
+        </div>
+
+        <div id="resultRowHit" class="result-row">
+          <span class="result-label">연타 횟수 :</span>
+          <span id="resultHitCount" class="result-value result-value-soft">+ 0</span>
+        </div>
+
+        <div class="result-divider"></div>
+
+        <div id="resultRowGarlic" class="result-row">
+          <span class="result-label">획득 마늘 :</span>
+          <span id="resultGarlicCount" class="result-value result-value-garlic">0개</span>
+        </div>
+
+        <div id="resultGradeStamp" class="grade-stamp">
+          <span id="resultGradeText">F</span>
+        </div>
+
+        <button id="backButton" type="button" class="back-button">
+          돌아가기 <span class="back-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
   </section>
 </div>
 
