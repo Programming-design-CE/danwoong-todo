@@ -194,7 +194,7 @@
     border-radius: 12px;
     background: #2a2724;
     display: grid;
-    grid-template-columns: 40px minmax(170px, 1.2fr) auto 170px 110px 78px 20px;
+    grid-template-columns: minmax(170px, 1.2fr) 170px 80px 110px 20px;
     align-items: center;
     gap: 16px;
 }
@@ -300,6 +300,7 @@
 .progress-fill {
     height: 100%;
     border-radius: inherit;
+    background: #d7bc91;
 }
 
 .progress-fill.high {
@@ -345,6 +346,22 @@
 .assignee-more {
     background: #2d2a27;
     color: #d8b98a;
+}
+
+.todo-garlic {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.garlic-emoji {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.garlic-count-label {
+    color: #ebe5da;
+    font-size: 11px;
 }
 
 .todo-priority {
@@ -441,7 +458,7 @@
 }
 
 .modal-container {
-    width: min(980px, calc(100vw - 120px));
+    width: min(560px, calc(100vw - 120px));
     max-height: calc(100vh - 90px);
     border: 1px solid #2d2924;
     border-radius: 14px;
@@ -477,6 +494,13 @@
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.9fr);
     gap: 26px;
+    padding: 0 22px 20px;
+    min-height: 0;
+    overflow: auto;
+}
+
+.modal-body--simple {
+    display: block;
     padding: 0 22px 20px;
     min-height: 0;
     overflow: auto;
@@ -1263,7 +1287,7 @@
 
 @media (max-width: 1360px) {
     .todo-item {
-        grid-template-columns: 34px minmax(140px, 1.3fr) auto 132px 88px 60px 16px;
+        grid-template-columns: minmax(140px, 1.3fr) 132px 70px 88px 16px;
         gap: 12px;
         padding: 12px 14px;
     }
@@ -1287,40 +1311,30 @@
     }
 
     .todo-item {
-        grid-template-columns: 34px minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         grid-template-areas:
-            "icon info more"
-            "icon meta more"
-            "icon progress more"
-            "icon assignees priority";
+            "info more"
+            "progress more"
+            "garlic assignees";
         align-items: start;
         row-gap: 8px;
-    }
-
-    .todo-status-icon {
-        grid-area: icon;
     }
 
     .todo-info {
         grid-area: info;
     }
 
-    .todo-category {
-        grid-area: meta;
-        justify-self: start;
-    }
-
     .todo-progress {
         grid-area: progress;
     }
 
-    .todo-assignees {
-        grid-area: assignees;
+    .todo-garlic {
+        grid-area: garlic;
     }
 
-    .todo-priority {
-        grid-area: priority;
-        justify-self: start;
+    .todo-assignees {
+        grid-area: assignees;
+        justify-self: end;
     }
 
     .todo-more-btn {
