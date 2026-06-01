@@ -72,4 +72,17 @@ public class UserController {
         Long userId = (Long) authentication.getPrincipal();
         return userService.updateMyInfo(userId, request);
     }
+
+    @Operation(summary = "마늘 누적 추가", description = "JWT 토큰을 기반으로 현재 로그인한 사용자의 마늘 개수를 누적 추가합니다.")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PatchMapping("/garlic")
+    public UserInfoResponse addGarlic(
+            Authentication authentication,
+            @RequestBody Map<String, Integer> request
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        int amount = request.getOrDefault("amount", 0);
+
+        return userService.addGarlic(userId, amount);
+    }
 }

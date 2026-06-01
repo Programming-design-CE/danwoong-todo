@@ -60,6 +60,14 @@ public class User {
 
     public void setPersonalNote(String personalNote) { this.personalNote = personalNote; }
 
+    public void addGarlic(int amount) {
+        if (this.garlicCount == null) {
+            this.garlicCount = 0;
+        }
+
+        this.garlicCount += amount;
+    }
+
     public Long getUserId() { return userId; }
     public String getLoginId() { return loginId; }
     public String getPassword() { return password; }

@@ -1,0 +1,833 @@
+@font-face {
+    font-family: 'MaplestoryBold';
+    src: url('/fonts/Maplestory%20Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MaplestoryLight';
+    src: url('/fonts/Maplestory%20Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'MaplestoryBold', sans-serif;
+}
+
+button {
+    font-family: inherit;
+}
+
+.boss-page {
+    width: 100vw;
+    height: 100vh;
+}
+
+.boss-game-box {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    cursor: pointer;
+
+    background-image: url('/assets/boss_background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 공통 화면 */
+.boss-screen {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.35s ease;
+}
+
+.boss-screen.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* =======================
+   1번 시작 화면
+======================= */
+.start-content {
+    text-align: center;
+}
+
+.boss-title {
+    margin: 0;
+    color: #fff200;
+    font-size: 70px;
+    line-height: 1;
+    letter-spacing: -2px;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+}
+
+.boss-subtitle {
+    margin-top: 22px;
+    color: #ffffff;
+    font-size: 26px;
+    line-height: 1.4;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* =======================
+   2번 설명 화면
+======================= */
+.guide-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.42);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 1;
+}
+
+.guide-screen.active::before {
+    opacity: 1;
+}
+
+.guide-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(45px);
+}
+
+.guide-content.show {
+    animation: guideSlideUp 0.7s ease-out forwards;
+}
+
+.guide-title {
+    margin: 0 0 32px 0;
+    color: #fff200;
+    font-size: 42px;
+    line-height: 1.2;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+}
+
+.guide-text-box {
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1.7;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+
+.guide-text-box p {
+    margin: 8px 0;
+}
+
+@keyframes guideSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(45px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =======================
+   3번 게임 화면
+======================= */
+.play-screen {
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.play-title {
+    position: absolute;
+    top: 58px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    margin: 0;
+    width: 100%;
+    text-align: center;
+
+    color: #fff200;
+    font-size: 32px;
+    line-height: 1.3;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
+    z-index: 5;
+}
+
+.play-timer {
+    position: absolute;
+    top: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    margin: 0;
+
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    z-index: 5;
+}
+
+.play-timer.timer-danger {
+    color: #ff1717;
+    animation: timerShakeStrong 0.1s infinite alternate;
+}
+
+@keyframes timerShakeStrong {
+    0% {
+        transform: translateX(calc(-50% - 3px)) rotate(-2deg);
+    }
+
+    100% {
+        transform: translateX(calc(-50% + 3px)) rotate(2deg);
+    }
+}
+
+/* 카운트다운 */
+.countdown-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    margin: 0;
+    min-width: 220px;
+    text-align: center;
+
+    font-size: 86px;
+    line-height: 1;
+    letter-spacing: -2px;
+
+    opacity: 0;
+    z-index: 6;
+
+    text-shadow: 0 2px 30px rgba(210, 116, 55, 1);
+    pointer-events: none;
+}
+
+.countdown-text.show {
+    animation: countdownPop 0.9s ease both;
+}
+
+.countdown-three {
+    color: #FFEDED;
+}
+
+.countdown-two {
+    color: #F77979;
+}
+
+.countdown-one {
+    color: #FF1717;
+}
+
+.countdown-start {
+    color: #FFFFFF;
+    font-size: 86px;
+}
+
+@keyframes countdownPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.84);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.04);
+    }
+}
+
+/* 클릭 횟수 */
+.hit-count {
+    position: absolute;
+    top: 50%;
+    left: 34%;
+    transform: translate(-50%, -50%);
+
+    margin: 0;
+
+    color: #ffffff;
+    font-size: 96px;
+    line-height: 1;
+
+    text-shadow: 0 2px 30px rgba(210, 116, 55, 1);
+    z-index: 6;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hit-count.visible {
+    opacity: 1;
+}
+
+.hit-count.pop {
+    animation: hitCountPop 0.22s ease;
+}
+
+@keyframes hitCountPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.82);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* 종료 텍스트 */
+.finish-text {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    margin: 0;
+
+    color: #ffffff;
+    font-size: 86px;
+    line-height: 1;
+
+    text-shadow: 0 2px 30px rgba(210, 116, 55, 1);
+    z-index: 6;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.finish-text.show {
+    opacity: 1;
+    animation: finishPop 0.35s ease;
+}
+
+@keyframes finishPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.86);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* 왼쪽 단비 - 기존 게임 화면 크기 유지 */
+.boss-danbi {
+    position: absolute;
+    left: 36px;
+    bottom: -100px;
+
+    width: clamp(240px, 30vw, 400px);
+    height: auto;
+
+    z-index: 2;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 오른쪽 손 - 기존 게임 화면 크기 유지 */
+.boss-hand {
+    position: absolute;
+    right: -90px;
+    bottom: -200px;
+
+    width: clamp(400px, 80vw, 500px);
+    height: auto;
+
+    z-index: 3;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 단비 상태 전환 */
+.danbi-state {
+    opacity: 0;
+    transition: opacity 0.06s linear;
+}
+
+.danbi-state.visible-state {
+    opacity: 1;
+}
+
+/* 손 상태 전환 */
+.hand-state {
+    opacity: 0;
+    transition:
+            opacity 0.06s linear,
+            transform 0.12s ease;
+}
+
+.hand-state.visible-state {
+    opacity: 1;
+}
+
+.boss-hand.hit-move {
+    transform: translateX(-430px) translateY(-120px);
+}
+
+.boss-hand.after-move {
+    transform: translateX(-360px) translateY(-90px);
+}
+
+/* =======================
+   4번 결과 화면
+======================= */
+.result-screen {
+    justify-content: flex-start;
+    align-items: stretch;
+    cursor: default;
+}
+
+.result-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.42);
+    z-index: 1;
+}
+
+/* 결과 화면 단비 */
+.result-danbi {
+    position: absolute;
+    left: 36px;
+    bottom: -35px;
+
+    width: clamp(300px, 35vw, 500px);
+    height: auto;
+
+    z-index: 2;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 아우.. 배불러 */
+.result-message {
+    position: absolute;
+    left: 500px;
+    top: 305px;
+
+    margin: 0;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 30px;
+    color: #ffffff;
+    line-height: 1.3;
+
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    z-index: 3;
+}
+
+/* 결산 박스 */
+.result-card {
+    position: absolute;
+    right: 54px;
+    top: 48px;
+
+    width: 470px;
+    min-height: 540px;
+
+    padding: 42px 34px 30px;
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.88);
+    z-index: 3;
+}
+
+/* 결산 한 줄 */
+.result-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-bottom: 32px;
+
+    opacity: 0;
+    transform: translateY(18px);
+}
+
+.result-row.show {
+    animation: resultLineShow 0.65s ease forwards;
+}
+
+@keyframes resultLineShow {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-label {
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 36px;
+    color: #000000;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.result-value {
+    font-family: 'MaplestoryBold', sans-serif;
+    font-size: 32px;
+    line-height: 1.2;
+}
+
+.result-value-soft {
+    color: #ffffff;
+    text-shadow: 0 2px 30px rgba(210, 116, 55, 1);
+}
+
+.result-value-garlic {
+    color: #FAEA07;
+    text-shadow: 0 2px 30px rgba(255, 0, 0, 1);
+}
+
+.result-divider {
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    background-color: #000000;
+    margin: 4px 0 24px;
+}
+
+/* 등급 도장 */
+.grade-stamp {
+    width: 170px;
+    height: 170px;
+    margin: 26px auto 0;
+
+    border: 6px solid #ff0000;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+}
+
+.grade-stamp.show {
+    animation: stampDrop 0.45s ease forwards;
+}
+
+@keyframes stampDrop {
+    0% {
+        opacity: 0;
+        transform: scale(0.6) rotate(-8deg);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1.08) rotate(-8deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(-8deg);
+    }
+}
+
+.grade-stamp span {
+    color: #ff0000;
+    font-size: 108px;
+    line-height: 1;
+}
+
+/* 돌아가기 */
+.back-button {
+    position: absolute;
+    right: 28px;
+    bottom: 18px;
+
+    border: none;
+    background: transparent;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 26px;
+    color: #000000;
+    cursor: pointer;
+
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.back-button.show {
+    animation: backBtnShow 0.45s ease forwards;
+}
+
+@keyframes backBtnShow {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.back-arrow {
+    display: inline-block;
+    margin-left: 4px;
+}
+
+/* =======================
+   반응형
+======================= */
+@media (max-width: 1024px) {
+    .boss-title {
+        font-size: 54px;
+    }
+
+    .boss-subtitle {
+        font-size: 22px;
+    }
+
+    .guide-title {
+        font-size: 34px;
+    }
+
+    .guide-text-box {
+        font-size: 22px;
+        padding: 0 24px;
+    }
+
+    .play-title {
+        top: 42px;
+        font-size: 24px;
+        padding: 0 18px;
+    }
+
+    .play-timer {
+        top: 108px;
+        font-size: 22px;
+    }
+
+    .countdown-text {
+        font-size: 66px;
+    }
+
+    .countdown-start {
+        font-size: 70px;
+    }
+
+    .hit-count {
+        left: 36%;
+        font-size: 70px;
+    }
+
+    .finish-text {
+        font-size: 70px;
+    }
+
+    .boss-hand.hit-move {
+        transform: translateX(-330px) translateY(-90px);
+    }
+
+    .boss-hand.after-move {
+        transform: translateX(-280px) translateY(-70px);
+    }
+
+    .result-danbi {
+        width: clamp(260px, 34vw, 400px);
+        bottom: -28px;
+    }
+
+    .result-card {
+        width: 390px;
+        right: 28px;
+        top: 44px;
+        min-height: 470px;
+        padding: 30px 24px 22px;
+    }
+
+    .result-label {
+        font-size: 28px;
+    }
+
+    .result-value {
+        font-size: 26px;
+    }
+
+    .grade-stamp {
+        width: 138px;
+        height: 138px;
+    }
+
+    .grade-stamp span {
+        font-size: 84px;
+    }
+
+    .result-message {
+        left: 250px;
+        top: 270px;
+        font-size: 22px;
+    }
+
+    .back-button {
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 768px) {
+    .boss-title {
+        font-size: 42px;
+    }
+
+    .boss-subtitle {
+        font-size: 18px;
+    }
+
+    .guide-title {
+        font-size: 28px;
+    }
+
+    .guide-text-box {
+        font-size: 17px;
+        padding: 0 20px;
+    }
+
+    .play-title {
+        top: 34px;
+        font-size: 18px;
+        padding: 0 16px;
+    }
+
+    .play-timer {
+        top: 88px;
+        font-size: 18px;
+    }
+
+    .countdown-text {
+        font-size: 52px;
+        min-width: 160px;
+    }
+
+    .countdown-start {
+        font-size: 46px;
+    }
+
+    .hit-count {
+        left: 36%;
+        font-size: 46px;
+    }
+
+    .finish-text {
+        font-size: 46px;
+    }
+
+    .boss-danbi {
+        width: clamp(140px, 32vw, 200px);
+    }
+
+    .boss-hand {
+        width: clamp(90px, 22vw, 150px);
+    }
+
+    .boss-hand.hit-move {
+        transform: translateX(-115px) translateY(-35px);
+    }
+
+    .boss-hand.after-move {
+        transform: translateX(-95px) translateY(-25px);
+    }
+
+    .result-danbi {
+        width: clamp(170px, 34vw, 230px);
+        bottom: -8px;
+    }
+
+    .result-card {
+        width: 285px;
+        right: 14px;
+        top: 42px;
+        min-height: 340px;
+        padding: 20px 16px 16px;
+    }
+
+    .result-row {
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .result-label {
+        font-size: 18px;
+    }
+
+    .result-value {
+        font-size: 18px;
+    }
+
+    .result-divider {
+        height: 4px;
+        margin: 0 0 14px;
+    }
+
+    .grade-stamp {
+        width: 96px;
+        height: 96px;
+        border-width: 4px;
+        margin-top: 12px;
+    }
+
+    .grade-stamp span {
+        font-size: 54px;
+    }
+
+    .result-message {
+        left: 165px;
+        top: 225px;
+        font-size: 15px;
+    }
+
+    .back-button {
+        right: 12px;
+        bottom: 8px;
+        font-size: 15px;
+    }
+}
