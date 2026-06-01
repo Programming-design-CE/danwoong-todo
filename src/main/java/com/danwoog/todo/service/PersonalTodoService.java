@@ -1,5 +1,12 @@
 package com.danwoog.todo.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.danwoog.todo.domain.todo.TodoAssignee;
 import com.danwoog.todo.domain.todo.TodoStatus;
 import com.danwoog.todo.domain.user.User;
@@ -14,13 +21,8 @@ import com.danwoog.todo.dto.todo.MyTodoStatisticsResponse;
 import com.danwoog.todo.repository.todo.GroupTodoAssigneeRepository;
 import com.danwoog.todo.repository.todo.TodoAssigneeRepository;
 import com.danwoog.todo.repository.user.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
