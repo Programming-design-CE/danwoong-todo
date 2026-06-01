@@ -29,6 +29,9 @@ public class GroupTodoSummaryDto {
     @JsonProperty("distribution_type")
     private final GarlicDistributionType distributionType;
 
+    @JsonProperty("garlic_reward")
+    private final Integer garlicReward;
+
     @JsonProperty("assignees")
     private final List<GroupTodoAssigneeResponse> assignees;
 
@@ -39,6 +42,7 @@ public class GroupTodoSummaryDto {
         this.priority = todo.getPriority();
         this.status = todo.getStatus();
         this.distributionType = todo.getDistributionType();
+        this.garlicReward = todo.getGarlicReward();
         this.assignees = assignees;
     }
 
@@ -64,6 +68,10 @@ public class GroupTodoSummaryDto {
 
     public GarlicDistributionType getDistributionType() {
         return distributionType;
+    }
+
+    public Integer getGarlicReward() {
+        return garlicReward;
     }
 
     public List<GroupTodoAssigneeResponse> getAssignees() {
