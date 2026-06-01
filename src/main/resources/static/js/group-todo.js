@@ -378,12 +378,9 @@ function renderTodoList() {
     }
 
     todos.forEach((todo) => {
-        const categoryLabel = todo.category || "기타";
-        const categoryMeta = resolveCategoryMeta(categoryLabel);
-        const priorityCss = PRIORITY_CSS[todo.priority] || "medium";
-        const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
         const progress = getProgressPercent(todo);
         const assignees = Array.isArray(todo.assignees) ? todo.assignees : [];
+        const garlicTotal = todo.garlic_reward ?? 0;
 
         const assigneeHtml = assignees.slice(0, 3).map((assignee) => (
             `<div class="assignee-avatar" title="${assignee.nickname || ""}">${getAvatarInitial(assignee.nickname)}</div>`
@@ -396,21 +393,19 @@ function renderTodoList() {
         item.className = "todo-item";
         item.dataset.todoId = String(todo.todo_id);
         item.innerHTML = `
-            <div class="todo-status-icon ${categoryMeta.css}">${categoryMeta.icon}</div>
             <div class="todo-info">
                 <span class="todo-name">${todo.todo_name || "이름 없는 할 일"}</span>
                 <span class="todo-deadline">${formatDeadline(todo.deadline)}</span>
             </div>
-            <span class="todo-category ${categoryMeta.css}">${categoryLabel}</span>
             <div class="todo-progress">
-                <div class="progress-bar"><div class="progress-fill ${priorityCss}" style="width:${progress}%"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                 <span class="progress-text">${progress}%</span>
             </div>
-            <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
-            <div class="todo-priority">
-                <span class="priority-flag ${priorityCss}">⚑</span>
-                <span class="priority-label ${priorityCss}">${priorityLabel}</span>
+            <div class="todo-garlic">
+                <span class="garlic-emoji">🧄</span>
+                <span class="garlic-count-label">${garlicTotal}개</span>
             </div>
+            <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
             <button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>
         `;
         list.appendChild(item);
