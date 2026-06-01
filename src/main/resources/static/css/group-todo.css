@@ -441,7 +441,7 @@
 }
 
 .modal-container {
-    width: min(980px, calc(100vw - 120px));
+    width: min(560px, calc(100vw - 120px));
     max-height: calc(100vh - 90px);
     border: 1px solid #2d2924;
     border-radius: 14px;
@@ -477,6 +477,13 @@
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.9fr);
     gap: 26px;
+    padding: 0 22px 20px;
+    min-height: 0;
+    overflow: auto;
+}
+
+.modal-body--simple {
+    display: block;
     padding: 0 22px 20px;
     min-height: 0;
     overflow: auto;

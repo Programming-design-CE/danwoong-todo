@@ -544,7 +544,6 @@ function autoSaveMemo() {
 
 function updateCharCounts() {
     document.getElementById("titleCharCount").textContent = String(document.getElementById("todoTitleInput").value.length);
-    document.getElementById("descCharCount").textContent = String(document.getElementById("todoDescInput").value.length);
 }
 
 function ensureCustomCategoryChip() {
@@ -600,7 +599,6 @@ function updatePriorityDisplay() {
 
 function updateGarlicDisplay() {
     document.getElementById("garlicCount").textContent = String(garlicReward);
-    document.getElementById("distTotalGarlic").textContent = String(garlicReward);
 }
 
 function updateDatePlaceholder() {
@@ -746,7 +744,6 @@ function renderAssigneeOptions() {
 
 function applyTodoDataToForm(todoData) {
     document.getElementById("todoTitleInput").value = todoData?.todo_name || "";
-    document.getElementById("todoDescInput").value = todoData?.description || "";
     document.getElementById("todoDeadlineInput").value = todoData?.deadline || "";
 
     const category = todoData?.category || "";
@@ -776,18 +773,10 @@ function openModal(mode, todoData = null) {
 
     applyTodoDataToForm(todoData);
 
-    document.getElementById("distEqualTab").classList.toggle("active", distributionMode === "equal");
-    document.getElementById("distCustomTab").classList.toggle("active", distributionMode === "custom");
-    document.getElementById("distEqualView").classList.toggle("hidden", distributionMode !== "equal");
-    document.getElementById("distCustomView").classList.toggle("hidden", distributionMode !== "custom");
-
     updateCharCounts();
-    updateCategoryChips();
-    updatePriorityDisplay();
     updateGarlicDisplay();
     updateDatePlaceholder();
     updateAssigneeDisplay();
-    updateDistribution();
 }
 
 function closeModal() {
@@ -808,22 +797,14 @@ async function submitTodo() {
     }
 
     const assignees = buildAssigneePayload();
-    if (distributionMode === "custom") {
-        const totalReward = assignees.reduce((sum, assignee) => sum + (assignee.reward_amount || 0), 0);
-        if (totalReward !== garlicReward) {
-            alert("직접 조절 분배의 총합은 마늘 보상과 같아야 합니다.");
-            return;
-        }
-    }
 
     const body = {
         todo_name: todoName,
-        description: document.getElementById("todoDescInput").value.trim(),
         deadline: document.getElementById("todoDeadlineInput").value || null,
         garlic_reward: garlicReward,
         priority: selectedPriority,
         category: selectedCategory || null,
-        distribution_type: distributionMode === "custom" ? "CUSTOM" : "EVEN",
+        distribution_type: "EVEN",
         assignees
     };
 
@@ -1019,35 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("modalSubmitBtn")?.addEventListener("click", submitTodo);
 
     document.getElementById("todoTitleInput")?.addEventListener("input", updateCharCounts);
-    document.getElementById("todoDescInput")?.addEventListener("input", updateCharCounts);
     document.getElementById("todoDeadlineInput")?.addEventListener("change", updateDatePlaceholder);
-
-    document.getElementById("categoryChips")?.addEventListener("click", (event) => {
-        const chip = event.target.closest(".chip");
-        if (!chip) {
-            return;
-        }
-
-        if (chip.id === "addCategoryBtn") {
-            promptCustomCategory();
-            return;
-        }
-
-        selectedCategory = selectedCategory === chip.dataset.cat ? "" : chip.dataset.cat;
-        updateCategoryChips();
-    });
-
-    document.getElementById("prioritySelect")?.addEventListener("click", () => {
-        document.getElementById("priorityDropdown")?.classList.toggle("hidden");
-    });
-
-    document.querySelectorAll(".priority-option").forEach((button) => {
-        button.addEventListener("click", () => {
-            selectedPriority = button.dataset.priority;
-            updatePriorityDisplay();
-            document.getElementById("priorityDropdown")?.classList.add("hidden");
-        });
-    });
 
     document.getElementById("garlicMinus")?.addEventListener("click", () => {
         if (garlicReward <= 1) {
@@ -1055,31 +1008,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         garlicReward -= 1;
         updateGarlicDisplay();
-        updateDistribution();
     });
 
     document.getElementById("garlicPlus")?.addEventListener("click", () => {
         garlicReward += 1;
         updateGarlicDisplay();
-        updateDistribution();
-    });
-
-    document.getElementById("distEqualTab")?.addEventListener("click", () => {
-        distributionMode = "equal";
-        document.getElementById("distEqualTab").classList.add("active");
-        document.getElementById("distCustomTab").classList.remove("active");
-        document.getElementById("distEqualView").classList.remove("hidden");
-        document.getElementById("distCustomView").classList.add("hidden");
-        updateDistribution();
-    });
-
-    document.getElementById("distCustomTab")?.addEventListener("click", () => {
-        distributionMode = "custom";
-        document.getElementById("distCustomTab").classList.add("active");
-        document.getElementById("distEqualTab").classList.remove("active");
-        document.getElementById("distCustomView").classList.remove("hidden");
-        document.getElementById("distEqualView").classList.add("hidden");
-        updateDistribution();
     });
 
     document.getElementById("assigneeAddBtn")?.addEventListener("click", (event) => {
@@ -1121,9 +1054,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (!event.target.closest(".assignee-dropdown") && !event.target.closest(".assignee-add-btn")) {
             hideAssigneeDropdown();
-        }
-        if (!event.target.closest(".priority-select") && !event.target.closest(".priority-dropdown")) {
-            document.getElementById("priorityDropdown")?.classList.add("hidden");
         }
     });
 
