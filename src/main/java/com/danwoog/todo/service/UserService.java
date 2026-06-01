@@ -85,6 +85,23 @@ public class UserService {
                 user.getNickname()
         );
     }
+    @Transactional
+    public UserInfoResponse addGarlic(Long userId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("마늘 개수는 1개 이상이어야 합니다.");
+        }
+
+        User user = findUser(userId);
+
+        user.addGarlic(amount);
+
+        return new UserInfoResponse(
+                user.getUserId(),
+                user.getNickname(),
+                user.getGarlicCount(),
+                user.getProfileImage()
+        );
+    }
 
     private User findUser(Long userId) {
         return userRepository.findById(userId)

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Bonus Game</title>
+  <link rel="stylesheet" th:href="@{/css/boss.css}">
+</head>
+<body>
+
+<div class="boss-page">
+  <section id="bossGameBox" class="boss-game-box">
+
+    <!-- 1번 시작 화면 -->
+    <div id="startScreen" class="boss-screen active">
+      <div class="start-content">
+        <h1 class="boss-title">BONUS GAME</h1>
+        <p class="boss-subtitle">추가 마늘을 획득하세요!</p>
+      </div>
+    </div>
+
+    <!-- 2번 설명 화면 -->
+    <div id="guideScreen" class="boss-screen guide-screen">
+      <div id="guideContent" class="guide-content">
+        <h2 class="guide-title">게임 설명</h2>
+
+        <div class="guide-text-box">
+          <p>15초 동안 화면을 연타하여 단비에게 마늘을 먹여 보세요!</p>
+          <p>연타 횟수에 따라 등급이 결정되며, 등급에 맞는 마늘 개수를 획득할 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3번 실제 게임 화면 -->
+    <div id="playScreen" class="boss-screen play-screen">
+      <p class="play-title">화면을 연타해 단비에게 마늘을 먹여주자!</p>
+      <p id="playTimer" class="play-timer">00:15</p>
+
+      <div id="countdownText" class="countdown-text"></div>
+      <div id="hitCount" class="hit-count">x0</div>
+      <div id="finishText" class="finish-text">FINISH !</div>
+
+      <!-- 단비 기본 -->
+      <img
+              id="danbiNormal"
+              class="boss-danbi danbi-state visible-state"
+              th:src="@{/assets/boss_danbi.png}"
+              alt="단비 기본"
+      >
+
+      <!-- 단비 입벌림 -->
+      <img
+              id="danbiMouth"
+              class="boss-danbi danbi-state"
+              th:src="@{/assets/mouth_danbi.png}"
+              alt="단비 입벌림"
+      >
+
+      <!-- 마늘 든 손 -->
+      <img
+              id="handWithGarlic"
+              class="boss-hand hand-state visible-state"
+              th:src="@{/assets/hand.png}"
+              alt="마늘 든 손"
+      >
+
+      <!-- 마늘 없는 손 -->
+      <img
+              id="handWithoutGarlic"
+              class="boss-hand hand-state"
+              th:src="@{/assets/hand2.png}"
+              alt="마늘 없는 손"
+      >
+    </div>
+
+    <!-- 4번 결과 화면 -->
+    <div id="resultScreen" class="boss-screen result-screen">
+      <img
+              id="resultDanbi"
+              class="result-danbi"
+              th:src="@{/assets/full_danbi.png}"
+              alt="결산 단비"
+      >
+
+      <p class="result-message">아우.. 배불러 .. ㅠㅠ</p>
+
+      <div class="result-card">
+        <div id="resultRowPlayer" class="result-row">
+          <span class="result-label">플레이어 :</span>
+          <span id="resultPlayerName" class="result-value result-value-soft">플레이어</span>
+        </div>
+
+        <div id="resultRowHit" class="result-row">
+          <span class="result-label">연타 횟수 :</span>
+          <span id="resultHitCount" class="result-value result-value-soft">+ 0</span>
+        </div>
+
+        <div class="result-divider"></div>
+
+        <div id="resultRowGarlic" class="result-row">
+          <span class="result-label">획득 마늘 :</span>
+          <span id="resultGarlicCount" class="result-value result-value-garlic">0개</span>
+        </div>
+
+        <div id="resultGradeStamp" class="grade-stamp">
+          <span id="resultGradeText">F</span>
+        </div>
+
+        <button id="backButton" type="button" class="back-button">
+          돌아가기 <span class="back-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<script th:src="@{/js/boss.js}"></script>
+</body>
+</html>
