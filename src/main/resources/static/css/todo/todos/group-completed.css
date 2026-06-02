@@ -60,6 +60,73 @@
     cursor: default;
 }
 
+/* 마늘 분배 완료 상태 */
+.project-card.completed.distributed {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+    cursor: default;
+}
+.project-card.completed.distributed:hover {
+    background: #221f1c;
+    border-color: #332e28;
+}
+.distributed-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #3a342e;
+    color: #a79d90;
+    font-size: 11px;
+    vertical-align: middle;
+}
+.project-actions-right {
+    grid-column: 5 / span 2;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.distributed-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.boss-reward-text {
+    font-size: 12px;
+    color: #e3d2ff;
+    background: #372e42;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: 'MaplestoryLight', sans-serif;
+    white-space: nowrap;
+}
+.btn-boss-battle, .btn-delete-project {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'MaplestoryLight', sans-serif;
+    transition: background 0.2s;
+    text-align: center;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.btn-boss-battle {
+    background: #443c51;
+    color: #e3d2ff;
+}
+.btn-boss-battle:hover {
+    background: #554b66;
+}
+.btn-delete-project {
+    background: #4a3434;
+    color: #e8baba;
+}
+.btn-delete-project:hover {
+    background: #5c4141;
+}
+
 /* ── 모달 오버레이 (group-todo.css 패턴 그대로) ── */
 .modal-overlay {
     position: fixed;

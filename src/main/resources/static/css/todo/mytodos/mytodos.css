@@ -288,6 +288,24 @@
     align-items: flex-start;
 }
 
+.mtm-desc-input {
+    flex: 1;
+    min-height: 80px;
+    background: #2a2723;
+    border: 1px solid #3a342e;
+    border-radius: 8px;
+    padding: 10px;
+    color: #f4f1eb;
+    font-size: 14px;
+    resize: none;
+    font-family: inherit;
+}
+
+.mtm-desc-input:focus {
+    outline: none;
+    border-color: #c9a96e;
+}
+
 .mtm-actions {
     display: flex;
     gap: 12px;

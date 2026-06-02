@@ -166,7 +166,8 @@ public class TodoGroupService {
                             members,
                             groupMembers.size(),
                             totalTodos,
-                            completedTodos
+                            completedTodos,
+                            group.getCreatedBy() != null ? group.getCreatedBy().getUserId() : null
                     );
                 })
                 .toList();
@@ -295,6 +296,10 @@ public class TodoGroupService {
         TodoGroup group = todoGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
 
+        if (group.getCreatedBy() == null || !group.getCreatedBy().getUserId().equals(loginUserId)) {
+            throw new IllegalArgumentException("마늘 분배는 프로젝트 팀장만 가능합니다.");
+        }
+
         // 그룹의 상태를 완료로 변경
         group.update(
                 group.getGroupName(),
@@ -316,6 +321,11 @@ public class TodoGroupService {
                 int currentGarlic = member.getGarlicCount() != null ? member.getGarlicCount() : 0;
                 member.updateGarlicCount(currentGarlic + dto.getRewardAmount());
             }
+        }
+        
+        // 남은 마늘 보상을 0으로 만들어 마늘 분배가 완료되었음을 표시
+        if (group.getRemainingGarlicReward() != null && group.getRemainingGarlicReward() > 0) {
+            group.allocateGarlicReward(group.getRemainingGarlicReward());
         }
     }
 

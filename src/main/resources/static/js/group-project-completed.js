@@ -48,20 +48,59 @@ function getGroupIconStyle(group) {
     return "";
 }
 
+/* ---- 프로젝트 삭제 ---- */
+window.deleteCompletedProject = async function(groupId) {
+    if (!confirm("이 완료된 프로젝트를 삭제하시겠습니까?")) return;
+    try {
+        const response = await fetch("/todo-groups/" + groupId, {
+            method: "DELETE",
+            headers: getTodoAuthHeaders()
+        });
+        if (!response.ok) {
+            throw new Error("삭제 실패");
+        }
+        alert("삭제되었습니다.");
+        loadCompletedGroups().then(() => renderCompletedProjects(completedGroups));
+    } catch (e) {
+        console.error("삭제 실패", e);
+        alert("프로젝트 삭제에 실패했습니다.");
+    }
+};
+
 /* ---- 프로젝트 카드 렌더 ---- */
 function createCompletedCard(group) {
     const endDate = formatEndDate(group.deadline);
-    // leader_id가 API에 없을 수 있습니다.
-    // 없으면 판단 불가 → 일단 클릭 허용 (isLeader = true 처리)
     const hasLeaderInfo = group.leader_id != null && currentUser != null;
     const isLeader = !hasLeaderInfo || currentUser.user_id === group.leader_id;
+    // 마늘 예산이 0이 되면 분배가 완료된 것으로 간주 (총 마늘이 0 이상일 때)
+    const isDistributed = group.total_garlic_reward >= 0 && group.remaining_garlic_reward === 0;
+
+    const bossReward = currentUser ? localStorage.getItem('bossReward_' + currentUser.user_id + '_' + group.group_id) : null;
+
+    let actionUI = "";
+    if (isDistributed) {
+        if (bossReward) {
+            actionUI = `
+            <div class="distributed-actions">
+                <span class="boss-reward-text">내 획득 마늘: ${bossReward}개</span>
+                <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
+            </div>`;
+        } else {
+            actionUI = `
+            <div class="distributed-actions">
+                <button class="btn-boss-battle" onclick="event.stopPropagation(); location.href='/boss?groupId=${group.group_id}'" type="button">추가로 마늘얻기</button>
+                <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
+            </div>`;
+        }
+    }
 
     return `
-    <div class="project-card completed" data-group-id="${group.group_id}" data-is-leader="${isLeader}">
+    <div class="project-card completed ${isDistributed ? 'distributed' : ''}" data-group-id="${group.group_id}" data-is-leader="${isLeader}" data-is-distributed="${isDistributed}">
         <div class="project-icon" style="${getGroupIconStyle(group)}">${getAvatarInitial(group.group_name || "?")}</div>
         <div class="project-name-block">
             <div>
                 <span class="project-name">${group.group_name || "이름 없는 프로젝트"}</span>
+                ${isDistributed ? '<span class="distributed-badge">분배 완료</span>' : ''}
             </div>
             ${endDate ? `<div class="project-end-date">${endDate}</div>` : ""}
         </div>
@@ -70,8 +109,9 @@ function createCompletedCard(group) {
             <span class="project-percent">100 %</span>
         </div>
         <div class="member-avatars">${buildMemberAvatars(group)}</div>
-        <div class="project-priority"><span class="project-priority-flag">&#9873;</span></div>
-        ${isLeader ? '<span class="garlic-hint">🧄</span>' : '<span class="garlic-hint garlic-hint--dim">🔒</span>'}
+        <div class="project-actions-right">
+            ${actionUI}
+        </div>
     </div>`;
 }
 
@@ -320,6 +360,7 @@ async function submitGarlicDistribution() {
         });
         alert("마늘이 성공적으로 분배되었습니다! 🧄");
         closeGarlicModal();
+        loadCompletedGroups().then(() => renderCompletedProjects(completedGroups));
     } catch (e) {
         console.error("마늘 분배 실패", e);
         alert("마늘 분배에 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -328,10 +369,22 @@ async function submitGarlicDistribution() {
 
 /* ---- 이벤트 바인딩 ---- */
 function bindEvents() {
-    /* 프로젝트 카드 클릭 → 마늘 분배 모달 열기 (누구나) */
     document.getElementById("completedProjectList")?.addEventListener("click", (e) => {
         const card = e.target.closest(".project-card.completed");
         if (!card) return;
+
+        const isLeader = card.dataset.isLeader === "true";
+        const isDistributed = card.dataset.isDistributed === "true";
+        
+        if (isDistributed) {
+            // 이미 분배 완료된 프로젝트는 모달 띄우지 않음
+            return;
+        }
+        
+        if (!isLeader) {
+            alert("마늘 분배는 프로젝트 팀장만 가능합니다.");
+            return;
+        }
 
         const groupId = Number(card.dataset.groupId);
         const group = completedGroups.find((g) => g.group_id === groupId);

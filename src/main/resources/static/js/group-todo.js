@@ -22,11 +22,135 @@ const PRIORITY_CSS = {
 let currentGroupId = Number(queryParams.get("groupId") || localStorage.getItem("currentGroupId") || 1);
 const currentDetailTab = (queryParams.get("tab") || "in-progress").toLowerCase();
 let currentUser = null;
+// --- 할 일 상세 모달 (팀원용 등) ---
+function formatDeadlineFull(deadline) {
+    if (!deadline) return "-";
+    const d = new Date(deadline);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const dow = days[d.getDay()];
+    return year + ". " + month + ". " + day + " (" + dow + ")";
+}
+
+async function openTodoModal(todoId) {
+    try {
+        console.log("openTodoModal called", todoId);
+        const data = await api("/todos/" + todoId);
+        console.log("openTodoModal data", data);
+        if (!data) {
+            alert("API로부터 할 일 데이터를 받지 못했습니다.");
+            return;
+        }
+        try {
+            showTodoDetailModal(data);
+        } catch (innerE) {
+            console.error("showTodoDetailModal error:", innerE);
+            alert("모달 화면 구성 중 에러가 발생했습니다: " + innerE.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("할 일 정보를 불러오지 못했습니다. 에러: " + e.message);
+    }
+}
+
+function showTodoDetailModal(todo) {
+    const overlay = document.getElementById("mytodoModalOverlay");
+    if (!overlay) {
+        alert("모달 HTML 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    const deadlineFull = formatDeadlineFull(todo.deadline);
+
+    overlay.querySelector(".mtm-title").textContent = todo.todo_name;
+    overlay.querySelector(".mtm-category").textContent = todo.category || "";
+    overlay.querySelector(".mtm-deadline-val").textContent = deadlineFull;
+
+    const descInput = overlay.querySelector(".mtm-desc-input");
+    if (descInput) {
+        descInput.value = todo.description || "";
+        
+        // 내용 변경 시 자동 저장 (PATCH)
+        descInput.onchange = async () => {
+            try {
+                await api(`/todos/${todo.todo_id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        todo_name: todo.todo_name,
+                        description: descInput.value
+                    })
+                });
+            } catch (e) {
+                console.error("설명 업데이트 실패", e);
+            }
+        };
+    }
+
+    const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
+    if (avatarWrap && todo.assignees && todo.assignees.length) {
+        avatarWrap.innerHTML = todo.assignees.map(a =>
+            '<div class="mtm-assignee-avatar" title="' + a.nickname + '">' + getAvatarInitial(a.nickname) + '</div>'
+        ).join('');
+    }
+
+    const pct = getProgressPercent(todo) || 0;
+    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
+    overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
+    overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
+
+    const assigneeList = overlay.querySelector(".mtm-assignee-list");
+    if (assigneeList && todo.assignees && todo.assignees.length) {
+        assigneeList.innerHTML = todo.assignees.map(a => {
+            const isCompleted = a.status === 'COMPLETED' || todo.status === 'COMPLETED';
+            const statusTxt = isCompleted ? '완료' : '진행 중';
+            const statusClass = isCompleted ? 'mtm-status--done' : 'mtm-status--progress';
+            return [
+                '<div class="mtm-assignee-row">',
+                '  <div class="mtm-assignee-avatar">' + getAvatarInitial(a.nickname) + '</div>',
+                '  <span class="mtm-assignee-name">' + a.nickname + '</span>',
+                '  <span class="mtm-assignee-status ' + statusClass + '">' + statusTxt + '</span>',
+                '</div>'
+            ].join('');
+        }).join('');
+    }
+
+    const completeBtn = overlay.querySelector(".mtm-complete-btn");
+    
+    // 본인이 담당자인지 여부와 완료 상태 확인
+    const isAssignee = todo.assignees && todo.assignees.some(a => a.user_id === currentUser?.user_id);
+    const myAssigneeInfo = todo.assignees && todo.assignees.find(a => a.user_id === currentUser?.user_id);
+    const isCompleted = myAssigneeInfo?.status === 'COMPLETED' || todo.status === 'COMPLETED';
+
+    if (isAssignee && !isCompleted) {
+        completeBtn.style.display = "block";
+    } else {
+        completeBtn.style.display = "none";
+    }
+
+    completeBtn.onclick = async () => {
+        try {
+            await api("/todos/" + todo.todo_id + "/complete", {
+                method: "PATCH"
+            });
+            overlay.classList.remove("active");
+            await loadTodos(); // 완료 후 목록 갱신
+        } catch (e) {
+            console.error(e);
+            alert("할 일 완료 처리에 실패했습니다.");
+        }
+    };
+
+    overlay.classList.add("active");
+}
+
 let todos = [];
 let friendList = [];
 let currentProjectMembers = [];
 let tempProjectMembers = [];
 
+let isLeader = false;
 let editingTodoId = null;
 let selectedAssignees = [];
 let selectedCategory = "";
@@ -388,6 +512,7 @@ function renderTodoList() {
 
         const moreCount = assignees.length - 3;
         const moreHtml = moreCount > 0 ? `<div class="assignee-avatar assignee-more">+${moreCount}</div>` : "";
+        const moreBtnHtml = isLeader ? `<button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>` : "";
 
         const item = document.createElement("div");
         item.className = "todo-item";
@@ -402,8 +527,19 @@ function renderTodoList() {
                 <span class="progress-text">${progress}%</span>
             </div>
             <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
-            <button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>
+            ${moreBtnHtml}
         `;
+
+        item.addEventListener("click", (e) => {
+            if (e.target.closest('.todo-more-btn')) {
+                return;
+            }
+            if (typeof openTodoModal === "function") {
+                openTodoModal(todo.todo_id);
+            }
+        });
+        item.style.cursor = "pointer";
+
         list.appendChild(item);
     });
 }
@@ -465,6 +601,18 @@ async function loadGroupContext() {
     const groupName = document.getElementById("groupName");
     const ddayBadge = document.getElementById("ddayBadge");
     const projectGarlicTotal = document.getElementById("projectGarlicTotal");
+    const titleEl = document.querySelector(".todo-title");
+
+    isLeader = (group.leader_id === currentUser?.user_id);
+
+    const btnAddTodo = document.getElementById("addTodoBtn");
+    if (btnAddTodo) {
+        btnAddTodo.style.display = isLeader ? "flex" : "none";
+    }
+
+    if (titleEl) {
+        titleEl.textContent = group.group_name || "프로젝트";
+    }
 
     if (groupName) {
         groupName.textContent = group.group_name || "프로젝트";
@@ -1062,4 +1210,17 @@ document.addEventListener("DOMContentLoaded", () => {
             closeMemberModal();
         }
     });
+
+    // 개인 할 일 모달 닫기 이벤트 추가
+    const overlay = document.getElementById("mytodoModalOverlay");
+    if (overlay) {
+        overlay.querySelector(".mtm-close")?.addEventListener("click", () => {
+            overlay.classList.remove("active");
+        });
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.classList.remove("active");
+        });
+    }
 });
+
+

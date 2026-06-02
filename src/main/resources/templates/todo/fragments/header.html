@@ -7,14 +7,6 @@
     <div class="todo-heading">
         <div class="todo-heading-top">
             <h1 class="todo-title" th:text="${title}">오늘의 할 일</h1>
-            <label class="toggle-switch" th:if="${toggleUrl != null and !#strings.isEmpty(toggleUrl)}">
-                <input
-                        id="todoModeToggle"
-                        type="checkbox"
-                        th:checked="${personalMode}"
-                        th:attr="data-toggle-url=${toggleUrl}">
-                <span class="toggle-slider"></span>
-            </label>
         </div>
     </div>
 
