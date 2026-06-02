@@ -22,11 +22,135 @@ const PRIORITY_CSS = {
 let currentGroupId = Number(queryParams.get("groupId") || localStorage.getItem("currentGroupId") || 1);
 const currentDetailTab = (queryParams.get("tab") || "in-progress").toLowerCase();
 let currentUser = null;
+// --- 할 일 상세 모달 (팀원용 등) ---
+function formatDeadlineFull(deadline) {
+    if (!deadline) return "-";
+    const d = new Date(deadline);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const dow = days[d.getDay()];
+    return year + ". " + month + ". " + day + " (" + dow + ")";
+}
+
+async function openTodoModal(todoId) {
+    try {
+        console.log("openTodoModal called", todoId);
+        const data = await api("/todos/" + todoId);
+        console.log("openTodoModal data", data);
+        if (!data) {
+            alert("API로부터 할 일 데이터를 받지 못했습니다.");
+            return;
+        }
+        try {
+            showTodoDetailModal(data);
+        } catch (innerE) {
+            console.error("showTodoDetailModal error:", innerE);
+            alert("모달 화면 구성 중 에러가 발생했습니다: " + innerE.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("할 일 정보를 불러오지 못했습니다. 에러: " + e.message);
+    }
+}
+
+function showTodoDetailModal(todo) {
+    const overlay = document.getElementById("mytodoModalOverlay");
+    if (!overlay) {
+        alert("모달 HTML 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    const deadlineFull = formatDeadlineFull(todo.deadline);
+
+    overlay.querySelector(".mtm-title").textContent = todo.todo_name;
+    overlay.querySelector(".mtm-category").textContent = todo.category || "";
+    overlay.querySelector(".mtm-deadline-val").textContent = deadlineFull;
+
+    const descInput = overlay.querySelector(".mtm-desc-input");
+    if (descInput) {
+        descInput.value = todo.description || "";
+        
+        // 내용 변경 시 자동 저장 (PATCH)
+        descInput.onchange = async () => {
+            try {
+                await api(`/todos/${todo.todo_id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        todo_name: todo.todo_name,
+                        description: descInput.value
+                    })
+                });
+            } catch (e) {
+                console.error("설명 업데이트 실패", e);
+            }
+        };
+    }
+
+    const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
+    if (avatarWrap && todo.assignees && todo.assignees.length) {
+        avatarWrap.innerHTML = todo.assignees.map(a =>
+            '<div class="mtm-assignee-avatar" title="' + a.nickname + '">' + getAvatarInitial(a.nickname) + '</div>'
+        ).join('');
+    }
+
+    const pct = getProgressPercent(todo) || 0;
+    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
+    overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
+    overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
+
+    const assigneeList = overlay.querySelector(".mtm-assignee-list");
+    if (assigneeList && todo.assignees && todo.assignees.length) {
+        assigneeList.innerHTML = todo.assignees.map(a => {
+            const isCompleted = a.status === 'COMPLETED' || todo.status === 'COMPLETED';
+            const statusTxt = isCompleted ? '완료' : '진행 중';
+            const statusClass = isCompleted ? 'mtm-status--done' : 'mtm-status--progress';
+            return [
+                '<div class="mtm-assignee-row">',
+                '  <div class="mtm-assignee-avatar">' + getAvatarInitial(a.nickname) + '</div>',
+                '  <span class="mtm-assignee-name">' + a.nickname + '</span>',
+                '  <span class="mtm-assignee-status ' + statusClass + '">' + statusTxt + '</span>',
+                '</div>'
+            ].join('');
+        }).join('');
+    }
+
+    const completeBtn = overlay.querySelector(".mtm-complete-btn");
+    
+    // 본인이 담당자인지 여부와 완료 상태 확인
+    const isAssignee = todo.assignees && todo.assignees.some(a => a.user_id === currentUser?.user_id);
+    const myAssigneeInfo = todo.assignees && todo.assignees.find(a => a.user_id === currentUser?.user_id);
+    const isCompleted = myAssigneeInfo?.status === 'COMPLETED' || todo.status === 'COMPLETED';
+
+    if (isAssignee && !isCompleted) {
+        completeBtn.style.display = "block";
+    } else {
+        completeBtn.style.display = "none";
+    }
+
+    completeBtn.onclick = async () => {
+        try {
+            await api("/todos/" + todo.todo_id + "/complete", {
+                method: "PATCH"
+            });
+            overlay.classList.remove("active");
+            await loadTodos(); // 완료 후 목록 갱신
+        } catch (e) {
+            console.error(e);
+            alert("할 일 완료 처리에 실패했습니다.");
+        }
+    };
+
+    overlay.classList.add("active");
+}
+
 let todos = [];
 let friendList = [];
 let currentProjectMembers = [];
 let tempProjectMembers = [];
 
+let isLeader = false;
 let editingTodoId = null;
 let selectedAssignees = [];
 let selectedCategory = "";
@@ -378,12 +502,9 @@ function renderTodoList() {
     }
 
     todos.forEach((todo) => {
-        const categoryLabel = todo.category || "기타";
-        const categoryMeta = resolveCategoryMeta(categoryLabel);
-        const priorityCss = PRIORITY_CSS[todo.priority] || "medium";
-        const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
         const progress = getProgressPercent(todo);
         const assignees = Array.isArray(todo.assignees) ? todo.assignees : [];
+        const garlicTotal = todo.garlic_reward ?? 0;
 
         const assigneeHtml = assignees.slice(0, 3).map((assignee) => (
             `<div class="assignee-avatar" title="${assignee.nickname || ""}">${getAvatarInitial(assignee.nickname)}</div>`
@@ -391,28 +512,34 @@ function renderTodoList() {
 
         const moreCount = assignees.length - 3;
         const moreHtml = moreCount > 0 ? `<div class="assignee-avatar assignee-more">+${moreCount}</div>` : "";
+        const moreBtnHtml = isLeader ? `<button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>` : "";
 
         const item = document.createElement("div");
         item.className = "todo-item";
         item.dataset.todoId = String(todo.todo_id);
         item.innerHTML = `
-            <div class="todo-status-icon ${categoryMeta.css}">${categoryMeta.icon}</div>
             <div class="todo-info">
                 <span class="todo-name">${todo.todo_name || "이름 없는 할 일"}</span>
                 <span class="todo-deadline">${formatDeadline(todo.deadline)}</span>
             </div>
-            <span class="todo-category ${categoryMeta.css}">${categoryLabel}</span>
             <div class="todo-progress">
-                <div class="progress-bar"><div class="progress-fill ${priorityCss}" style="width:${progress}%"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                 <span class="progress-text">${progress}%</span>
             </div>
             <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
-            <div class="todo-priority">
-                <span class="priority-flag ${priorityCss}">⚑</span>
-                <span class="priority-label ${priorityCss}">${priorityLabel}</span>
-            </div>
-            <button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>
+            ${moreBtnHtml}
         `;
+
+        item.addEventListener("click", (e) => {
+            if (e.target.closest('.todo-more-btn')) {
+                return;
+            }
+            if (typeof openTodoModal === "function") {
+                openTodoModal(todo.todo_id);
+            }
+        });
+        item.style.cursor = "pointer";
+
         list.appendChild(item);
     });
 }
@@ -474,6 +601,18 @@ async function loadGroupContext() {
     const groupName = document.getElementById("groupName");
     const ddayBadge = document.getElementById("ddayBadge");
     const projectGarlicTotal = document.getElementById("projectGarlicTotal");
+    const titleEl = document.querySelector(".todo-title");
+
+    isLeader = (group.leader_id === currentUser?.user_id);
+
+    const btnAddTodo = document.getElementById("addTodoBtn");
+    if (btnAddTodo) {
+        btnAddTodo.style.display = isLeader ? "flex" : "none";
+    }
+
+    if (titleEl) {
+        titleEl.textContent = group.group_name || "프로젝트";
+    }
 
     if (groupName) {
         groupName.textContent = group.group_name || "프로젝트";
@@ -544,7 +683,6 @@ function autoSaveMemo() {
 
 function updateCharCounts() {
     document.getElementById("titleCharCount").textContent = String(document.getElementById("todoTitleInput").value.length);
-    document.getElementById("descCharCount").textContent = String(document.getElementById("todoDescInput").value.length);
 }
 
 function ensureCustomCategoryChip() {
@@ -599,8 +737,10 @@ function updatePriorityDisplay() {
 }
 
 function updateGarlicDisplay() {
-    document.getElementById("garlicCount").textContent = String(garlicReward);
-    document.getElementById("distTotalGarlic").textContent = String(garlicReward);
+    const el = document.getElementById("garlicCount");
+    if (el) {
+        el.textContent = String(garlicReward);
+    }
 }
 
 function updateDatePlaceholder() {
@@ -746,7 +886,6 @@ function renderAssigneeOptions() {
 
 function applyTodoDataToForm(todoData) {
     document.getElementById("todoTitleInput").value = todoData?.todo_name || "";
-    document.getElementById("todoDescInput").value = todoData?.description || "";
     document.getElementById("todoDeadlineInput").value = todoData?.deadline || "";
 
     const category = todoData?.category || "";
@@ -776,18 +915,10 @@ function openModal(mode, todoData = null) {
 
     applyTodoDataToForm(todoData);
 
-    document.getElementById("distEqualTab").classList.toggle("active", distributionMode === "equal");
-    document.getElementById("distCustomTab").classList.toggle("active", distributionMode === "custom");
-    document.getElementById("distEqualView").classList.toggle("hidden", distributionMode !== "equal");
-    document.getElementById("distCustomView").classList.toggle("hidden", distributionMode !== "custom");
-
     updateCharCounts();
-    updateCategoryChips();
-    updatePriorityDisplay();
     updateGarlicDisplay();
     updateDatePlaceholder();
     updateAssigneeDisplay();
-    updateDistribution();
 }
 
 function closeModal() {
@@ -808,22 +939,14 @@ async function submitTodo() {
     }
 
     const assignees = buildAssigneePayload();
-    if (distributionMode === "custom") {
-        const totalReward = assignees.reduce((sum, assignee) => sum + (assignee.reward_amount || 0), 0);
-        if (totalReward !== garlicReward) {
-            alert("직접 조절 분배의 총합은 마늘 보상과 같아야 합니다.");
-            return;
-        }
-    }
 
     const body = {
         todo_name: todoName,
-        description: document.getElementById("todoDescInput").value.trim(),
         deadline: document.getElementById("todoDeadlineInput").value || null,
-        garlic_reward: garlicReward,
+        garlic_reward: 0,
         priority: selectedPriority,
         category: selectedCategory || null,
-        distribution_type: distributionMode === "custom" ? "CUSTOM" : "EVEN",
+        distribution_type: "EVEN",
         assignees
     };
 
@@ -1019,35 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("modalSubmitBtn")?.addEventListener("click", submitTodo);
 
     document.getElementById("todoTitleInput")?.addEventListener("input", updateCharCounts);
-    document.getElementById("todoDescInput")?.addEventListener("input", updateCharCounts);
     document.getElementById("todoDeadlineInput")?.addEventListener("change", updateDatePlaceholder);
-
-    document.getElementById("categoryChips")?.addEventListener("click", (event) => {
-        const chip = event.target.closest(".chip");
-        if (!chip) {
-            return;
-        }
-
-        if (chip.id === "addCategoryBtn") {
-            promptCustomCategory();
-            return;
-        }
-
-        selectedCategory = selectedCategory === chip.dataset.cat ? "" : chip.dataset.cat;
-        updateCategoryChips();
-    });
-
-    document.getElementById("prioritySelect")?.addEventListener("click", () => {
-        document.getElementById("priorityDropdown")?.classList.toggle("hidden");
-    });
-
-    document.querySelectorAll(".priority-option").forEach((button) => {
-        button.addEventListener("click", () => {
-            selectedPriority = button.dataset.priority;
-            updatePriorityDisplay();
-            document.getElementById("priorityDropdown")?.classList.add("hidden");
-        });
-    });
 
     document.getElementById("garlicMinus")?.addEventListener("click", () => {
         if (garlicReward <= 1) {
@@ -1055,31 +1150,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         garlicReward -= 1;
         updateGarlicDisplay();
-        updateDistribution();
     });
 
     document.getElementById("garlicPlus")?.addEventListener("click", () => {
         garlicReward += 1;
         updateGarlicDisplay();
-        updateDistribution();
-    });
-
-    document.getElementById("distEqualTab")?.addEventListener("click", () => {
-        distributionMode = "equal";
-        document.getElementById("distEqualTab").classList.add("active");
-        document.getElementById("distCustomTab").classList.remove("active");
-        document.getElementById("distEqualView").classList.remove("hidden");
-        document.getElementById("distCustomView").classList.add("hidden");
-        updateDistribution();
-    });
-
-    document.getElementById("distCustomTab")?.addEventListener("click", () => {
-        distributionMode = "custom";
-        document.getElementById("distCustomTab").classList.add("active");
-        document.getElementById("distEqualTab").classList.remove("active");
-        document.getElementById("distCustomView").classList.remove("hidden");
-        document.getElementById("distEqualView").classList.add("hidden");
-        updateDistribution();
     });
 
     document.getElementById("assigneeAddBtn")?.addEventListener("click", (event) => {
@@ -1122,9 +1197,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!event.target.closest(".assignee-dropdown") && !event.target.closest(".assignee-add-btn")) {
             hideAssigneeDropdown();
         }
-        if (!event.target.closest(".priority-select") && !event.target.closest(".priority-dropdown")) {
-            document.getElementById("priorityDropdown")?.classList.add("hidden");
-        }
     });
 
     document.getElementById("openMemberModal")?.addEventListener("click", openMemberModal);
@@ -1138,4 +1210,17 @@ document.addEventListener("DOMContentLoaded", () => {
             closeMemberModal();
         }
     });
+
+    // 개인 할 일 모달 닫기 이벤트 추가
+    const overlay = document.getElementById("mytodoModalOverlay");
+    if (overlay) {
+        overlay.querySelector(".mtm-close")?.addEventListener("click", () => {
+            overlay.classList.remove("active");
+        });
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.classList.remove("active");
+        });
+    }
 });
+
+

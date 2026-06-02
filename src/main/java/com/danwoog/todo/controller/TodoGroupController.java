@@ -98,6 +98,20 @@ public class TodoGroupController {
 
 
     @Operation(
+            summary = "완료된 프로젝트의 마늘 분배",
+            description = "팀장이 완료된 프로젝트의 마늘을 멤버들에게 분배합니다."
+    )
+    @PostMapping("/{groupId}/garlic-distribution")
+    public void distributeGarlic(
+            Authentication authentication,
+            @PathVariable("groupId") Long groupId,
+            @RequestBody com.danwoog.todo.dto.todogroup.TodoGroupGarlicDistributionRequest request
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+        todoGroupService.distributeGarlic(userId, groupId, request);
+    }
+
+    @Operation(
                 summary = "그룹 인원 추가",
                 description = "member_ids 사용자들을 그룹 멤버로 바로 추가합니다."
         )

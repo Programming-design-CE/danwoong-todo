@@ -19,7 +19,10 @@ import java.util.List;
         "total_garlic_reward",
         "remaining_garlic_reward",
         "members",
-        "member_count"
+        "member_count",
+        "total_todo_count",
+        "completed_todo_count",
+        "leader_id"
 })
 public class TodoGroupSummaryResponse {
 
@@ -56,6 +59,15 @@ public class TodoGroupSummaryResponse {
     @JsonProperty("member_count")
     private int memberCount;
 
+    @JsonProperty("total_todo_count")
+    private int totalTodoCount;
+
+    @JsonProperty("completed_todo_count")
+    private int completedTodoCount;
+
+    @JsonProperty("leader_id")
+    private Long leaderId;
+
     public TodoGroupSummaryResponse(
             Long groupId,
             String groupName,
@@ -67,7 +79,10 @@ public class TodoGroupSummaryResponse {
             Integer totalGarlicReward,
             Integer remainingGarlicReward,
             List<MemberPreviewResponse> members,
-            int memberCount
+            int memberCount,
+            int totalTodoCount,
+            int completedTodoCount,
+            Long leaderId
     ) {
         this.groupId = groupId;
         this.groupName = groupName;
@@ -80,6 +95,9 @@ public class TodoGroupSummaryResponse {
         this.remainingGarlicReward = remainingGarlicReward;
         this.members = members;
         this.memberCount = memberCount;
+        this.totalTodoCount = totalTodoCount;
+        this.completedTodoCount = completedTodoCount;
+        this.leaderId = leaderId;
     }
 
     public Long getGroupId() {
@@ -124,5 +142,17 @@ public class TodoGroupSummaryResponse {
 
     public int getMemberCount() {
         return memberCount;
+    }
+
+    public int getTotalTodoCount() {
+        return totalTodoCount;
+    }
+
+    public int getCompletedTodoCount() {
+        return completedTodoCount;
+    }
+
+    public Long getLeaderId() {
+        return leaderId;
     }
 }

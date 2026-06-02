@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>완료된 프로젝트</title>
+    <link rel="stylesheet" href="/css/todo/common.css">
+    <link rel="stylesheet" href="/css/todo/todos/working.css">
+    <link rel="stylesheet" href="/css/todo/todos/group-completed.css">
+    <script src="/js/todo-common.js" defer></script>
+    <script src="/js/group-project-completed.js" defer></script>
+</head>
+<body>
+<div class="todo-page">
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '', false, '/mytodos/working')}"></div>
+
+    <div class="todo-body">
+        <main class="todo-main">
+            <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'completed', '4', '2')}"></div>
+
+            <div class="filter-bar">
+                <span class="completed-label">완료된 프로젝트</span>
+                <span class="completed-sublabel">완료된 프로젝트를 확인할 수 있어요.</span>
+                <div class="filter-spacer"></div>
+                <button class="filter-btn" type="button">전체 카테고리 <span class="filter-caret">▾</span></button>
+                <button class="filter-btn" type="button">최근 완료순 <span class="filter-caret">▾</span></button>
+            </div>
+
+            <div class="project-scroll-area">
+                <div class="project-list" id="completedProjectList"></div>
+            </div>
+        </main>
+
+        <div th:replace="~{todo/fragments/memo-panel :: memo('/todos/my/note')}"></div>
+    </div>
+</div>
+
+<!-- =============================================
+     마늘 분배 모달 (팀장 전용)
+     group-todo.css 의 modal-overlay / modal-container 패턴 사용
+     ============================================= -->
+<div class="modal-overlay" id="garlicModalOverlay">
+    <div class="modal-container garlic-modal-container">
+
+        <!-- 헤더 -->
+        <div class="modal-header">
+            <span class="modal-title" id="garlicModalTitle">마늘 분배 방식</span>
+            <button class="modal-close-btn" id="garlicModalClose" type="button">✕</button>
+        </div>
+
+        <!-- 프로젝트 이름 서브타이틀 -->
+        <p class="garlic-modal-project-name" id="garlicModalProjectName"></p>
+
+        <!-- 바디 -->
+        <div class="garlic-modal-body">
+
+            <!-- 탭: 균등 분배 / 직접 조정 -->
+            <div class="dist-tabs">
+                <button class="dist-tab active" id="tabEqual" type="button">
+                    <span class="dist-tab-icon">👥</span> 균등 분배
+                </button>
+                <button class="dist-tab" id="tabCustom" type="button">
+                    <span class="dist-tab-icon">⚖️</span> 직접 조정
+                </button>
+            </div>
+
+            <!-- 설명 문구 -->
+            <p class="dist-desc" id="garlicDistDesc">모든 담당자에게 균등하게 분배됩니다.</p>
+
+            <!-- ── 균등 분배 패널 ── -->
+            <div id="panelEqual">
+                <p class="dist-subtitle">미리보기 <span class="dist-subtitle-hint">(?)</span></p>
+                <div class="dist-preview" id="garlicEqualPreview">
+                    <!-- JS로 채워짐: .dist-preview-item 반복 -->
+                </div>
+
+                <!-- 구분선 + 직접조정 유도 -->
+                <div class="dist-or-wrap">
+                    <span class="dist-or">또는</span>
+                </div>
+                <div class="dist-custom-guide">
+                    <div class="garlic-guide-emoji">🧄✨</div>
+                    <p class="guide-title">직접 조정로 더 세밀하게 분배해보세요!</p>
+                    <p class="guide-desc">각 담당자에게 원하는 비율로 마늘을 배정할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- ── 직접 조정 패널 ── -->
+            <div id="panelCustom" class="hidden">
+                <!-- 총 마늘 보상 표시 -->
+                <div class="dist-total-row">
+                    <span class="dist-total-label">총 마늘 보상</span>
+                    <span class="dist-total-badge" id="garlicTotalBadge">0개</span>
+                </div>
+
+                <!-- 슬라이더 목록 -->
+                <div class="dist-sliders" id="garlicSliders">
+                    <!-- JS로 채워짐 -->
+                </div>
+
+                <!-- 하단 합계 -->
+                <div class="dist-summary-bar">
+                    <span class="dist-sum-label">총합 <span id="garlicSumPercent">0</span>%</span>
+                    <span class="dist-sum-label">총 <span id="garlicSumCount">0</span>개</span>
+                </div>
+            </div>
+
+        </div><!-- /.garlic-modal-body -->
+
+        <!-- 푸터 -->
+        <div class="modal-footer">
+            <button class="modal-cancel-btn" id="garlicModalCancel" type="button">취소</button>
+            <button class="modal-submit-btn" id="garlicModalSubmit" type="button">
+                <span class="submit-icon">✓</span> 분배하기
+            </button>
+        </div>
+
+    </div><!-- /.modal-container -->
+</div><!-- /#garlicModalOverlay -->
+
+</body>
+</html>

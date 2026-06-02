@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let playerNickname = '플레이어';
     let currentGarlicCount = 0;
+    let currentUserId = null;
 
     let hitTotal = 0;
     let gameTimerInterval = null;
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             playerNickname = data.nickname || '플레이어';
             currentGarlicCount = Number(data.garlic_count ?? 0);
+            currentUserId = data.user_id;
         } catch (error) {
             console.error('유저 정보 조회 실패:', error);
         }
@@ -389,6 +391,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('마늘 누적 저장 실패:', error);
             currentGarlicCount += rewardResult.garlicReward;
+        }
+
+        // 보스전에 진입한 프로젝트(그룹) ID가 있다면 localStorage에 마늘 획득 결과를 저장
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('groupId');
+        if (groupId && currentUserId) {
+            localStorage.setItem('bossReward_' + currentUserId + '_' + groupId, rewardResult.garlicReward);
         }
     }
 

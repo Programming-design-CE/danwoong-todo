@@ -28,7 +28,7 @@ public class TodoPageController {
 
     @GetMapping("/todos/completed")
     public String completedTodosPage() {
-        return "todo/todos/completed";
+        return "todo/todos/group-completed";
     }
 
     @GetMapping("/todos/calendar")

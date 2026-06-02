@@ -26,6 +26,9 @@ public class TodoGroupCreateRequest {
     @JsonProperty("invitee_ids")
     private List<Long> inviteeIds;
 
+    @JsonProperty("total_garlic_reward")
+    private Integer totalGarlicReward;
+
     public String getGroupName() {
         return groupName;
     }
@@ -48,5 +51,9 @@ public class TodoGroupCreateRequest {
 
     public List<Long> getInviteeIds() {
         return inviteeIds;
+    }
+
+    public Integer getTotalGarlicReward() {
+        return totalGarlicReward;
     }
 }
