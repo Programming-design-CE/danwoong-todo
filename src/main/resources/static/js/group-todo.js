@@ -62,16 +62,31 @@ function showTodoDetailModal(todo) {
         return;
     }
 
-    const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
-    const priorityColor = todo.priority === "HIGH" ? "#e07b54" : (todo.priority === "LOW" ? "#7b9ec8" : "#c9c3bb");
     const deadlineFull = formatDeadlineFull(todo.deadline);
 
     overlay.querySelector(".mtm-title").textContent = todo.todo_name;
     overlay.querySelector(".mtm-category").textContent = todo.category || "";
     overlay.querySelector(".mtm-deadline-val").textContent = deadlineFull;
-    overlay.querySelector(".mtm-garlic-val").textContent = todo.garlic_reward != null ? todo.garlic_reward + "개" : "-";
-    overlay.querySelector(".mtm-priority-val").innerHTML = '<span style="color:' + priorityColor + '">⚑ ' + priorityLabel + '</span>';
-    overlay.querySelector(".mtm-desc-val").textContent = todo.description || "-";
+
+    const descInput = overlay.querySelector(".mtm-desc-input");
+    if (descInput) {
+        descInput.value = todo.description || "";
+        
+        // 내용 변경 시 자동 저장 (PATCH)
+        descInput.onchange = async () => {
+            try {
+                await api(`/todos/${todo.todo_id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        todo_name: todo.todo_name,
+                        description: descInput.value
+                    })
+                });
+            } catch (e) {
+                console.error("설명 업데이트 실패", e);
+            }
+        };
+    }
 
     const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
     if (avatarWrap && todo.assignees && todo.assignees.length) {
