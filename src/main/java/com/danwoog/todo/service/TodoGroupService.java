@@ -166,7 +166,8 @@ public class TodoGroupService {
                             members,
                             groupMembers.size(),
                             totalTodos,
-                            completedTodos
+                            completedTodos,
+                            group.getCreatedBy() != null ? group.getCreatedBy().getUserId() : null
                     );
                 })
                 .toList();
