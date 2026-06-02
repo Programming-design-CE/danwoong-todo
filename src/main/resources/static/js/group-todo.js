@@ -605,7 +605,7 @@ async function loadGroupContext() {
 
     isLeader = (group.leader_id === currentUser?.user_id);
 
-    const btnAddTodo = document.getElementById("btnAddTodo");
+    const btnAddTodo = document.getElementById("addTodoBtn");
     if (btnAddTodo) {
         btnAddTodo.style.display = isLeader ? "flex" : "none";
     }

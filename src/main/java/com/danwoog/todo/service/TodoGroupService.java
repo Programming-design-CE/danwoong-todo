@@ -322,6 +322,11 @@ public class TodoGroupService {
                 member.updateGarlicCount(currentGarlic + dto.getRewardAmount());
             }
         }
+        
+        // 남은 마늘 보상을 0으로 만들어 마늘 분배가 완료되었음을 표시
+        if (group.getRemainingGarlicReward() != null && group.getRemainingGarlicReward() > 0) {
+            group.allocateGarlicReward(group.getRemainingGarlicReward());
+        }
     }
 
     private String normalizeGroupCategory(String groupCategory) {
