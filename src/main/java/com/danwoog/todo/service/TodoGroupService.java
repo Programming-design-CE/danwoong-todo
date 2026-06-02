@@ -5,6 +5,7 @@ import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.todogroup.*;
 import com.danwoog.todo.repository.MemberRepository;
 import com.danwoog.todo.repository.TodoGroupRepository;
+import com.danwoog.todo.repository.todo.TodoRepository;
 import com.danwoog.todo.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class TodoGroupService {
     private final TodoGroupRepository todoGroupRepository;
     private final MemberRepository todoGroupMemberRepository;
     private final UserRepository userRepository;
+    private final TodoRepository todoRepository;
 
 
     // 1. POST : 공동 할 일 그룹 생성 및 멤버 바로 추가
@@ -142,6 +144,9 @@ public class TodoGroupService {
                             })
                             .toList();
 
+                    int totalTodos = todoRepository.countByGroup_GroupId(group.getGroupId());
+                    int completedTodos = todoRepository.countByGroup_GroupIdAndStatus(group.getGroupId(), com.danwoog.todo.domain.todo.TodoStatus.COMPLETED);
+
                     return new TodoGroupSummaryResponse(
                             group.getGroupId(),
                             group.getGroupName(),
@@ -153,7 +158,9 @@ public class TodoGroupService {
                             group.getTotalGarlicReward(),
                             group.getRemainingGarlicReward(),
                             members,
-                            groupMembers.size()
+                            groupMembers.size(),
+                            totalTodos,
+                            completedTodos
                     );
                 })
                 .toList();

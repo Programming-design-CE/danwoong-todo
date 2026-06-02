@@ -107,12 +107,13 @@ async function loadCompletedGroups() {
         try {
             const data = await fetchTodoJson("/todo-groups");
             const all = data?.groups || [];
-            // progress 100% 또는 remaining_garlic_reward == 0 인 것
+            // progress 100% (할 일 개수 기준) 또는 status == COMPLETED 인 것
             completedGroups = all.filter((g) => {
-                const total = Number(g.total_garlic_reward || 0);
-                const remain = Number(g.remaining_garlic_reward || 0);
+                const total = Number(g.total_todo_count || 0);
+                const completed = Number(g.completed_todo_count || 0);
+                if (g.status === 'COMPLETED') return true;
                 if (total <= 0) return false;
-                return Math.round(((total - remain) / total) * 100) >= 100;
+                return Math.round((completed / total) * 100) >= 100;
             });
         } catch (e) {
             console.error("프로젝트 목록 로드 실패", e);

@@ -7,14 +7,14 @@ let selectedIcon = "S";
 let activeProjectMenuGroupId = null;
 
 function getProgressPercent(group) {
-    const total = Number(group.total_garlic_reward || 0);
-    const remaining = Number(group.remaining_garlic_reward || 0);
+    const total = Number(group.total_todo_count || 0);
+    const completed = Number(group.completed_todo_count || 0);
 
     if (total <= 0) {
         return 0;
     }
 
-    return Math.max(0, Math.min(100, Math.round(((total - remaining) / total) * 100)));
+    return Math.max(0, Math.min(100, Math.round((completed / total) * 100)));
 }
 
 function formatDday(deadline) {
@@ -224,7 +224,8 @@ function bindProjectAddButton() {
 async function loadProjects() {
     try {
         const data = await fetchTodoJson("/todo-groups");
-        allGroups = data?.groups || [];
+        // 진행률 100% 미만이고 상태가 COMPLETED가 아닌 것만 진행 중에 표시
+        allGroups = (data?.groups || []).filter(g => getProgressPercent(g) < 100 && g.status !== 'COMPLETED');
         renderProjects(allGroups);
     } catch (error) {
         console.error(error);
