@@ -390,6 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('마늘 누적 저장 실패:', error);
             currentGarlicCount += rewardResult.garlicReward;
         }
+
+        // 보스전에 진입한 프로젝트(그룹) ID가 있다면 localStorage에 마늘 획득 결과를 저장
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('groupId');
+        if (groupId) {
+            localStorage.setItem('bossReward_' + groupId, rewardResult.garlicReward);
+        }
     }
 
     async function showResultSequence(rewardResult) {

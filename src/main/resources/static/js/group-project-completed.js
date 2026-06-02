@@ -75,15 +75,23 @@ function createCompletedCard(group) {
     // 마늘 예산이 0이 되면 분배가 완료된 것으로 간주 (총 마늘이 0 이상일 때)
     const isDistributed = group.total_garlic_reward >= 0 && group.remaining_garlic_reward === 0;
 
+    const bossReward = localStorage.getItem('bossReward_' + group.group_id);
+
     let actionUI = "";
     if (isDistributed) {
-        actionUI = `
-        <div class="distributed-actions">
-            <button class="btn-boss-battle" onclick="event.stopPropagation(); location.href='/boss'" type="button">⚔️ 추가로 마늘 얻기</button>
-            <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">🗑️ 삭제</button>
-        </div>`;
-    } else {
-        actionUI = isLeader ? '<span class="garlic-hint">🧄</span>' : '<span class="garlic-hint garlic-hint--dim">🔒</span>';
+        if (bossReward) {
+            actionUI = `
+            <div class="distributed-actions">
+                <span class="boss-reward-text">획득한 마늘: ${bossReward}개</span>
+                <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
+            </div>`;
+        } else {
+            actionUI = `
+            <div class="distributed-actions">
+                <button class="btn-boss-battle" onclick="event.stopPropagation(); location.href='/boss?groupId=${group.group_id}'" type="button">추가로<br>마늘얻기</button>
+                <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
+            </div>`;
+        }
     }
 
     return `
@@ -101,7 +109,6 @@ function createCompletedCard(group) {
             <span class="project-percent">100 %</span>
         </div>
         <div class="member-avatars">${buildMemberAvatars(group)}</div>
-        <div class="project-priority"><span class="project-priority-flag">&#9873;</span></div>
         <div class="project-actions-right">
             ${actionUI}
         </div>
@@ -353,6 +360,7 @@ async function submitGarlicDistribution() {
         });
         alert("마늘이 성공적으로 분배되었습니다! 🧄");
         closeGarlicModal();
+        loadCompletedGroups().then(() => renderCompletedProjects(completedGroups));
     } catch (e) {
         console.error("마늘 분배 실패", e);
         alert("마늘 분배에 실패했습니다. 잠시 후 다시 시도해주세요.");
