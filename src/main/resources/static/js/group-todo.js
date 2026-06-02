@@ -407,14 +407,15 @@ function renderTodoList() {
             ${moreBtnHtml}
         `;
 
-        if (!isLeader) {
-            item.addEventListener("click", () => {
-                if (typeof openTodoModal === "function") {
-                    openTodoModal(todo.todo_id);
-                }
-            });
-            item.style.cursor = "pointer";
-        }
+        item.addEventListener("click", (e) => {
+            if (e.target.closest('.todo-more-btn')) {
+                return;
+            }
+            if (typeof openTodoModal === "function") {
+                openTodoModal(todo.todo_id);
+            }
+        });
+        item.style.cursor = "pointer";
 
         list.appendChild(item);
     });
@@ -1165,6 +1166,18 @@ function showTodoDetailModal(todo) {
     }
 
     const completeBtn = overlay.querySelector(".mtm-complete-btn");
+    
+    // 본인이 담당자인지 여부와 완료 상태 확인
+    const isAssignee = todo.assignees && todo.assignees.some(a => a.user_id === currentUser?.user_id);
+    const myAssigneeInfo = todo.assignees && todo.assignees.find(a => a.user_id === currentUser?.user_id);
+    const isCompleted = myAssigneeInfo?.status === 'COMPLETED' || todo.status === 'COMPLETED';
+
+    if (isAssignee && !isCompleted) {
+        completeBtn.style.display = "block";
+    } else {
+        completeBtn.style.display = "none";
+    }
+
     completeBtn.onclick = async () => {
         try {
             await api("/todos/" + todo.todo_id + "/complete", {
