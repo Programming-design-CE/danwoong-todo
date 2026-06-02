@@ -88,7 +88,7 @@ function createCompletedCard(group) {
         } else {
             actionUI = `
             <div class="distributed-actions">
-                <button class="btn-boss-battle" onclick="event.stopPropagation(); location.href='/boss?groupId=${group.group_id}'" type="button">추가로<br>마늘얻기</button>
+                <button class="btn-boss-battle" onclick="event.stopPropagation(); location.href='/boss?groupId=${group.group_id}'" type="button">추가로 마늘얻기</button>
                 <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
             </div>`;
         }
