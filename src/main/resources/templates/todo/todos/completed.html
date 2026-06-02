@@ -5,27 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>완료된 프로젝트</title>
     <link rel="stylesheet" href="/css/todo/common.css">
-    <link rel="stylesheet" href="/css/todo/todos/placeholder.css">
+    <link rel="stylesheet" href="/css/todo/todos/working.css">
+    <link rel="stylesheet" href="/css/todo/todos/completed.css">
     <script src="/js/todo-common.js" defer></script>
+    <script src="/js/todo-completed.js" defer></script>
 </head>
 <body>
 <div class="todo-page">
-    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '완료된 프로젝트를 모아보고 정리할 수 있어요.', false, '/mytodos/working')}"></div>
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할일', '', false, '/mytodos/working')}"></div>
 
     <div class="todo-body">
         <main class="todo-main">
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'completed', '4', '2')}"></div>
 
-            <section class="todo-content-placeholder">
-                <div class="todo-placeholder-card">
-                    <h2>완료된 프로젝트 페이지</h2>
-                    <p>여기에 완료된 그룹 할 일 목록과 회고 영역을 붙이면 됩니다.</p>
-                </div>
-            </section>
+            <div class="filter-bar">
+                <span class="completed-label">완료된 프로젝트</span>
+                <span class="completed-sublabel">완료된 프로젝트를 확인할 수 있어요.</span>
+                <div class="filter-spacer"></div>
+                <button class="filter-btn" type="button">전체 카테고리 <span class="filter-caret">▾</span></button>
+                <button class="filter-btn" type="button">최근 완료순 <span class="filter-caret">▾</span></button>
+            </div>
+
+            <div class="project-scroll-area">
+                <div class="project-list" id="completedProjectList"></div>
+            </div>
         </main>
 
         <div th:replace="~{todo/fragments/memo-panel :: memo('/todos/my/note')}"></div>
     </div>
+</div>
+
+<!-- 마늘 분배 모달 (팀장 전용) -->
+<div class="modal-overlay" id="garlicModalOverlay">
+    <div class="modal-container garlic-modal">
+        <div class="modal-header">
+            <span class="modal-title" id="garlicModalProjectName">프로젝트 완료!</span>
+            <button class="modal-close-btn" id="garlicModalClose" type="button">×</button>
+        </div>
+
+        <div class="modal-body garlic-modal-body">
+            <!-- 분배 방식 탭 -->
+            <div class="dist-section">
+                <p class="dist-desc" style="margin-bottom:14px;">완료된 프로젝트의 마늘 보상을 팀원들에게 분배하세요.</p>
+                <div class="dist-tabs" id="garlicDistTabs">
+                    <button class="dist-tab active" id="tabEqual" type="button">
+                        <span class="dist-tab-icon">👥</span> 균등 분배
+                    </button>
+                    <button class="dist-tab" id="tabCustom" type="button">
+                        <span class="dist-tab-icon">⚖️</span> 직접 조정
+                    </button>
+                </div>
+                <p class="dist-desc" id="garlicDistDesc">모든 담당자에게 균등하게 분배됩니다.</p>
+
+                <!-- 총 마늘 보상 표시 -->
+                <div class="garlic-project-info" style="margin:14px 0;">
+                    <span>🧄</span>
+                    <span>해당 프로젝트의 마늘 보상: <strong id="garlicTotalCount">0</strong>개</span>
+                </div>
+
+                <!-- 균등 분배 미리보기 -->
+                <div id="garlicEqualSection">
+                    <p class="dist-subtitle">미리보기</p>
+                    <div class="dist-preview" id="garlicEqualPreview"></div>
+                </div>
+
+                <!-- 직접 조정 슬라이더 -->
+                <div id="garlicCustomSection" class="hidden">
+                    <div class="dist-sliders" id="garlicSliders"></div>
+                    <div class="dist-summary">
+                        <span class="dist-total-info">총합 <span id="garlicSumPercent">0</span>%</span>
+                        <span class="dist-total-info">총 <span id="garlicSumCount">0</span>개</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="modal-cancel-btn" id="garlicModalCancel" type="button">취소</button>
+            <button class="modal-submit-btn" id="garlicModalSubmit" type="button">
+                <span class="submit-icon">✓</span> 분배하기
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="project-context-menu hidden" id="completedProjectContextMenu">
+    <button class="project-context-item" id="completedDistributeAction" type="button">🧄 마늘 분배</button>
 </div>
 </body>
 </html>
