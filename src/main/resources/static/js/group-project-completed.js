@@ -51,7 +51,10 @@ function getGroupIconStyle(group) {
 /* ---- 프로젝트 카드 렌더 ---- */
 function createCompletedCard(group) {
     const endDate = formatEndDate(group.deadline);
-    const isLeader = currentUser && group.leader_id === currentUser.user_id;
+    // leader_id가 API에 없을 수 있습니다.
+    // 없으면 판단 불가 → 일단 클릭 허용 (isLeader = true 처리)
+    const hasLeaderInfo = group.leader_id != null && currentUser != null;
+    const isLeader = !hasLeaderInfo || currentUser.user_id === group.leader_id;
 
     return `
     <div class="project-card completed" data-group-id="${group.group_id}" data-is-leader="${isLeader}">
@@ -313,7 +316,7 @@ async function submitGarlicDistribution() {
 
 /* ---- 이벤트 바인딩 ---- */
 function bindEvents() {
-    /* 프로젝트 카드 클릭 → 팀장이면 마늘 분배 모달, 팀원이면 안내 */
+    /* 프로젝트 카드 클릭 → 마늘 분배 모달 열기 */
     document.getElementById("completedProjectList")?.addEventListener("click", (e) => {
         const card = e.target.closest(".project-card.completed");
         if (!card) return;
