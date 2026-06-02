@@ -290,6 +290,35 @@ public class TodoGroupService {
         );
     }
 
+    // 6. POST : 마늘 분배 및 그룹 완료 처리
+    public void distributeGarlic(Long loginUserId, Long groupId, TodoGroupGarlicDistributionRequest request) {
+        TodoGroup group = todoGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        // 그룹의 상태를 완료로 변경
+        group.update(
+                group.getGroupName(),
+                group.getGroupColor(),
+                group.getGroupCategory(),
+                group.getDeadline() != null ? group.getDeadline() : null,
+                group.getPriority(),
+                GroupStatus.COMPLETED
+        );
+
+        if (request.getDistributions() != null) {
+            for (GarlicDistributionDto dto : request.getDistributions()) {
+                if (dto.getRewardAmount() == null || dto.getRewardAmount() <= 0) {
+                    continue;
+                }
+                User member = userRepository.findById(dto.getUserId())
+                        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+                int currentGarlic = member.getGarlicCount() != null ? member.getGarlicCount() : 0;
+                member.updateGarlicCount(currentGarlic + dto.getRewardAmount());
+            }
+        }
+    }
+
     private String normalizeGroupCategory(String groupCategory) {
         if (groupCategory == null || groupCategory.isBlank()) {
             return null;
