@@ -54,7 +54,7 @@ function createCompletedCard(group) {
     const isLeader = currentUser && group.leader_id === currentUser.user_id;
 
     return `
-    <div class="project-card completed" data-group-id="${group.group_id}">
+    <div class="project-card completed" data-group-id="${group.group_id}" data-is-leader="${isLeader}">
         <div class="project-icon" style="${getGroupIconStyle(group)}">${getAvatarInitial(group.group_name || "?")}</div>
         <div class="project-name-block">
             <div>
@@ -68,10 +68,7 @@ function createCompletedCard(group) {
         </div>
         <div class="member-avatars">${buildMemberAvatars(group)}</div>
         <div class="project-priority"><span class="project-priority-flag">&#9873;</span></div>
-        ${isLeader
-            ? `<button class="project-more" type="button" data-group-id="${group.group_id}" aria-label="마늘 분배">&#8942;</button>`
-            : `<div></div>`
-        }
+        ${isLeader ? '<span class="garlic-hint">🧄</span>' : '<span class="garlic-hint garlic-hint--dim">🔒</span>'}
     </div>`;
 }
 
@@ -314,53 +311,22 @@ async function submitGarlicDistribution() {
     }
 }
 
-/* ---- 컨텍스트 메뉴 (⋮ 버튼 → 마늘 분배) ---- */
-let activeMenuGroupId = null;
-
-function showCompletedContextMenu(button) {
-    const menu = document.getElementById("completedProjectContextMenu");
-    if (!menu || !button) return;
-    const rect = button.getBoundingClientRect();
-    activeMenuGroupId = Number(button.dataset.groupId);
-    menu.style.left = `${Math.max(16, rect.right - 148)}px`;
-    menu.style.top = `${rect.bottom + 6}px`;
-    menu.classList.remove("hidden");
-}
-
-function hideCompletedContextMenu() {
-    document.getElementById("completedProjectContextMenu")?.classList.add("hidden");
-    activeMenuGroupId = null;
-}
-
 /* ---- 이벤트 바인딩 ---- */
 function bindEvents() {
-    /* 프로젝트 카드 클릭 */
+    /* 프로젝트 카드 클릭 → 팀장이면 마늘 분배 모달, 팀원이면 안내 */
     document.getElementById("completedProjectList")?.addEventListener("click", (e) => {
-        const moreBtn = e.target.closest(".project-more");
-        if (moreBtn) {
-            e.stopPropagation();
-            showCompletedContextMenu(moreBtn);
-            return;
-        }
-        // 카드 자체 클릭 → 그룹 상세 이동
         const card = e.target.closest(".project-card.completed");
-        if (card && card.dataset.groupId) {
-            window.location.href = `/todos/detail?groupId=${card.dataset.groupId}&tab=completed`;
-        }
-    });
+        if (!card) return;
 
-    /* 컨텍스트 메뉴: 마늘 분배 */
-    document.getElementById("completedDistributeAction")?.addEventListener("click", () => {
-        const groupId = activeMenuGroupId;
-        hideCompletedContextMenu();
+        const groupId = Number(card.dataset.groupId);
         const group = completedGroups.find((g) => g.group_id === groupId);
-        if (group) openGarlicModal(group);
-    });
+        if (!group) return;
 
-    /* 외부 클릭 → 메뉴 닫기 */
-    document.addEventListener("click", (e) => {
-        if (!e.target.closest("#completedProjectContextMenu") && !e.target.closest(".project-more")) {
-            hideCompletedContextMenu();
+        const isLeader = card.dataset.isLeader === "true";
+        if (isLeader) {
+            openGarlicModal(group);
+        } else {
+            alert("마늘 분배는 팀장만 할 수 있습니다.");
         }
     });
 

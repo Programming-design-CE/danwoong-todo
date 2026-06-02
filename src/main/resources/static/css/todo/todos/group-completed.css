@@ -6,6 +6,20 @@
     padding: 20px 0 18px;
 }
 
+/* 마늘/자물쇠 아이콘 (팀장/팀원 구분) */
+.garlic-hint {
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    justify-self: end;
+}
+
+.garlic-hint--dim {
+    opacity: 0.35;
+    cursor: default;
+}
+
 .completed-label {
     color: #f2efea;
     font-family: 'MaplestoryBold', sans-serif;
