@@ -126,6 +126,13 @@ public class TodoGroup {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void setGarlicBudget(int garlicReward) {
+        int budget = Math.max(garlicReward, 0);
+        this.totalGarlicReward = budget;
+        this.remainingGarlicReward = budget;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void increaseGarlicBudget(int additionalMemberCount) {
         if (additionalMemberCount <= 0) {
             return;

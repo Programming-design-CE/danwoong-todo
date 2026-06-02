@@ -5,6 +5,7 @@ import com.danwoog.todo.domain.user.User;
 import com.danwoog.todo.dto.todogroup.*;
 import com.danwoog.todo.repository.MemberRepository;
 import com.danwoog.todo.repository.TodoGroupRepository;
+import com.danwoog.todo.repository.todo.TodoRepository;
 import com.danwoog.todo.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class TodoGroupService {
     private final TodoGroupRepository todoGroupRepository;
     private final MemberRepository todoGroupMemberRepository;
     private final UserRepository userRepository;
+    private final TodoRepository todoRepository;
 
 
     // 1. POST : 공동 할 일 그룹 생성 및 멤버 바로 추가
@@ -80,7 +82,13 @@ public class TodoGroupService {
         // 현재 그룹 멤버 전체 조회
         List<TodoGroupMember> groupMembers =
                 todoGroupMemberRepository.findByGroup_GroupId(savedGroup.getGroupId());
-        savedGroup.initializeGarlicBudget(groupMembers.size());
+
+        // 마늘 보상 세팅 (사용자 입력 값이 없으면 기본값으로 0 또는 멤버 수 기준)
+        if (request.getTotalGarlicReward() != null) {
+            savedGroup.setGarlicBudget(request.getTotalGarlicReward());
+        } else {
+            savedGroup.initializeGarlicBudget(groupMembers.size());
+        }
 
         // 응답에 넣을 전체 멤버 목록 생성
         List<MemberPreviewResponse> members = groupMembers.stream()
@@ -142,6 +150,9 @@ public class TodoGroupService {
                             })
                             .toList();
 
+                    int totalTodos = todoRepository.countByGroup_GroupId(group.getGroupId());
+                    int completedTodos = todoRepository.countByGroup_GroupIdAndStatus(group.getGroupId(), com.danwoog.todo.domain.todo.TodoStatus.COMPLETED);
+
                     return new TodoGroupSummaryResponse(
                             group.getGroupId(),
                             group.getGroupName(),
@@ -153,7 +164,9 @@ public class TodoGroupService {
                             group.getTotalGarlicReward(),
                             group.getRemainingGarlicReward(),
                             members,
-                            groupMembers.size()
+                            groupMembers.size(),
+                            totalTodos,
+                            completedTodos
                     );
                 })
                 .toList();
@@ -275,6 +288,35 @@ public class TodoGroupService {
                 groupId,
                 invitedCount
         );
+    }
+
+    // 6. POST : 마늘 분배 및 그룹 완료 처리
+    public void distributeGarlic(Long loginUserId, Long groupId, TodoGroupGarlicDistributionRequest request) {
+        TodoGroup group = todoGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        // 그룹의 상태를 완료로 변경
+        group.update(
+                group.getGroupName(),
+                group.getGroupColor(),
+                group.getGroupCategory(),
+                group.getDeadline() != null ? group.getDeadline() : null,
+                group.getPriority(),
+                GroupStatus.COMPLETED
+        );
+
+        if (request.getDistributions() != null) {
+            for (GarlicDistributionDto dto : request.getDistributions()) {
+                if (dto.getRewardAmount() == null || dto.getRewardAmount() <= 0) {
+                    continue;
+                }
+                User member = userRepository.findById(dto.getUserId())
+                        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+                int currentGarlic = member.getGarlicCount() != null ? member.getGarlicCount() : 0;
+                member.updateGarlicCount(currentGarlic + dto.getRewardAmount());
+            }
+        }
     }
 
     private String normalizeGroupCategory(String groupCategory) {
