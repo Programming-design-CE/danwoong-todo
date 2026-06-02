@@ -195,12 +195,17 @@ function renderGarlicModal() {
     /* 균등 미리보기 */
     const equalPreview = document.getElementById("garlicEqualPreview");
     if (equalPreview) {
-        equalPreview.innerHTML = garlicMembers.map((m) => `
+        equalPreview.innerHTML = garlicMembers.map((m) => {
+            const count = rewardMap[m.user_id] ?? 0;
+            const avatarHtml = m.profile_image
+                ? `<img src="${m.profile_image}" alt="${m.nickname}">`
+                : getAvatarInitial(m.nickname);
+            return `
             <div class="dist-preview-item">
-                <div class="dist-preview-avatar">${getAvatarInitial(m.nickname)}</div>
-                <span class="dist-preview-count">${rewardMap[m.user_id] ?? 0}개</span>
-            </div>
-        `).join("");
+                <div class="dist-preview-avatar">${avatarHtml}</div>
+                <span class="dist-preview-count">${count}개</span>
+            </div>`;
+        }).join("");
     }
 
     /* 직접 조정 슬라이더 */
@@ -209,16 +214,19 @@ function renderGarlicModal() {
         slidersEl.innerHTML = garlicMembers.map((m) => {
             const amount = garlicCustomDist[m.user_id] ?? 0;
             const pct = garlicTotal > 0 ? Math.round((amount / garlicTotal) * 100) : 0;
+            const avatarHtml = m.profile_image
+                ? `<img src="${m.profile_image}" alt="${m.nickname}">`
+                : getAvatarInitial(m.nickname);
             return `
             <div class="slider-row">
-                <div class="slider-avatar">${getAvatarInitial(m.nickname)}</div>
+                <div class="slider-avatar">${avatarHtml}</div>
                 <span class="slider-name">${m.nickname}</span>
                 <div class="slider-track" style="--val:${pct}%">
                     <input type="range" class="slider-input" min="0" max="${garlicTotal}"
-                           value="${amount}" data-uid="${m.user_id}" style="--val:${pct}%">
+                           value="${amount}" data-uid="${m.user_id}">
                 </div>
-                <span class="slider-percent" data-uid-pct="${m.user_id}">${pct}%</span>
-                <span class="slider-count" data-uid-cnt="${m.user_id}">${amount}개</span>
+                <span class="slider-percent">${pct}%</span>
+                <span class="slider-count">${amount}개</span>
             </div>`;
         }).join("");
 
@@ -244,28 +252,30 @@ function openGarlicModal(group) {
     activeGroup = group;
     garlicTotal = Number(group.total_garlic_reward || 0);
     garlicMembers = Array.isArray(group.members)
-        ? group.members.map((m) => ({ user_id: m.user_id, nickname: m.nickname || `멤버${m.user_id}` }))
+        ? group.members.map((m) => ({
+            user_id: m.user_id,
+            nickname: m.nickname || `멤버${m.user_id}`,
+            profile_image: m.profile_image || null
+          }))
         : [];
     garlicDistMode = "equal";
     garlicCustomDist = {};
 
-    // 커스텀 분배 초기값: 균등으로 초기화
     const equalMap = buildEqualRewardMap();
     garlicMembers.forEach((m) => { garlicCustomDist[m.user_id] = equalMap[m.user_id] ?? 0; });
 
-    // 모달 제목
-    const titleEl = document.getElementById("garlicModalProjectName");
-    if (titleEl) titleEl.textContent = group.group_name || "프로젝트 완료!";
+    // 프로젝트명 표시
+    const projectNameEl = document.getElementById("garlicModalProjectName");
+    if (projectNameEl) projectNameEl.textContent = group.group_name || "";
 
-    // 총 마늘 표시
-    const totalEl = document.getElementById("garlicTotalCount");
-    if (totalEl) totalEl.textContent = String(garlicTotal);
+    // 직접 조정 패널의 총 마늘 배지
+    const badgeEl = document.getElementById("garlicTotalBadge");
+    if (badgeEl) badgeEl.textContent = `${garlicTotal}개`;
 
-    // 탭 상태 초기화
     setDistTab("equal");
-
     document.getElementById("garlicModalOverlay")?.classList.add("open");
 }
+
 
 function closeGarlicModal() {
     document.getElementById("garlicModalOverlay")?.classList.remove("open");
@@ -285,8 +295,9 @@ function setDistTab(mode) {
             : "담당자별로 마늘을 직접 분배할 수 있습니다.";
     }
 
-    document.getElementById("garlicEqualSection")?.classList.toggle("hidden", mode !== "equal");
-    document.getElementById("garlicCustomSection")?.classList.toggle("hidden", mode !== "custom");
+    // 패널 토글 (panelEqual / panelCustom)
+    document.getElementById("panelEqual")?.classList.toggle("hidden", mode !== "equal");
+    document.getElementById("panelCustom")?.classList.toggle("hidden", mode !== "custom");
 
     renderGarlicModal();
 }
