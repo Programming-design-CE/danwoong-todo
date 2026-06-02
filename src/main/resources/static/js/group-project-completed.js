@@ -328,10 +328,15 @@ async function submitGarlicDistribution() {
 
 /* ---- 이벤트 바인딩 ---- */
 function bindEvents() {
-    /* 프로젝트 카드 클릭 → 마늘 분배 모달 열기 (누구나) */
     document.getElementById("completedProjectList")?.addEventListener("click", (e) => {
         const card = e.target.closest(".project-card.completed");
         if (!card) return;
+
+        const isLeader = card.dataset.isLeader === "true";
+        if (!isLeader) {
+            alert("마늘 분배는 프로젝트 팀장만 가능합니다.");
+            return;
+        }
 
         const groupId = Number(card.dataset.groupId);
         const group = completedGroups.find((g) => g.group_id === groupId);

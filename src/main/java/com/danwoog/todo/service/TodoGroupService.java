@@ -296,6 +296,10 @@ public class TodoGroupService {
         TodoGroup group = todoGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
 
+        if (group.getCreatedBy() == null || !group.getCreatedBy().getUserId().equals(loginUserId)) {
+            throw new IllegalArgumentException("마늘 분배는 프로젝트 팀장만 가능합니다.");
+        }
+
         // 그룹의 상태를 완료로 변경
         group.update(
                 group.getGroupName(),
