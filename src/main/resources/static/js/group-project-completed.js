@@ -327,7 +327,7 @@ async function submitGarlicDistribution() {
 
 /* ---- 이벤트 바인딩 ---- */
 function bindEvents() {
-    /* 프로젝트 카드 클릭 → 마늘 분배 모달 열기 */
+    /* 프로젝트 카드 클릭 → 마늘 분배 모달 열기 (누구나) */
     document.getElementById("completedProjectList")?.addEventListener("click", (e) => {
         const card = e.target.closest(".project-card.completed");
         if (!card) return;
@@ -336,12 +336,7 @@ function bindEvents() {
         const group = completedGroups.find((g) => g.group_id === groupId);
         if (!group) return;
 
-        const isLeader = card.dataset.isLeader === "true";
-        if (isLeader) {
-            openGarlicModal(group);
-        } else {
-            alert("마늘 분배는 팀장만 할 수 있습니다.");
-        }
+        openGarlicModal(group);
     });
 
     /* 모달 닫기 */
