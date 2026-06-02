@@ -36,8 +36,19 @@ function formatDeadlineFull(deadline) {
 
 async function openTodoModal(todoId) {
     try {
+        console.log("openTodoModal called", todoId);
         const data = await api("/todos/" + todoId);
-        showTodoDetailModal(data);
+        console.log("openTodoModal data", data);
+        if (!data) {
+            alert("API로부터 할 일 데이터를 받지 못했습니다.");
+            return;
+        }
+        try {
+            showTodoDetailModal(data);
+        } catch (innerE) {
+            console.error("showTodoDetailModal error:", innerE);
+            alert("모달 화면 구성 중 에러가 발생했습니다: " + innerE.message);
+        }
     } catch (e) {
         console.error(e);
         alert("할 일 정보를 불러오지 못했습니다. 에러: " + e.message);
