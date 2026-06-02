@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <script src="/js/todo-common.js" defer></script>
   <script th:src="@{/js/group-todo.js}" defer></script>
 </head>
+
 <body>
   <div class="todo-page" data-back-url="/todos/working">
     <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '', false, '/mytodos/working')}"></div>
@@ -80,7 +82,7 @@
         <button class="modal-close-btn" id="modalCloseBtn" type="button">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body modal-body--simple">
         <div class="modal-form">
           <div class="form-group">
             <label class="form-label">할 일 제목 <span class="required">*</span></label>
@@ -89,41 +91,9 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">설명 (선택)</label>
-            <textarea class="form-textarea" id="todoDescInput" placeholder="할 일에 대한 내용을 입력하세요." maxlength="200"></textarea>
-            <span class="char-count"><span id="descCharCount">0</span>/200</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">카테고리 (선택)</label>
-            <div class="category-chips" id="categoryChips">
-              <button class="chip" data-cat="발표 준비" type="button">발표 준비</button>
-              <button class="chip" data-cat="보고서" type="button">보고서</button>
-              <button class="chip" data-cat="기능 구현" type="button">기능 구현</button>
-              <button class="chip" data-cat="자료 조사" type="button">자료 조사</button>
-              <button class="chip chip-add" id="addCategoryBtn" type="button">+ 직접 입력</button>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group half">
-              <label class="form-label">담당자 <span class="required">*</span></label>
-              <div class="assignee-area" id="assigneeArea">
-                <button class="assignee-add-btn" id="assigneeAddBtn" type="button">+</button>
-              </div>
-            </div>
-            <div class="form-group half">
-              <label class="form-label">우선순위</label>
-              <div class="priority-select" id="prioritySelect">
-                <span class="priority-icon">⚑</span>
-                <span class="priority-text" id="priorityText">보통</span>
-                <span class="dropdown-arrow">▾</span>
-              </div>
-              <div class="priority-dropdown hidden" id="priorityDropdown">
-                <button class="priority-option" data-priority="HIGH" type="button"><span class="priority-flag high">⚑</span> 높음</button>
-                <button class="priority-option" data-priority="MEDIUM" type="button"><span class="priority-flag medium">⚑</span> 보통</button>
-                <button class="priority-option" data-priority="LOW" type="button"><span class="priority-flag low">⚑</span> 낮음</button>
-              </div>
+            <label class="form-label">담당자 <span class="required">*</span></label>
+            <div class="assignee-area" id="assigneeArea">
+              <button class="assignee-add-btn" id="assigneeAddBtn" type="button">+</button>
             </div>
           </div>
 
@@ -146,50 +116,6 @@
                 <button class="garlic-btn plus" id="garlicPlus" type="button">+</button>
                 <span class="garlic-unit">개</span>
               </div>
-            </div>
-          </div>
-
-          <div class="garlic-project-info">
-            <span class="garlic-icon">🧄</span>
-            해당 프로젝트에 배정된 총 마늘 수:
-            <strong id="projectGarlicTotal">0</strong>개
-          </div>
-        </div>
-
-        <div class="modal-distribution">
-          <label class="form-label">마늘 분배 방식</label>
-          <div class="dist-tabs">
-            <button class="dist-tab active" data-dist="equal" id="distEqualTab" type="button">
-              <span class="dist-tab-icon">👥</span>
-              균등 분배
-            </button>
-            <button class="dist-tab" data-dist="custom" id="distCustomTab" type="button">
-              <span class="dist-tab-icon">⚙</span>
-              직접 조절
-            </button>
-          </div>
-
-          <div class="dist-view" id="distEqualView">
-            <p class="dist-desc">모든 담당자에게 균등하게 분배됩니다.</p>
-            <p class="dist-subtitle">미리보기</p>
-            <div class="dist-preview" id="distEqualPreview"></div>
-            <p class="dist-or">또는</p>
-            <div class="dist-custom-guide">
-              <img th:src="@{/assets/danwoong.png}" alt="마늘" class="garlic-guide-img">
-              <p class="guide-title">직접 조절로 더 세밀하게 분배해보세요</p>
-              <p class="guide-desc">각 담당자에게 원하는 비율로 마늘을 배정할 수 있습니다.</p>
-            </div>
-          </div>
-
-          <div class="dist-view hidden" id="distCustomView">
-            <p class="dist-desc">담당자별로 마늘을 직접 분배할 수 있습니다.</p>
-            <div class="dist-total-info">
-              총 마늘 보상 <strong id="distTotalGarlic">10</strong>개
-            </div>
-            <div class="dist-sliders" id="distSliders"></div>
-            <div class="dist-summary">
-              <span>총합 <strong id="distSumPercent">0</strong>%</span>
-              <span>총 <strong id="distSumCount">0</strong>개</span>
             </div>
           </div>
         </div>
@@ -263,4 +189,5 @@
     </div>
   </div>
 </body>
+
 </html>
