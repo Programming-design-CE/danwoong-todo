@@ -75,14 +75,14 @@ function createCompletedCard(group) {
     // 마늘 예산이 0이 되면 분배가 완료된 것으로 간주 (총 마늘이 0 이상일 때)
     const isDistributed = group.total_garlic_reward >= 0 && group.remaining_garlic_reward === 0;
 
-    const bossReward = localStorage.getItem('bossReward_' + group.group_id);
+    const bossReward = currentUser ? localStorage.getItem('bossReward_' + currentUser.user_id + '_' + group.group_id) : null;
 
     let actionUI = "";
     if (isDistributed) {
         if (bossReward) {
             actionUI = `
             <div class="distributed-actions">
-                <span class="boss-reward-text">획득한 마늘: ${bossReward}개</span>
+                <span class="boss-reward-text">내 획득 마늘: ${bossReward}개</span>
                 <button class="btn-delete-project" onclick="event.stopPropagation(); window.deleteCompletedProject(${group.group_id})" type="button">삭제</button>
             </div>`;
         } else {
