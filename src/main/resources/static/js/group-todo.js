@@ -22,6 +22,103 @@ const PRIORITY_CSS = {
 let currentGroupId = Number(queryParams.get("groupId") || localStorage.getItem("currentGroupId") || 1);
 const currentDetailTab = (queryParams.get("tab") || "in-progress").toLowerCase();
 let currentUser = null;
+// --- 할 일 상세 모달 (팀원용 등) ---
+function formatDeadlineFull(deadline) {
+    if (!deadline) return "-";
+    const d = new Date(deadline);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const dow = days[d.getDay()];
+    return year + ". " + month + ". " + day + " (" + dow + ")";
+}
+
+async function openTodoModal(todoId) {
+    try {
+        const data = await api("/todos/" + todoId);
+        showTodoDetailModal(data);
+    } catch (e) {
+        console.error(e);
+        alert("할 일 정보를 불러오지 못했습니다. 에러: " + e.message);
+    }
+}
+
+function showTodoDetailModal(todo) {
+    const overlay = document.getElementById("mytodoModalOverlay");
+    if (!overlay) {
+        alert("모달 HTML 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
+    const priorityColor = todo.priority === "HIGH" ? "#e07b54" : (todo.priority === "LOW" ? "#7b9ec8" : "#c9c3bb");
+    const deadlineFull = formatDeadlineFull(todo.deadline);
+
+    overlay.querySelector(".mtm-title").textContent = todo.todo_name;
+    overlay.querySelector(".mtm-category").textContent = todo.category || "";
+    overlay.querySelector(".mtm-deadline-val").textContent = deadlineFull;
+    overlay.querySelector(".mtm-garlic-val").textContent = todo.garlic_reward != null ? todo.garlic_reward + "개" : "-";
+    overlay.querySelector(".mtm-priority-val").innerHTML = '<span style="color:' + priorityColor + '">⚑ ' + priorityLabel + '</span>';
+    overlay.querySelector(".mtm-desc-val").textContent = todo.description || "-";
+
+    const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
+    if (avatarWrap && todo.assignees && todo.assignees.length) {
+        avatarWrap.innerHTML = todo.assignees.map(a =>
+            '<div class="mtm-assignee-avatar" title="' + a.nickname + '">' + getAvatarInitial(a.nickname) + '</div>'
+        ).join('');
+    }
+
+    const pct = getProgressPercent(todo) || 0;
+    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
+    overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
+    overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
+
+    const assigneeList = overlay.querySelector(".mtm-assignee-list");
+    if (assigneeList && todo.assignees && todo.assignees.length) {
+        assigneeList.innerHTML = todo.assignees.map(a => {
+            const isCompleted = a.status === 'COMPLETED' || todo.status === 'COMPLETED';
+            const statusTxt = isCompleted ? '완료' : '진행 중';
+            const statusClass = isCompleted ? 'mtm-status--done' : 'mtm-status--progress';
+            return [
+                '<div class="mtm-assignee-row">',
+                '  <div class="mtm-assignee-avatar">' + getAvatarInitial(a.nickname) + '</div>',
+                '  <span class="mtm-assignee-name">' + a.nickname + '</span>',
+                '  <span class="mtm-assignee-status ' + statusClass + '">' + statusTxt + '</span>',
+                '</div>'
+            ].join('');
+        }).join('');
+    }
+
+    const completeBtn = overlay.querySelector(".mtm-complete-btn");
+    
+    // 본인이 담당자인지 여부와 완료 상태 확인
+    const isAssignee = todo.assignees && todo.assignees.some(a => a.user_id === currentUser?.user_id);
+    const myAssigneeInfo = todo.assignees && todo.assignees.find(a => a.user_id === currentUser?.user_id);
+    const isCompleted = myAssigneeInfo?.status === 'COMPLETED' || todo.status === 'COMPLETED';
+
+    if (isAssignee && !isCompleted) {
+        completeBtn.style.display = "block";
+    } else {
+        completeBtn.style.display = "none";
+    }
+
+    completeBtn.onclick = async () => {
+        try {
+            await api("/todos/" + todo.todo_id + "/complete", {
+                method: "PATCH"
+            });
+            overlay.classList.remove("active");
+            await loadTodos(); // 완료 후 목록 갱신
+        } catch (e) {
+            console.error(e);
+            alert("할 일 완료 처리에 실패했습니다.");
+        }
+    };
+
+    overlay.classList.add("active");
+}
+
 let todos = [];
 let friendList = [];
 let currentProjectMembers = [];
@@ -1100,96 +1197,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- 할 일 상세 모달 (팀원용 등) ---
-function formatDeadlineFull(deadline) {
-    if (!deadline) return "-";
-    const d = new Date(deadline);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const days = ["일", "월", "화", "수", "목", "금", "토"];
-    const dow = days[d.getDay()];
-    return year + ". " + month + ". " + day + " (" + dow + ")";
-}
 
-async function openTodoModal(todoId) {
-    try {
-        const data = await api("/todos/" + todoId);
-        showTodoDetailModal(data);
-    } catch (e) {
-        console.error(e);
-        alert("할 일 정보를 불러오지 못했습니다.");
-    }
-}
-
-function showTodoDetailModal(todo) {
-    const overlay = document.getElementById("mytodoModalOverlay");
-    if (!overlay) return;
-
-    const priorityLabel = PRIORITY_LABELS[todo.priority] || "보통";
-    const priorityColor = todo.priority === "HIGH" ? "#e07b54" : (todo.priority === "LOW" ? "#7b9ec8" : "#c9c3bb");
-    const deadlineFull = formatDeadlineFull(todo.deadline);
-
-    overlay.querySelector(".mtm-title").textContent = todo.todo_name;
-    overlay.querySelector(".mtm-category").textContent = todo.category || "";
-    overlay.querySelector(".mtm-deadline-val").textContent = deadlineFull;
-    overlay.querySelector(".mtm-garlic-val").textContent = todo.garlic_reward != null ? todo.garlic_reward + "개" : "-";
-    overlay.querySelector(".mtm-priority-val").innerHTML = '<span style="color:' + priorityColor + '">⚑ ' + priorityLabel + '</span>';
-    overlay.querySelector(".mtm-desc-val").textContent = todo.description || "-";
-
-    const avatarWrap = overlay.querySelector(".mtm-assignee-avatars");
-    if (avatarWrap && todo.assignees && todo.assignees.length) {
-        avatarWrap.innerHTML = todo.assignees.map(a =>
-            '<div class="mtm-assignee-avatar" title="' + a.nickname + '">' + getAvatarInitial(a.nickname) + '</div>'
-        ).join('');
-    }
-
-    const pct = getProgressPercent(todo) || 0;
-    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
-    overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
-    overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
-
-    const assigneeList = overlay.querySelector(".mtm-assignee-list");
-    if (assigneeList && todo.assignees && todo.assignees.length) {
-        assigneeList.innerHTML = todo.assignees.map(a => {
-            const isCompleted = a.status === 'COMPLETED' || todo.status === 'COMPLETED';
-            const statusTxt = isCompleted ? '완료' : '진행 중';
-            const statusClass = isCompleted ? 'mtm-status--done' : 'mtm-status--progress';
-            return [
-                '<div class="mtm-assignee-row">',
-                '  <div class="mtm-assignee-avatar">' + getAvatarInitial(a.nickname) + '</div>',
-                '  <span class="mtm-assignee-name">' + a.nickname + '</span>',
-                '  <span class="mtm-assignee-status ' + statusClass + '">' + statusTxt + '</span>',
-                '</div>'
-            ].join('');
-        }).join('');
-    }
-
-    const completeBtn = overlay.querySelector(".mtm-complete-btn");
-    
-    // 본인이 담당자인지 여부와 완료 상태 확인
-    const isAssignee = todo.assignees && todo.assignees.some(a => a.user_id === currentUser?.user_id);
-    const myAssigneeInfo = todo.assignees && todo.assignees.find(a => a.user_id === currentUser?.user_id);
-    const isCompleted = myAssigneeInfo?.status === 'COMPLETED' || todo.status === 'COMPLETED';
-
-    if (isAssignee && !isCompleted) {
-        completeBtn.style.display = "block";
-    } else {
-        completeBtn.style.display = "none";
-    }
-
-    completeBtn.onclick = async () => {
-        try {
-            await api("/todos/" + todo.todo_id + "/complete", {
-                method: "PATCH"
-            });
-            overlay.classList.remove("active");
-            await loadTodos(); // 완료 후 목록 갱신
-        } catch (e) {
-            console.error(e);
-            alert("할 일 완료 처리에 실패했습니다.");
-        }
-    };
-
-    overlay.classList.add("active");
-}
