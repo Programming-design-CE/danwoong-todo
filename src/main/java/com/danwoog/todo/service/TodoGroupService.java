@@ -82,7 +82,13 @@ public class TodoGroupService {
         // 현재 그룹 멤버 전체 조회
         List<TodoGroupMember> groupMembers =
                 todoGroupMemberRepository.findByGroup_GroupId(savedGroup.getGroupId());
-        savedGroup.initializeGarlicBudget(groupMembers.size());
+
+        // 마늘 보상 세팅 (사용자 입력 값이 없으면 기본값으로 0 또는 멤버 수 기준)
+        if (request.getTotalGarlicReward() != null) {
+            savedGroup.setGarlicBudget(request.getTotalGarlicReward());
+        } else {
+            savedGroup.initializeGarlicBudget(groupMembers.size());
+        }
 
         // 응답에 넣을 전체 멤버 목록 생성
         List<MemberPreviewResponse> members = groupMembers.stream()

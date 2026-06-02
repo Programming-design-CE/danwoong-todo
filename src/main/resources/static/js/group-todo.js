@@ -401,10 +401,6 @@ function renderTodoList() {
                 <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                 <span class="progress-text">${progress}%</span>
             </div>
-            <div class="todo-garlic">
-                <span class="garlic-emoji">🧄</span>
-                <span class="garlic-count-label">${garlicTotal}개</span>
-            </div>
             <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
             <button class="todo-more-btn" data-todo-id="${todo.todo_id}" type="button">⋮</button>
         `;
@@ -593,7 +589,10 @@ function updatePriorityDisplay() {
 }
 
 function updateGarlicDisplay() {
-    document.getElementById("garlicCount").textContent = String(garlicReward);
+    const el = document.getElementById("garlicCount");
+    if (el) {
+        el.textContent = String(garlicReward);
+    }
 }
 
 function updateDatePlaceholder() {
@@ -796,7 +795,7 @@ async function submitTodo() {
     const body = {
         todo_name: todoName,
         deadline: document.getElementById("todoDeadlineInput").value || null,
-        garlic_reward: garlicReward,
+        garlic_reward: 0,
         priority: selectedPriority,
         category: selectedCategory || null,
         distribution_type: "EVEN",

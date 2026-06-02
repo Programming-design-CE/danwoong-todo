@@ -424,7 +424,8 @@ async function createProject() {
         group_icon_url: JSON.stringify({
             icon: selectedIcon,
             color: selectedColor
-        })
+        }),
+        total_garlic_reward: Number(document.getElementById("groupGarlic").value || 0)
     };
 
     try {
