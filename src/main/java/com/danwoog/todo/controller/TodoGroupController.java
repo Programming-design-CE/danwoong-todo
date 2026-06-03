@@ -6,6 +6,7 @@ import com.danwoog.todo.dto.todogroup.TodoGroupDeleteResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupInviteRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupInviteResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
+import com.danwoog.todo.dto.todogroup.TodoGroupRemoveMemberResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateResponse;
 import com.danwoog.todo.service.TodoGroupService;
@@ -129,5 +130,24 @@ public class TodoGroupController {
                 groupId,
                 request
         );
-        }
+    }
+
+    @Operation(
+            summary = "그룹 인원 제거",
+            description = "member_ids 사용자들을 그룹 멤버에서 제거합니다."
+    )
+    @DeleteMapping("/{groupId}/members")
+    public TodoGroupRemoveMemberResponse removeMembers(
+            Authentication authentication,
+            @PathVariable("groupId") Long groupId,
+            @RequestBody TodoGroupInviteRequest request
+    ) {
+        Long userId = (Long) authentication.getPrincipal();
+
+        return todoGroupService.removeMembers(
+                userId,
+                groupId,
+                request
+        );
+    }
 }

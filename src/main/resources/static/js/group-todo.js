@@ -624,6 +624,8 @@ async function loadGroupContext() {
         projectGarlicTotal.textContent = String(group.total_garlic_reward ?? 0);
     }
 
+    currentProjectMembers = currentUser ? [{ ...currentUser }] : [];
+
     (group.members || []).forEach((member) => {
         upsertProjectMember(buildDisplayMember(member.user_id, member.nickname));
     });
@@ -1051,9 +1053,55 @@ function renderMemberModal() {
     });
 }
 
-function confirmMemberChanges() {
-    alert("멤버 변경 API는 아직 연결되지 않았습니다. 현재는 조회용 화면입니다.");
-    closeMemberModal();
+async function confirmMemberChanges() {
+    const currentMemberIds = currentProjectMembers.map((member) => Number(member.user_id));
+    const tempMemberIds = tempProjectMembers.map((member) => Number(member.user_id));
+
+    const addedMemberIds = tempMemberIds.filter((userId) => !currentMemberIds.includes(userId));
+    const removedMemberIds = currentMemberIds.filter((userId) => !tempMemberIds.includes(userId));
+
+    if (!addedMemberIds.length && !removedMemberIds.length) {
+        closeMemberModal();
+        return;
+    }
+
+    try {
+        if (addedMemberIds.length) {
+            await api(`/todo-groups/${currentGroupId}/invitations`, {
+                method: "POST",
+                body: JSON.stringify({
+                    member_ids: addedMemberIds
+                })
+            });
+        }
+
+        if (removedMemberIds.length) {
+            await api(`/todo-groups/${currentGroupId}/members`, {
+                method: "DELETE",
+                body: JSON.stringify({
+                    member_ids: removedMemberIds
+                })
+            });
+        }
+
+        closeMemberModal();
+        await loadGroupContext();
+        renderGroupMemberAvatars();
+
+        if (addedMemberIds.length || removedMemberIds.length) {
+            const messages = [];
+            if (addedMemberIds.length) {
+                messages.push(`${addedMemberIds.length}명 추가`);
+            }
+            if (removedMemberIds.length) {
+                messages.push(`${removedMemberIds.length}명 제거`);
+            }
+            alert(`프로젝트 멤버 변경 완료: ${messages.join(", ")}`);
+        }
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "멤버 변경을 적용하지 못했습니다.");
+    }
 }
 
 function removeAllProjectMembers() {
