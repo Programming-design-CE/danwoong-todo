@@ -39,6 +39,12 @@ public class ShopItem {
         this.price = price;
     }
 
+    public void updateCatalog(String itemType, String itemImage, Integer price) {
+        this.itemType = itemType;
+        this.itemImage = itemImage;
+        this.price = price;
+    }
+
     @PrePersist
     protected void onCreate() { createdAt = updatedAt = LocalDateTime.now(); }
 

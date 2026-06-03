@@ -11,22 +11,29 @@
     <img class="closet-bg" src="/assets/main_background.png" alt="동굴 배경">
 
     <header class="closet-header">
-        <button class="back-button" type="button" onclick="history.back()">‹</button>
+        <button class="back-button" type="button" onclick="history.back()"><</button>
         <span class="page-title">단웅이의 옷장</span>
     </header>
 
     <section class="character-area">
         <img class="rock" src="/assets/rock.png" alt="바위">
-        <img class="danwoong" id="danwoongImage" src="/assets/danwoong.png" alt="단웅">
+
+        <div class="danwoong-stack">
+            <img class="equipped-layer equipped-layer--background" id="equippedBackground" src="" alt="" hidden>
+            <img class="danwoong" id="danwoongImage" src="/assets/danwoong.png" alt="단웅">
+            <img class="equipped-layer equipped-layer--hat" id="equippedHat" src="" alt="" hidden>
+            <img class="equipped-layer equipped-layer--accessory" id="equippedAccessory" src="" alt="" hidden>
+            <img class="equipped-layer equipped-layer--clothes" id="equippedClothes" src="" alt="" hidden>
+            <img class="equipped-layer equipped-layer--face" id="equippedFace" src="" alt="" hidden>
+        </div>
+
         <img class="angry-danbi" src="/assets/angry_danbi.png" alt="화난 단비">
 
-        <div class="danbi-text">뭐하냐 ..?</div>
+        <div class="danbi-text">뭐하냐..?</div>
     </section>
 
     <aside class="item-sidebar">
-        <div class="item-list" id="closetItemList">
-            <!-- JS 렌더링 -->
-        </div>
+        <div class="item-list" id="closetItemList"></div>
     </aside>
 </main>
 

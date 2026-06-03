@@ -1,11 +1,20 @@
 package com.danwoog.todo.controller;
 
 import com.danwoog.todo.common.ApiResponse;
-import com.danwoog.todo.dto.shop.ShopDto.*;
+import com.danwoog.todo.dto.shop.ShopDto.GarlicResponse;
+import com.danwoog.todo.dto.shop.ShopDto.PurchaseRequest;
+import com.danwoog.todo.dto.shop.ShopDto.PurchaseResponse;
+import com.danwoog.todo.dto.shop.ShopDto.ShopItemResponse;
 import com.danwoog.todo.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -16,26 +25,32 @@ public class ShopController {
 
     private final ShopService shopService;
 
-    // 팀원 코드와 동일하게 임시 하드코딩 (인증 붙으면 교체)
-    private final Long TEMP_MEMBER_ID = 1L;
-
-    /** GET /shop/garlic — 보유 마늘 조회 */
     @GetMapping("/garlic")
-    public ResponseEntity<ApiResponse<GarlicResponse>> getGarlic() {
-        return ResponseEntity.ok(ApiResponse.ok(shopService.getGarlic(TEMP_MEMBER_ID)));
+    public ResponseEntity<ApiResponse<GarlicResponse>> getGarlic(Authentication authentication) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(shopService.getGarlic(getLoginUserId(authentication)))
+        );
     }
 
-    /** GET /shop/items — 판매 아이템 목록 조회 */
     @GetMapping("/items")
     public ResponseEntity<ApiResponse<List<ShopItemResponse>>> getShopItems() {
         return ResponseEntity.ok(ApiResponse.ok(shopService.getShopItems()));
     }
 
-    /** POST /shop/items/{itemId}/purchase — 아이템 구매 */
     @PostMapping("/items/{itemId}/purchase")
     public ResponseEntity<ApiResponse<PurchaseResponse>> purchaseItem(
-            @PathVariable Long itemId,
-            @RequestBody PurchaseRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok(shopService.purchaseItem(TEMP_MEMBER_ID, itemId, request)));
+            Authentication authentication,
+            @PathVariable("itemId") Long itemId,
+            @RequestBody PurchaseRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        shopService.purchaseItem(getLoginUserId(authentication), itemId, request)
+                )
+        );
+    }
+
+    private Long getLoginUserId(Authentication authentication) {
+        return (Long) authentication.getPrincipal();
     }
 }
