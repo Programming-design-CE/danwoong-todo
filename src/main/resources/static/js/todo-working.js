@@ -6,6 +6,20 @@ let selectedCategory = "school";
 let selectedIcon = "S";
 let activeProjectMenuGroupId = null;
 
+function setCurrentGroupId(groupId) {
+    if (!groupId) {
+        return;
+    }
+
+    localStorage.setItem("currentGroupId", String(groupId));
+    localStorage.setItem("groupId", String(groupId));
+}
+
+function clearCurrentGroupId() {
+    localStorage.removeItem("currentGroupId");
+    localStorage.removeItem("groupId");
+}
+
 function getProgressPercent(group) {
     const total = Number(group.total_todo_count || 0);
     const completed = Number(group.completed_todo_count || 0);
@@ -175,6 +189,12 @@ async function deleteProject(groupId) {
         await fetchTodoJson(`/todo-groups/${groupId}`, {
             method: "DELETE"
         });
+
+        const currentGroupId = Number(localStorage.getItem("currentGroupId") || 0);
+        if (currentGroupId === Number(groupId)) {
+            clearCurrentGroupId();
+        }
+
         await loadProjects();
     } catch (error) {
         console.error(error);
@@ -204,6 +224,7 @@ function bindProjectListEvents() {
 
         const groupId = card.dataset.groupId;
         if (groupId) {
+            setCurrentGroupId(groupId);
             window.location.href = `/todos/detail?groupId=${groupId}`;
         }
     });
@@ -226,6 +247,16 @@ async function loadProjects() {
         const data = await fetchTodoJson("/todo-groups");
         // 진행률 100% 미만이고 상태가 COMPLETED가 아닌 것만 진행 중에 표시
         allGroups = (data?.groups || []).filter(g => getProgressPercent(g) < 100 && g.status !== 'COMPLETED');
+
+        const savedGroupId = Number(localStorage.getItem("currentGroupId") || 0);
+        const hasSavedGroup = allGroups.some((group) => group.group_id === savedGroupId);
+
+        if (!hasSavedGroup && allGroups.length > 0) {
+            setCurrentGroupId(allGroups[0].group_id);
+        } else if (!allGroups.length) {
+            clearCurrentGroupId();
+        }
+
         renderProjects(allGroups);
     } catch (error) {
         console.error(error);
@@ -438,6 +469,10 @@ async function createProject() {
         if (!response.ok) {
             throw new Error(`Create failed: ${response.status}`);
         }
+
+        const createdGroup = await response.json();
+        const createdGroupId = createdGroup?.group_id || createdGroup?.groupId;
+        setCurrentGroupId(createdGroupId);
 
         closeModal();
         await loadProjects();

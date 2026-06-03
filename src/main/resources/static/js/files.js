@@ -1,9 +1,13 @@
 let currentGroupId = null;
+let currentProject = null;
 let rootFolderId = null;
 let currentFolderId = null;
 let currentItems = [];
+let folderTrail = [];
+let projectItems = [];
+let viewMode = "PROJECTS";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     initFilesPage();
     bindFilesEvents();
 });
@@ -12,12 +16,13 @@ function getAccessToken() {
     return localStorage.getItem("accessToken");
 }
 
-function getGroupId() {
-    const params = new URLSearchParams(window.location.search);
+function setCurrentGroupId(groupId) {
+    if (groupId == null) {
+        localStorage.removeItem("currentGroupId");
+        return;
+    }
 
-    return params.get("groupId")
-        || localStorage.getItem("currentGroupId")
-        || localStorage.getItem("groupId");
+    localStorage.setItem("currentGroupId", String(groupId));
 }
 
 async function requestAuthApi(url, options = {}) {
@@ -30,14 +35,11 @@ async function requestAuthApi(url, options = {}) {
     }
 
     const isFormData = options.body instanceof FormData;
-
     const headers = {
-        "Authorization": `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         ...(options.headers || {})
     };
 
-    // FormData는 Content-Type 직접 넣으면 안 됨.
-    // 브라우저가 multipart/form-data boundary를 자동으로 넣어야 함.
     if (!isFormData) {
         headers["Content-Type"] = "application/json";
     }
@@ -47,7 +49,7 @@ async function requestAuthApi(url, options = {}) {
         headers
     });
 
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
         alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
@@ -59,19 +61,26 @@ async function requestAuthApi(url, options = {}) {
         return null;
     }
 
+    const text = await response.text();
+    const parsed = parseResponseText(text);
+
     if (!response.ok) {
-        const errorText = await response.text();
+        const errorMessage = parsed?.message
+            || (typeof parsed === "string" && parsed)
+            || `API 요청이 실패했습니다. (${response.status})`;
 
         console.error("API 실패 상태코드:", response.status);
-        console.error("API 실패 응답:", errorText);
+        console.error("API 실패 응답:", parsed || text);
         console.error("요청 URL:", url);
         console.error("요청 options:", options);
 
-        throw new Error(`API 요청 실패: ${response.status}`);
+        throw new Error(errorMessage);
     }
 
-    const text = await response.text();
+    return parsed;
+}
 
+function parseResponseText(text) {
     if (!text) {
         return null;
     }
@@ -84,16 +93,7 @@ async function requestAuthApi(url, options = {}) {
 }
 
 async function initFilesPage() {
-    currentGroupId = getGroupId();
-
-    console.log("currentGroupId:", currentGroupId);
-
-    if (!currentGroupId) {
-        showEmpty("그룹 ID를 찾을 수 없습니다.");
-        return;
-    }
-
-    await loadRootFolder();
+    await loadProjectRoot();
 }
 
 function bindFilesEvents() {
@@ -102,99 +102,256 @@ function bindFilesEvents() {
     const fileInput = document.getElementById("fileInput");
     const fileTypeFilter = document.getElementById("fileTypeFilter");
     const sortOption = document.getElementById("sortOption");
+    const backButton = document.getElementById("folderBackBtn");
 
-    if (!createFolderBtn || !uploadFileBtn || !fileInput || !fileTypeFilter || !sortOption) {
-        console.warn("파일 페이지 HTML 요소를 찾지 못했습니다.");
+    if (!createFolderBtn || !uploadFileBtn || !fileInput || !fileTypeFilter || !sortOption || !backButton) {
+        console.warn("파일 페이지 요소를 찾지 못했습니다.");
         return;
     }
 
-    createFolderBtn.addEventListener("click", function () {
-        addFolderInputRow();
-    });
+    createFolderBtn.addEventListener("click", addFolderInputRow);
+    uploadFileBtn.addEventListener("click", () => fileInput.click());
+    backButton.addEventListener("click", () => goBackFolder());
 
-    uploadFileBtn.addEventListener("click", function () {
-        fileInput.click();
-    });
-
-    fileInput.addEventListener("change", function (event) {
-        const file = event.target.files[0];
-
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files?.[0];
         if (file) {
             uploadFile(file);
         }
     });
 
-    fileTypeFilter.addEventListener("change", function () {
-        renderItems(currentItems);
+    fileTypeFilter.addEventListener("change", () => {
+        renderItems(viewMode === "PROJECTS" ? projectItems : currentItems);
     });
 
-    sortOption.addEventListener("change", function () {
-        renderItems(currentItems);
+    sortOption.addEventListener("change", () => {
+        renderItems(viewMode === "PROJECTS" ? projectItems : currentItems);
     });
 }
 
-/**
- * GET /todo-groups/{groupId}/folders/root
- */
-async function loadRootFolder() {
+async function loadProjectRoot() {
+    viewMode = "PROJECTS";
+    currentGroupId = null;
+    currentProject = null;
+    rootFolderId = null;
+    currentFolderId = null;
+    currentItems = [];
+    folderTrail = [];
+
+    updateActionState();
+    renderFolderNavigator();
+
     try {
-        const response = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/root`);
-
-        console.log("루트 폴더 응답:", response);
-
+        const response = await requestAuthApi("/todo-groups");
         if (!response) {
             return;
         }
 
-        rootFolderId = getFolderId(response);
-        currentFolderId = getFolderId(response);
-
-        console.log("rootFolderId:", rootFolderId);
-        console.log("currentFolderId:", currentFolderId);
-
-        if (!currentFolderId) {
-            alert("루트 폴더 ID를 찾을 수 없습니다. 콘솔의 루트 폴더 응답을 확인해주세요.");
-            return;
-        }
-
-        await loadFolderItems(currentFolderId);
-
+        const groups = getGroupsFromResponse(response);
+        projectItems = await Promise.all(groups.map((group) => buildProjectItem(group)));
+        renderItems(projectItems);
     } catch (error) {
         console.error(error);
-        showEmpty("루트 폴더를 불러오지 못했습니다.");
+        showEmpty(error.message || "프로젝트 목록을 불러오지 못했습니다.");
     }
 }
 
-/**
- * GET /todo-groups/{groupId}/folders/{folderId}/items
- */
+async function openProject(projectItem) {
+    const groupId = getProjectGroupId(projectItem);
+    if (!groupId) {
+        alert("프로젝트 정보를 찾을 수 없습니다.");
+        return;
+    }
+
+    currentProject = projectItem;
+    currentGroupId = groupId;
+    setCurrentGroupId(groupId);
+
+    await loadRootFolder();
+}
+
+async function loadRootFolder() {
+    if (!currentGroupId) {
+        await loadProjectRoot();
+        return;
+    }
+
+    try {
+        const response = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/root`);
+        if (!response) {
+            return;
+        }
+
+        const rootFolder = getFolderFromResponse(response);
+
+        rootFolderId = rootFolder?.folderId || rootFolder?.folder_id || rootFolder?.id || null;
+        currentFolderId = rootFolderId;
+        viewMode = "FOLDER";
+        folderTrail = rootFolder ? [toFolderNode(rootFolder)] : [];
+
+        updateActionState();
+        renderFolderNavigator();
+
+        if (!rootFolderId) {
+            showEmpty("프로젝트 루트 폴더를 찾을 수 없습니다.");
+            return;
+        }
+
+        await loadFolderItems(rootFolderId);
+    } catch (error) {
+        console.error(error);
+        showEmpty(error.message || "프로젝트 폴더를 불러오지 못했습니다.");
+    }
+}
+
 async function loadFolderItems(folderId) {
     if (!currentGroupId || !folderId) {
-        console.error("loadFolderItems 실패 - groupId/folderId 없음");
-        console.log("currentGroupId:", currentGroupId);
-        console.log("folderId:", folderId);
+        showEmpty("폴더 정보를 불러올 수 없습니다.");
         return;
     }
 
     try {
         const response = await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${folderId}/items`);
-
-        console.log("폴더 내부 항목 응답:", response);
-
         if (!response) {
             return;
         }
 
+        viewMode = "FOLDER";
         currentFolderId = folderId;
         currentItems = getItemsFromResponse(response);
 
-        console.log("렌더링할 항목:", currentItems);
-
+        const currentFolder = getCurrentFolderFromResponse(response);
+        syncFolderTrail(currentFolder);
+        updateActionState();
+        renderFolderNavigator();
         renderItems(currentItems);
-
     } catch (error) {
         console.error(error);
-        showEmpty("파일 목록을 불러오지 못했습니다.");
+        showEmpty(error.message || "파일 목록을 불러오지 못했습니다.");
+    }
+}
+
+function syncFolderTrail(currentFolder) {
+    if (!currentFolder) {
+        return;
+    }
+
+    const node = toFolderNode(currentFolder);
+    const existingIndex = folderTrail.findIndex((item) => item.id === node.id);
+
+    if (existingIndex >= 0) {
+        folderTrail = folderTrail.slice(0, existingIndex + 1);
+        folderTrail[existingIndex] = node;
+        return;
+    }
+
+    if (node.parentFolderId == null || node.id === rootFolderId) {
+        folderTrail = [node];
+        return;
+    }
+
+    folderTrail = [...folderTrail, node];
+}
+
+function renderFolderNavigator() {
+    const backButton = document.getElementById("folderBackBtn");
+    const breadcrumb = document.getElementById("folderBreadcrumb");
+    const currentLabel = document.getElementById("currentFolderLabel");
+
+    if (!backButton || !breadcrumb || !currentLabel) {
+        return;
+    }
+
+    breadcrumb.innerHTML = "";
+
+    if (viewMode === "PROJECTS") {
+        backButton.disabled = true;
+        currentLabel.textContent = "프로젝트 자료함";
+        appendCrumb(breadcrumb, "전체 프로젝트", true, null);
+        return;
+    }
+
+    const canGoBack = folderTrail.length > 0;
+    backButton.disabled = !canGoBack;
+
+    const currentFolder = folderTrail[folderTrail.length - 1];
+    currentLabel.textContent = currentFolder?.name || currentProject?.name || "프로젝트 폴더";
+
+    appendCrumb(breadcrumb, "전체 프로젝트", false, () => loadProjectRoot());
+
+    folderTrail.forEach((folder, index) => {
+        appendSeparator(breadcrumb);
+
+        const isLast = index === folderTrail.length - 1;
+        appendCrumb(
+            breadcrumb,
+            folder.name,
+            isLast,
+            isLast ? null : () => {
+                folderTrail = folderTrail.slice(0, index + 1);
+                loadFolderItems(folder.id);
+            }
+        );
+    });
+}
+
+function appendCrumb(container, label, disabled, onClick) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "folder-crumb";
+    button.textContent = label;
+    button.disabled = disabled;
+
+    if (!disabled && typeof onClick === "function") {
+        button.addEventListener("click", onClick);
+    }
+
+    container.appendChild(button);
+}
+
+function appendSeparator(container) {
+    const separator = document.createElement("span");
+    separator.className = "folder-crumb-separator";
+    separator.textContent = "/";
+    container.appendChild(separator);
+}
+
+function goBackFolder() {
+    if (viewMode !== "FOLDER") {
+        return;
+    }
+
+    if (folderTrail.length <= 1) {
+        loadProjectRoot();
+        return;
+    }
+
+    folderTrail = folderTrail.slice(0, -1);
+    const previousFolder = folderTrail[folderTrail.length - 1];
+
+    if (previousFolder) {
+        loadFolderItems(previousFolder.id);
+    }
+}
+
+function updateActionState() {
+    const createFolderBtn = document.getElementById("createFolderBtn");
+    const uploadFileBtn = document.getElementById("uploadFileBtn");
+    const fileInput = document.getElementById("fileInput");
+    const isInsideProject = viewMode === "FOLDER" && Boolean(currentGroupId) && Boolean(currentFolderId);
+
+    if (createFolderBtn) {
+        createFolderBtn.disabled = !isInsideProject;
+        createFolderBtn.title = isInsideProject ? "" : "프로젝트 폴더 안에서만 새 폴더를 만들 수 있습니다.";
+    }
+
+    if (uploadFileBtn) {
+        uploadFileBtn.disabled = !isInsideProject;
+        uploadFileBtn.title = isInsideProject ? "" : "프로젝트 폴더 안에서만 파일을 업로드할 수 있습니다.";
+    }
+
+    if (fileInput) {
+        fileInput.disabled = !isInsideProject;
     }
 }
 
@@ -202,19 +359,19 @@ function renderItems(items) {
     const table = document.getElementById("fileTable");
     const tbody = document.getElementById("fileTableBody");
     const empty = document.getElementById("fileEmpty");
+    const typeFilter = document.getElementById("fileTypeFilter");
+    const sortOption = document.getElementById("sortOption");
+
+    if (!table || !tbody || !empty || !typeFilter || !sortOption) {
+        return;
+    }
 
     tbody.innerHTML = "";
 
     let result = [...items];
+    result = result.filter((item) => matchesFilter(item, typeFilter.value));
 
-    const typeFilter = document.getElementById("fileTypeFilter").value;
-    const sortOption = document.getElementById("sortOption").value;
-
-    if (typeFilter !== "ALL") {
-        result = result.filter(item => getItemKind(item) === typeFilter);
-    }
-
-    if (sortOption === "NAME") {
+    if (sortOption.value === "NAME") {
         result.sort((a, b) => getItemName(a).localeCompare(getItemName(b), "ko"));
     } else {
         result.sort((a, b) => {
@@ -227,67 +384,123 @@ function renderItems(items) {
     if (result.length === 0) {
         table.style.display = "none";
         empty.style.display = "flex";
+        empty.innerHTML = getEmptyMarkup(items.length === 0);
         return;
     }
 
     table.style.display = "table";
     empty.style.display = "none";
 
-    result.forEach(function (item) {
+    result.forEach((item) => {
         const kind = getItemKind(item);
         const id = getItemId(item);
         const name = getItemName(item);
         const date = formatDate(getItemDate(item));
         const size = getItemSize(item);
+        const fileUrl = item.fileUrl || item.file_url || null;
+        const canDelete = kind === "FILE" || kind === "FOLDER";
 
         const tr = document.createElement("tr");
-
         tr.innerHTML = `
             <td>
                 <button class="file-name-btn" type="button">
-                    <span class="file-icon">${kind === "FOLDER" ? "📁" : "📄"}</span>
+                    <span class="file-icon">${kind === "FILE" ? "📄" : "📁"}</span>
                     <span>${escapeHtml(name)}</span>
                 </button>
             </td>
             <td>${escapeHtml(date)}</td>
             <td>${escapeHtml(size)}</td>
             <td>
-                <button class="file-more-btn" type="button">⋮</button>
+                ${canDelete ? '<button class="file-more-btn" type="button">⋯</button>' : '<span class="file-more-placeholder"></span>'}
             </td>
         `;
 
-        tr.querySelector(".file-name-btn").addEventListener("click", function () {
+        const nameButton = tr.querySelector(".file-name-btn");
+        const moreButton = tr.querySelector(".file-more-btn");
+
+        nameButton?.addEventListener("click", () => {
+            if (kind === "PROJECT") {
+                openProject(item);
+                return;
+            }
+
             if (!id) {
                 alert("항목 ID를 찾을 수 없습니다.");
-                console.log("문제 항목:", item);
                 return;
             }
 
             if (kind === "FOLDER") {
                 loadFolderItems(id);
-            } else {
-                openFile(id);
+                return;
             }
+
+            openFile(id, fileUrl);
         });
 
-        tr.querySelector(".file-more-btn").addEventListener("click", function (event) {
+        moreButton?.addEventListener("click", async (event) => {
             event.stopPropagation();
 
             if (!id) {
                 alert("항목 ID를 찾을 수 없습니다.");
-                console.log("문제 항목:", item);
                 return;
             }
 
             if (kind === "FOLDER") {
-                deleteFolder(id);
-            } else {
-                deleteFile(id);
+                await deleteFolder(id);
+                return;
             }
+
+            await deleteFile(id);
         });
 
         tbody.appendChild(tr);
     });
+}
+
+function getEmptyMarkup(isSourceEmpty) {
+    if (viewMode === "PROJECTS") {
+        if (isSourceEmpty) {
+            return `
+                <div class="files-empty-icon">📁</div>
+                <h3>아직 참여 중인 프로젝트가 없습니다.</h3>
+                <p>프로젝트를 만들면 프로젝트명 폴더가 이 화면에 자동으로 생깁니다.</p>
+            `;
+        }
+
+        return `
+            <div class="files-empty-icon">📁</div>
+            <h3>조건에 맞는 프로젝트 폴더가 없습니다.</h3>
+            <p>필터를 바꾸거나 다른 정렬 기준으로 다시 확인해주세요.</p>
+        `;
+    }
+
+    if (isSourceEmpty) {
+        return `
+            <div class="files-empty-icon">📁</div>
+            <h3>현재 폴더가 비어 있습니다.</h3>
+            <p>새 폴더를 만들거나 파일을 업로드해보세요.</p>
+        `;
+    }
+
+    return `
+        <div class="files-empty-icon">📁</div>
+        <h3>조건에 맞는 항목이 없습니다.</h3>
+        <p>필터를 바꾸거나 상위 폴더로 이동해보세요.</p>
+    `;
+}
+
+function matchesFilter(item, filterValue) {
+    if (filterValue === "ALL") {
+        return true;
+    }
+
+    const kind = getItemKind(item);
+
+    if (filterValue === "FOLDER") {
+        return kind === "FOLDER" || kind === "PROJECT";
+    }
+
+    return kind === "FILE";
 }
 
 function addFolderInputRow() {
@@ -295,10 +508,12 @@ function addFolderInputRow() {
     const tbody = document.getElementById("fileTableBody");
     const empty = document.getElementById("fileEmpty");
 
-    if (!currentGroupId || !currentFolderId) {
-        alert("그룹 ID 또는 현재 폴더 ID가 없습니다.");
-        console.log("currentGroupId:", currentGroupId);
-        console.log("currentFolderId:", currentFolderId);
+    if (!table || !tbody || !empty) {
+        return;
+    }
+
+    if (viewMode !== "FOLDER" || !currentGroupId || !currentFolderId) {
+        alert("프로젝트 폴더 안에서만 새 폴더를 만들 수 있습니다.");
         return;
     }
 
@@ -307,7 +522,6 @@ function addFolderInputRow() {
 
     const tr = document.createElement("tr");
     tr.className = "new-folder-row";
-
     tr.innerHTML = `
         <td>
             <div class="new-folder-input-wrap">
@@ -323,22 +537,22 @@ function addFolderInputRow() {
         </td>
     `;
 
-    tbody.appendChild(tr);
+    tbody.prepend(tr);
 
     const input = tr.querySelector("#newFolderInput");
-    input.focus();
-    input.select();
+    input?.focus();
+    input?.select();
 
-    tr.querySelector(".inline-confirm-btn").addEventListener("click", function () {
-        createFolder(input.value.trim(), tr);
+    tr.querySelector(".inline-confirm-btn")?.addEventListener("click", () => {
+        createFolder(input?.value.trim(), tr);
     });
 
-    tr.querySelector(".inline-cancel-btn").addEventListener("click", function () {
+    tr.querySelector(".inline-cancel-btn")?.addEventListener("click", () => {
         tr.remove();
         renderItems(currentItems);
     });
 
-    input.addEventListener("keydown", function (event) {
+    input?.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
             createFolder(input.value.trim(), tr);
         }
@@ -350,124 +564,101 @@ function addFolderInputRow() {
     });
 }
 
-/**
- * POST /todo-groups/{groupId}/folders/{folderId}/folders
- */
 async function createFolder(folderName, rowElement) {
     if (!folderName) {
         alert("폴더명을 입력해주세요.");
         return;
     }
 
-    if (!currentGroupId || !currentFolderId) {
-        alert("그룹 ID 또는 현재 폴더 ID가 없습니다.");
-        console.log("currentGroupId:", currentGroupId);
-        console.log("currentFolderId:", currentFolderId);
-        return;
-    }
-
     try {
-        const requestUrl = `/todo-groups/${currentGroupId}/folders/${currentFolderId}/folders`;
-
-        console.log("폴더 생성 요청 URL:", requestUrl);
-        console.log("폴더명:", folderName);
-
-        await requestAuthApi(requestUrl, {
+        await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${currentFolderId}/folders`, {
             method: "POST",
-            body: JSON.stringify({
-                folder_name: folderName,
-                folderName: folderName
-            })
+            body: JSON.stringify({ folderName })
         });
 
-        rowElement.remove();
+        rowElement?.remove();
         await loadFolderItems(currentFolderId);
-
     } catch (error) {
         console.error(error);
-        alert("폴더 생성에 실패했습니다.");
+        alert(error.message || "폴더 생성에 실패했습니다.");
     }
 }
 
-/**
- * POST /todo-groups/{groupId}/folders/{folderId}/files
- */
 async function uploadFile(file) {
     const fileInput = document.getElementById("fileInput");
 
-    if (!currentGroupId || !currentFolderId) {
-        alert("그룹 ID 또는 현재 폴더 ID가 없습니다.");
-        console.log("currentGroupId:", currentGroupId);
-        console.log("currentFolderId:", currentFolderId);
+    if (viewMode !== "FOLDER" || !currentGroupId || !currentFolderId) {
+        alert("프로젝트 폴더 안에서만 파일을 업로드할 수 있습니다.");
         return;
     }
 
     try {
         const formData = new FormData();
-
-        // 백엔드가 @RequestParam("file") MultipartFile file이면 이게 맞음.
-        // 만약 백엔드가 @RequestParam("files")면 "file"을 "files"로 바꿔야 함.
         formData.append("file", file);
 
-        const requestUrl = `/todo-groups/${currentGroupId}/folders/${currentFolderId}/files`;
-
-        console.log("업로드 요청 URL:", requestUrl);
-        console.log("업로드 파일:", file);
-
-        await requestAuthApi(requestUrl, {
+        await requestAuthApi(`/todo-groups/${currentGroupId}/folders/${currentFolderId}/files`, {
             method: "POST",
             body: formData
         });
 
-        fileInput.value = "";
-        await loadFolderItems(currentFolderId);
+        if (fileInput) {
+            fileInput.value = "";
+        }
 
+        await loadFolderItems(currentFolderId);
     } catch (error) {
         console.error(error);
-        alert("파일 업로드에 실패했습니다.");
+        alert(error.message || "파일 업로드에 실패했습니다.");
     }
 }
 
-/**
- * GET /files/{fileId}
- */
-async function openFile(fileId) {
-    try {
-        const accessToken = getAccessToken();
+async function openFile(fileId, fileUrl) {
+    const accessToken = getAccessToken();
 
-        if (!accessToken) {
-            alert("로그인이 필요합니다.");
+    if (!accessToken) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+        return;
+    }
+
+    try {
+        const response = await fetch(fileUrl || `/files/${fileId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+
+        if (response.status === 401) {
+            alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
             window.location.href = "/login";
             return;
         }
 
-        const response = await fetch(`/files/${fileId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${accessToken}`
-            }
-        });
-
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("파일 열람 실패:", response.status, errorText);
-            throw new Error("파일 열람 실패");
+            let errorMessage = "파일을 열 수 없습니다.";
+
+            try {
+                const errorBody = JSON.parse(errorText);
+                errorMessage = errorBody.message || errorMessage;
+            } catch (error) {
+                if (errorText) {
+                    errorMessage = errorText;
+                }
+            }
+
+            throw new Error(errorMessage);
         }
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-
         window.open(url, "_blank");
-
     } catch (error) {
         console.error(error);
-        alert("파일을 열 수 없습니다.");
+        alert(error.message || "파일을 열 수 없습니다.");
     }
 }
 
-/**
- * DELETE /files/{fileId}
- */
 async function deleteFile(fileId) {
     if (!confirm("이 파일을 삭제하시겠습니까?")) {
         return;
@@ -479,16 +670,12 @@ async function deleteFile(fileId) {
         });
 
         await loadFolderItems(currentFolderId);
-
     } catch (error) {
         console.error(error);
-        alert("파일 삭제에 실패했습니다.");
+        alert(error.message || "파일 삭제에 실패했습니다.");
     }
 }
 
-/**
- * DELETE /folders/{folderId}
- */
 async function deleteFolder(folderId) {
     if (!confirm("이 폴더를 삭제하시겠습니까?")) {
         return;
@@ -500,10 +687,9 @@ async function deleteFolder(folderId) {
         });
 
         await loadFolderItems(currentFolderId);
-
     } catch (error) {
         console.error(error);
-        alert("폴더 삭제에 실패했습니다.");
+        alert(error.message || "폴더 삭제에 실패했습니다.");
     }
 }
 
@@ -517,7 +703,6 @@ function showEmpty(message) {
 
     table.style.display = "none";
     empty.style.display = "flex";
-
     empty.innerHTML = `
         <div class="files-empty-icon">📁</div>
         <h3>${escapeHtml(message)}</h3>
@@ -525,9 +710,6 @@ function showEmpty(message) {
     `;
 }
 
-/**
- * 응답 구조 보정 함수
- */
 function getResponseBody(response) {
     if (!response) {
         return null;
@@ -539,176 +721,167 @@ function getResponseBody(response) {
         || response;
 }
 
-/**
- * 현재 폴더 내부 목록 응답에서 folders + files를 합쳐서 렌더링용 배열로 변환
- *
- * 실제 응답 예:
- * {
- *   data: {
- *     currentFolder: {...},
- *     files: Array(1),
- *     folders: Array(3)
- *   },
- *   success: true
- * }
- */
+function getGroupsFromResponse(response) {
+    const body = getResponseBody(response);
+    return Array.isArray(body?.groups) ? body.groups : [];
+}
+
 function getItemsFromResponse(response) {
-    if (!response) {
-        return [];
-    }
-
-    if (Array.isArray(response)) {
-        return response;
-    }
-
     const body = getResponseBody(response);
 
     if (!body) {
         return [];
     }
 
-    if (Array.isArray(body)) {
-        return body;
-    }
-
-    const directItems = body.items
-        || body.folder_items
-        || body.folderItems;
-
-    if (Array.isArray(directItems)) {
-        return directItems;
-    }
-
     const folders = Array.isArray(body.folders) ? body.folders : [];
     const files = Array.isArray(body.files) ? body.files : [];
 
-    const normalizedFolders = folders.map(folder => ({
-        ...folder,
-        item_type: "FOLDER"
-    }));
-
-    const normalizedFiles = files.map(file => ({
-        ...file,
-        item_type: "FILE"
-    }));
-
     return [
-        ...normalizedFolders,
-        ...normalizedFiles
+        ...folders.map((folder) => ({ ...folder, itemType: "FOLDER" })),
+        ...files.map((file) => ({ ...file, itemType: "FILE" }))
     ];
 }
 
-function getFolderId(response) {
-    if (!response) {
+function getFolderFromResponse(response) {
+    const body = getResponseBody(response);
+    return body && !Array.isArray(body) ? body : null;
+}
+
+function getCurrentFolderFromResponse(response) {
+    const body = getResponseBody(response);
+
+    if (!body || Array.isArray(body)) {
         return null;
     }
 
-    const body = getResponseBody(response);
-
-    return response.folder_id
-        || response.folderId
-        || response.id
-        || response.root_folder_id
-        || response.rootFolderId
-
-        || body?.folder_id
-        || body?.folderId
-        || body?.id
-        || body?.root_folder_id
-        || body?.rootFolderId
-
-        || body?.current_folder?.folder_id
-        || body?.current_folder?.folderId
-        || body?.current_folder?.id
-
-        || body?.currentFolder?.folder_id
-        || body?.currentFolder?.folderId
-        || body?.currentFolder?.id
-
-        || body?.folder?.folder_id
-        || body?.folder?.folderId
-        || body?.folder?.id
-
+    return body.currentFolder
+        || body.current_folder
+        || body.folder
         || null;
 }
 
+function toProjectItem(group) {
+    return {
+        itemType: "PROJECT",
+        groupId: group.group_id ?? group.groupId ?? null,
+        name: group.group_name ?? group.groupName ?? "이름 없는 프로젝트",
+        deadline: group.deadline ?? "",
+        memberCount: group.member_count ?? group.memberCount ?? 0,
+        totalSize: 0
+    };
+}
+
+async function buildProjectItem(group) {
+    const projectItem = toProjectItem(group);
+    const groupId = projectItem.groupId;
+
+    if (!groupId) {
+        return projectItem;
+    }
+
+    try {
+        const rootResponse = await requestAuthApi(`/todo-groups/${groupId}/folders/root`);
+        const rootFolder = getFolderFromResponse(rootResponse);
+        return {
+            ...projectItem,
+            totalSize: rootFolder?.totalSize ?? rootFolder?.total_size ?? 0
+        };
+    } catch (error) {
+        console.error(`프로젝트 루트 폴더 크기를 불러오지 못했습니다. groupId=${groupId}`, error);
+        return projectItem;
+    }
+}
+
+function toFolderNode(folder) {
+    return {
+        id: folder.folderId ?? folder.folder_id ?? folder.id,
+        name: folder.folderName ?? folder.folder_name ?? "이름 없는 폴더",
+        parentFolderId: folder.parentFolderId ?? folder.parent_folder_id ?? null
+    };
+}
+
+function getProjectGroupId(item) {
+    return item.groupId ?? item.group_id ?? null;
+}
+
 function getItemKind(item) {
-    const rawKind = item.item_type
-        || item.itemType
-        || item.type
-        || item.kind
-        || item.itemKind;
+    const rawKind = item.itemType || item.item_type || item.type || item.kind;
 
     if (rawKind) {
-        const upperKind = String(rawKind).toUpperCase();
+        const normalized = String(rawKind).toUpperCase();
 
-        if (upperKind.includes("FOLDER")) {
+        if (normalized.includes("PROJECT")) {
+            return "PROJECT";
+        }
+
+        if (normalized.includes("FOLDER")) {
             return "FOLDER";
         }
 
-        if (upperKind.includes("FILE")) {
-            return "FILE";
-        }
-
-        return upperKind;
+        return "FILE";
     }
 
-    if (item.folder_id || item.folderId) {
-        return "FOLDER";
+    if (item.groupId || item.group_id) {
+        return "PROJECT";
     }
 
-    return "FILE";
+    return item.folderId || item.folder_id ? "FOLDER" : "FILE";
 }
 
 function getItemId(item) {
-    return item.folder_id
-        || item.folderId
-        || item.file_id
+    return item.folderId
+        || item.folder_id
         || item.fileId
-        || item.item_id
-        || item.itemId
+        || item.file_id
         || item.id
         || null;
 }
 
 function getItemName(item) {
-    return item.folder_name
+    return item.name
         || item.folderName
-        || item.original_name
+        || item.folder_name
         || item.originalName
-        || item.file_name
+        || item.original_name
         || item.fileName
-        || item.name
-        || item.item_name
-        || item.itemName
+        || item.file_name
         || "이름 없음";
 }
 
 function getItemDate(item) {
-    return item.uploaded_at
-        || item.uploadedAt
+    if (getItemKind(item) === "PROJECT") {
+        return "";
+    }
+
+    return item.createdAt
         || item.created_at
-        || item.createdAt
-        || item.modified_at
-        || item.modifiedAt
-        || item.updated_at
+        || item.uploadedAt
+        || item.uploaded_at
         || item.updatedAt
+        || item.updated_at
         || "";
 }
 
 function getItemSize(item) {
-    if (getItemKind(item) === "FOLDER") {
+    const kind = getItemKind(item);
+
+    if (kind === "PROJECT" || kind === "FOLDER") {
+        const totalSize = item.totalSize ?? item.total_size ?? 0;
+        return formatFileSize(totalSize);
+    }
+
+    if (kind !== "FILE") {
         return "-";
     }
 
-    const size = item.size
-        || item.file_size
-        || item.fileSize
-        || item.size_bytes
-        || item.sizeBytes;
+    const size = item.fileSize || item.file_size || item.size || 0;
 
+    return formatFileSize(size);
+}
+
+function formatFileSize(size) {
     if (!size) {
-        return "-";
+        return "0 B";
     }
 
     if (size < 1024) {
@@ -728,7 +901,6 @@ function formatDate(value) {
     }
 
     const date = new Date(value);
-
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -745,6 +917,6 @@ function escapeHtml(value) {
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
+        .replaceAll("\"", "&quot;")
         .replaceAll("'", "&#039;");
 }
