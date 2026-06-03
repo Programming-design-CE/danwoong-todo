@@ -17,6 +17,7 @@ public class FileDto {
         private String folderName;
         private Long parentFolderId;
         private LocalDateTime createdAt;
+        private Long totalSize;
     }
 
     @Getter @Builder

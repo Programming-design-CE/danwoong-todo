@@ -6,7 +6,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .files-title-box {
@@ -64,6 +64,86 @@
     border: 1px solid #333333;
     background: #171717;
     color: #ffffff;
+}
+
+.btn-create-folder:disabled,
+.btn-upload-file:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.files-navigation {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.folder-back-btn {
+    min-width: 110px;
+    padding: 0 14px;
+    border: 1px solid #333333;
+    border-radius: 10px;
+    background: #171717;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.folder-back-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.folder-location {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #2b2b2b;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.folder-location-label {
+    font-size: 11px;
+    color: #888888;
+}
+
+.folder-current-name {
+    margin-top: 4px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.folder-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.folder-crumb {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #f2ae63;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.folder-crumb:disabled {
+    color: #ffffff;
+    cursor: default;
+    font-weight: 700;
+}
+
+.folder-crumb-separator {
+    color: #8f8f8f;
+    font-size: 12px;
 }
 
 .files-table-area {
@@ -126,11 +206,18 @@
     background: transparent;
     color: #8d8d8d;
     font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
 .file-more-btn:hover {
     color: #ffffff;
+}
+
+.file-more-placeholder {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
 }
 
 .files-empty {
@@ -170,10 +257,6 @@
     font-size: 13px;
 }
 
-.files-tip strong {
-    color: #e0bd43;
-}
-
 .new-folder-input-wrap {
     display: flex;
     align-items: center;
@@ -194,13 +277,13 @@
 
 .inline-confirm-btn,
 .inline-cancel-btn {
+    margin-right: 8px;
     border: none;
     background: transparent;
     color: #ffffff;
     font-family: inherit;
     font-size: 12px;
     cursor: pointer;
-    margin-right: 8px;
 }
 
 .inline-confirm-btn:hover {
