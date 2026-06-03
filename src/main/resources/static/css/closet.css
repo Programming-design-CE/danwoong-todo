@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'MaplestoryLight';
-    src: url('/fonts/Maplestory%20Light.ttf') format('truetype');
+    font-family: "MaplestoryLight";
+    src: url("/fonts/Maplestory%20Light.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -19,7 +19,7 @@ body {
 body {
     overflow: hidden;
     background: #3f3f3f;
-    font-family: 'MaplestoryLight', sans-serif;
+    font-family: "MaplestoryLight", sans-serif;
     color: #ffffff;
 }
 
@@ -39,13 +39,11 @@ body {
     z-index: 1;
 }
 
-/* 상단 */
 .closet-header {
     position: absolute;
     top: 32px;
     left: 34px;
     z-index: 10;
-
     display: flex;
     align-items: center;
     gap: 10px;
@@ -55,11 +53,9 @@ body {
     border: none;
     background: transparent;
     color: #ffffff;
-
     font-family: inherit;
     font-size: 38px;
     line-height: 1;
-
     cursor: pointer;
 }
 
@@ -68,14 +64,12 @@ body {
     color: #ffffff;
 }
 
-/* 캐릭터 영역 */
 .character-area {
     position: absolute;
     inset: 0;
     z-index: 3;
 }
 
-/* 돌 */
 .rock {
     position: absolute;
     left: 43%;
@@ -85,17 +79,74 @@ body {
     z-index: 3;
 }
 
-/* 곰 */
-.danwoong {
+.danwoong-stack {
     position: absolute;
     left: 43%;
     bottom: 30%;
     width: 270px;
     transform: translateX(-50%);
     z-index: 4;
+    pointer-events: none;
 }
 
-/* 화난 단비 */
+.danwoong {
+    position: relative;
+    display: block;
+    width: 100%;
+    z-index: 4;
+}
+
+.equipped-layer {
+    position: absolute;
+    display: none;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.equipped-layer.is-visible {
+    display: block;
+}
+
+.equipped-layer--background {
+    width: 145%;
+    left: 50%;
+    top: -10%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.equipped-layer--hat {
+    width: 52%;
+    left: 50%;
+    top: -12%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
+.equipped-layer--accessory {
+    width: 36%;
+    left: 50%;
+    top: 24%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
+.equipped-layer--clothes {
+    width: 58%;
+    left: 50%;
+    bottom: -2%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+.equipped-layer--face {
+    width: 32%;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
 .angry-danbi {
     position: absolute;
     left: 6%;
@@ -109,15 +160,12 @@ body {
     left: 18%;
     bottom: 48%;
     z-index: 5;
-
     font-size: 20px;
     color: #ffffff;
-
     transform: rotate(-10deg);
     white-space: nowrap;
 }
 
-/* 오른쪽 아이템 사이드바 */
 .item-sidebar {
     position: absolute;
     top: 0;
@@ -125,9 +173,7 @@ body {
     width: 200px;
     height: 100vh;
     z-index: 6;
-
     background: rgba(0, 0, 0, 0.62);
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -136,17 +182,14 @@ body {
 .item-list {
     width: 100%;
     height: 88%;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 34px;
-
     overflow-y: auto;
     padding: 18px 0;
 }
 
-/* 스크롤바 숨김 */
 .item-list::-webkit-scrollbar {
     width: 0;
 }
@@ -154,12 +197,10 @@ body {
 .closet-item {
     width: 100%;
     min-height: 130px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     cursor: pointer;
     transition: transform 0.15s ease, filter 0.15s ease;
 }
@@ -177,10 +218,8 @@ body {
 
 .item-quantity {
     margin-top: 8px;
-
     font-size: 22px;
     color: #ffffff;
-
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
 }
 
@@ -193,7 +232,6 @@ body {
     color: #ffffff;
 }
 
-/* 작은 화면 대응 */
 @media (max-width: 1200px) {
     .closet-bg {
         width: calc(100% - 120px);
@@ -212,7 +250,7 @@ body {
         font-size: 18px;
     }
 
-    .danwoong {
+    .danwoong-stack {
         width: 230px;
     }
 

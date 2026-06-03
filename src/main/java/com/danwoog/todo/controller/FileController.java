@@ -1,19 +1,33 @@
 package com.danwoog.todo.controller;
 
 import com.danwoog.todo.common.ApiResponse;
-import com.danwoog.todo.dto.file.FileDto.*;
 import com.danwoog.todo.domain.file.FileEntity;
+import com.danwoog.todo.dto.file.FileDto.FileResponse;
+import com.danwoog.todo.dto.file.FileDto.FolderCreateRequest;
+import com.danwoog.todo.dto.file.FileDto.FolderItemsResponse;
+import com.danwoog.todo.dto.file.FileDto.FolderResponse;
 import com.danwoog.todo.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 @RestController
@@ -22,73 +36,94 @@ public class FileController {
 
     private final FileService fileService;
 
-    // FileService와 동일한 경로 — application.properties 변경 시 자동 반영
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
 
-    /** GET /todo-groups/{groupId}/folders/root — 루트 폴더 조회 */
     @GetMapping("/todo-groups/{groupId}/folders/root")
     public ResponseEntity<ApiResponse<FolderResponse>> getRootFolder(
             Authentication authentication,
-            @PathVariable Long groupId) {
-        return ResponseEntity.ok(ApiResponse.ok(fileService.getRootFolder(groupId, getLoginUserId(authentication))));
+            @PathVariable("groupId") Long groupId
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(fileService.getRootFolder(groupId, getLoginUserId(authentication)))
+        );
     }
 
-    /** POST /todo-groups/{groupId}/folders/{folderId}/folders — 하위 폴더 생성 */
     @PostMapping("/todo-groups/{groupId}/folders/{folderId}/folders")
     public ResponseEntity<ApiResponse<FolderResponse>> createSubFolder(
             Authentication authentication,
-            @PathVariable Long groupId,
-            @PathVariable Long folderId,
-            @RequestBody FolderCreateRequest request) {
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("folderId") Long folderId,
+            @RequestBody FolderCreateRequest request
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(fileService.createSubFolder(groupId, folderId, request, getLoginUserId(authentication))));
+                .body(ApiResponse.ok(
+                        fileService.createSubFolder(groupId, folderId, request, getLoginUserId(authentication))
+                ));
     }
 
-    /** GET /todo-groups/{groupId}/folders/{folderId}/items — 폴더 내부 항목 조회 */
     @GetMapping("/todo-groups/{groupId}/folders/{folderId}/items")
     public ResponseEntity<ApiResponse<FolderItemsResponse>> getFolderItems(
-            @PathVariable Long groupId,
-            @PathVariable Long folderId) {
-        return ResponseEntity.ok(ApiResponse.ok(fileService.getFolderItems(groupId, folderId)));
+            Authentication authentication,
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("folderId") Long folderId
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(fileService.getFolderItems(groupId, folderId, getLoginUserId(authentication)))
+        );
     }
 
-    /** POST /todo-groups/{groupId}/folders/{folderId}/files — 파일 업로드 */
-    @PostMapping(value = "/todo-groups/{groupId}/folders/{folderId}/files", 
-                consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/todo-groups/{groupId}/folders/{folderId}/files",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<ApiResponse<FileResponse>> uploadFile(
             Authentication authentication,
-            @PathVariable Long groupId,
-            @PathVariable Long folderId,
-            @RequestPart("file") MultipartFile file) throws IOException {
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("folderId") Long folderId,
+            @RequestPart("file") MultipartFile file
+    ) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(fileService.uploadFile(groupId, folderId, file, getLoginUserId(authentication))));
+                .body(ApiResponse.ok(
+                        fileService.uploadFile(groupId, folderId, file, getLoginUserId(authentication))
+                ));
     }
 
-    /** GET /files/{fileId} — 파일 다운로드 */
     @GetMapping("/files/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws IOException {
-        FileEntity fileItem = fileService.getFile(fileId);
+    public ResponseEntity<Resource> downloadFile(
+            Authentication authentication,
+            @PathVariable("fileId") Long fileId
+    ) throws IOException {
+        FileEntity fileItem = fileService.getFile(fileId, getLoginUserId(authentication));
         Resource resource = new UrlResource(Paths.get(uploadDir, fileItem.getStoredName()).toUri());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + fileItem.getOriginalName() + "\"")
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename(fileItem.getOriginalName(), StandardCharsets.UTF_8)
+                                .build()
+                                .toString()
+                )
                 .contentType(MediaType.parseMediaType(fileItem.getFileType()))
                 .body(resource);
     }
 
-    /** DELETE /files/{fileId} — 파일 삭제 */
     @DeleteMapping("/files/{fileId}")
-    public ResponseEntity<ApiResponse<Void>> deleteFile(@PathVariable Long fileId) throws IOException {
-        fileService.deleteFile(fileId);
+    public ResponseEntity<ApiResponse<Void>> deleteFile(
+            Authentication authentication,
+            @PathVariable("fileId") Long fileId
+    ) throws IOException {
+        fileService.deleteFile(fileId, getLoginUserId(authentication));
         return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    /** DELETE /folders/{folderId} — 폴더 삭제 */
     @DeleteMapping("/folders/{folderId}")
-    public ResponseEntity<ApiResponse<Void>> deleteFolder(@PathVariable Long folderId) {
-        fileService.deleteFolder(folderId);
+    public ResponseEntity<ApiResponse<Void>> deleteFolder(
+            Authentication authentication,
+            @PathVariable("folderId") Long folderId
+    ) {
+        fileService.deleteFolder(folderId, getLoginUserId(authentication));
         return ResponseEntity.ok(ApiResponse.ok());
     }
 

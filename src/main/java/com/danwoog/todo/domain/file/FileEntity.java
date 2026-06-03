@@ -26,19 +26,19 @@ public class FileEntity {
     @JoinColumn(name = "uploaded_by", nullable = false)
     private User uploadedBy;
 
-    @Column(name = "original_name")
+    @Column(name = "original_name", length = 255)
     private String originalName;
 
-    @Column(name = "stored_name")
+    @Column(name = "stored_name", length = 255)
     private String storedName;
 
-    @Column(name = "file_url")
+    @Column(name = "file_url", length = 255)
     private String fileUrl;
 
     @Column(name = "file_size")
     private Long fileSize;
 
-    @Column(name = "file_type", length = 50)
+    @Column(name = "file_type", length = 255)
     private String fileType;
 
     @Column(name = "uploaded_at")
@@ -58,6 +58,10 @@ public class FileEntity {
         this.fileSize = fileSize;
         this.fileType = fileType;
         this.uploadedAt = LocalDateTime.now();
+    }
+
+    public void updateFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
     public Long getFileId() { return fileId; }

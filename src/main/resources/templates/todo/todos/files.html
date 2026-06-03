@@ -13,20 +13,17 @@
 </head>
 <body>
 <div class="todo-page">
-
-    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '프로젝트에 필요한 파일과 자료를 모아둘 수 있어요.', false, '/mytodos/working')}"></div>
+    <div th:replace="~{todo/fragments/header :: header('오늘의 할 일', '팀 프로젝트에 필요한 파일과 자료를 프로젝트별로 모아보세요.', false, '/mytodos/working')}"></div>
 
     <div class="todo-body">
         <main class="todo-main">
-
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'files', '4', '2')}"></div>
 
             <section class="files-page-section">
-
                 <div class="files-header">
                     <div class="files-title-box">
                         <h2>파일 & 자료</h2>
-                        <p>팀에 공유하는 파일과 자료를 확인할 수 있어요.</p>
+                        <p>첫 화면에서는 내가 참여 중인 프로젝트 폴더들이 보입니다.</p>
                     </div>
 
                     <div class="files-action-box">
@@ -46,15 +43,26 @@
                         </button>
 
                         <button id="uploadFileBtn" class="btn-upload-file" type="button">
-                            ⬆ 파일 업로드
+                            파일 업로드
                         </button>
 
                         <input id="fileInput" type="file" hidden>
                     </div>
                 </div>
 
-                <div class="files-table-area">
+                <div class="files-navigation">
+                    <button id="folderBackBtn" class="folder-back-btn" type="button">
+                        ← 뒤로가기
+                    </button>
 
+                    <div class="folder-location">
+                        <div class="folder-location-label">현재 위치</div>
+                        <div id="currentFolderLabel" class="folder-current-name">프로젝트 자료함</div>
+                        <div id="folderBreadcrumb" class="folder-breadcrumb"></div>
+                    </div>
+                </div>
+
+                <div class="files-table-area">
                     <table id="fileTable" class="files-table">
                         <thead>
                         <tr>
@@ -64,24 +72,19 @@
                             <th></th>
                         </tr>
                         </thead>
-
-                        <tbody id="fileTableBody">
-                        <!-- JS 렌더링 -->
-                        </tbody>
+                        <tbody id="fileTableBody"></tbody>
                     </table>
 
                     <div id="fileEmpty" class="files-empty">
                         <div class="files-empty-icon">📁</div>
-                        <h3>아직 만들어진 프로젝트가 없어요!</h3>
-                        <p>프로젝트를 만들면 자동으로 자료 폴더가 생성돼요.</p>
+                        <h3>아직 참여 중인 프로젝트가 없습니다.</h3>
+                        <p>프로젝트를 만들면 프로젝트명 폴더가 이 화면에 자동으로 생깁니다.</p>
                     </div>
-
                 </div>
 
                 <div class="files-tip">
-                    💡 할일을 완료하면 <strong>기여도</strong>가 올라가고, <strong>마늘을 획득</strong>할 수 있어요!
+                    각 프로젝트 폴더는 그 프로젝트 멤버들과 공유됩니다.
                 </div>
-
             </section>
         </main>
 

@@ -9,7 +9,16 @@ public class ClosetDto {
         private Long itemId;
         private String itemName;
         private String itemType;
+        private String itemImage;
         private Integer quantity;
+    }
+
+    @Getter @Builder
+    public static class EquippedItemResponse {
+        private Long itemId;
+        private String itemName;
+        private String slotType;
+        private String itemImage;
     }
 
     @Getter @NoArgsConstructor @AllArgsConstructor

@@ -1,14 +1,22 @@
 package com.danwoog.todo.service;
 
-import com.danwoog.todo.domain.shop.*;
+import com.danwoog.todo.domain.shop.CharacterEquippedItem;
+import com.danwoog.todo.domain.shop.ShopItem;
+import com.danwoog.todo.domain.shop.UserCharacter;
+import com.danwoog.todo.domain.shop.UserInventory;
 import com.danwoog.todo.domain.user.User;
-import com.danwoog.todo.dto.closet.ClosetDto.*;
-import com.danwoog.todo.exception.CustomException.*;
+import com.danwoog.todo.dto.closet.ClosetDto.EquipRequest;
+import com.danwoog.todo.dto.closet.ClosetDto.EquipResponse;
+import com.danwoog.todo.dto.closet.ClosetDto.EquippedItemResponse;
+import com.danwoog.todo.dto.closet.ClosetDto.InventoryItemResponse;
+import com.danwoog.todo.dto.closet.ClosetDto.UseItemResponse;
+import com.danwoog.todo.exception.CustomException.BusinessException;
+import com.danwoog.todo.exception.CustomException.NotFoundException;
 import com.danwoog.todo.repository.CharacterEquippedItemRepository;
-import com.danwoog.todo.repository.shop.*;
+import com.danwoog.todo.repository.shop.MemberInventoryRepository;
+import com.danwoog.todo.repository.shop.ShopItemRepository;
 import com.danwoog.todo.repository.user.UserCharacterRepository;
 import com.danwoog.todo.repository.user.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +42,31 @@ public class ClosetService {
                         .itemId(inv.getItem().getId())
                         .itemName(inv.getItem().getItemName())
                         .itemType(inv.getItem().getItemType())
+                        .itemImage(inv.getItem().getItemImage())
                         .quantity(inv.getQuantity())
                         .build())
                 .collect(Collectors.toList());
     }
 
+    public List<EquippedItemResponse> getEquippedItems(Long userId) {
+        User user = findUser(userId);
+
+        return userCharacterRepository.findByUser(user)
+                .map(character -> equippedItemRepository.findByCharacter(character).stream()
+                        .map(equipped -> EquippedItemResponse.builder()
+                                .itemId(equipped.getItem().getId())
+                                .itemName(equipped.getItem().getItemName())
+                                .slotType(equipped.getSlotType())
+                                .itemImage(equipped.getItem().getItemImage())
+                                .build())
+                        .collect(Collectors.toList()))
+                .orElseGet(List::of);
+    }
+
     @Transactional
     public EquipResponse equipItem(Long userId, EquipRequest request) {
         User user = findUser(userId);
-        UserCharacter character = findCharacter(user);
+        UserCharacter character = findOrCreateCharacter(user);
         ShopItem item = findShopItem(request.getItemId());
 
         memberInventoryRepository.findByUserAndItem(user, item)
@@ -51,13 +75,16 @@ public class ClosetService {
 
         CharacterEquippedItem equipped = equippedItemRepository
                 .findByCharacterAndSlotType(character, request.getSlotType())
-                .map(existing -> { existing.changeItem(item); return existing; })
+                .map(existing -> {
+                    existing.changeItem(item);
+                    return existing;
+                })
                 .orElse(new CharacterEquippedItem(character, item, request.getSlotType()));
         equippedItemRepository.save(equipped);
 
         return EquipResponse.builder()
                 .characterId(character.getCharacterId())
-                .characterThumbnailUrl("/characters/" + character.getCharacterId() + "/thumbnail")
+                .characterThumbnailUrl("/assets/danwoong.png")
                 .build();
     }
 
@@ -83,9 +110,10 @@ public class ClosetService {
                 .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
     }
 
-    private UserCharacter findCharacter(User user) {
+    @Transactional
+    private UserCharacter findOrCreateCharacter(User user) {
         return userCharacterRepository.findByUser(user)
-                .orElseThrow(() -> new NotFoundException("캐릭터가 존재하지 않습니다."));
+                .orElseGet(() -> userCharacterRepository.save(new UserCharacter(user)));
     }
 
     private ShopItem findShopItem(Long itemId) {

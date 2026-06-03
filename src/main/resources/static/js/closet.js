@@ -1,5 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
-    loadClosetItems();
+document.addEventListener("DOMContentLoaded", async () => {
+    await Promise.all([
+        loadClosetItems(),
+        loadEquippedItems()
+    ]);
 });
 
 function getAccessToken() {
@@ -33,44 +36,60 @@ async function requestAuthApi(url, options = {}) {
     }
 
     if (!response.ok) {
-        throw new Error("API 요청 실패");
+        throw new Error(`API 요청 실패 (${response.status})`);
     }
 
     const text = await response.text();
-
-    if (!text) {
-        return null;
-    }
-
-    return JSON.parse(text);
+    return text ? JSON.parse(text) : null;
 }
 
-/**
- * 보유 아이템 조회
- * GET /closet/items
- */
 async function loadClosetItems() {
     const itemList = document.getElementById("closetItemList");
 
     try {
-        const data = await requestAuthApi("/closet/items");
+        const payload = await requestAuthApi("/closet/items");
 
-        if (!data) {
+        if (!payload) {
             return;
         }
 
-        renderClosetItems(data.items || []);
+        const body = getResponseBody(payload);
+        const items = Array.isArray(body) ? body : (body?.items || []);
 
+        renderClosetItems(items);
     } catch (error) {
         console.error(error);
-        itemList.innerHTML = `
-            <p class="error-message">아이템을 불러오지 못했습니다.</p>
-        `;
+        if (itemList) {
+            itemList.innerHTML = `
+                <p class="error-message">아이템을 불러오지 못했습니다.</p>
+            `;
+        }
+    }
+}
+
+async function loadEquippedItems() {
+    try {
+        const payload = await requestAuthApi("/closet/equipped-items");
+
+        if (!payload) {
+            return;
+        }
+
+        const body = getResponseBody(payload);
+        const items = Array.isArray(body) ? body : (body?.items || []);
+
+        renderEquippedItems(items);
+    } catch (error) {
+        console.error(error);
     }
 }
 
 function renderClosetItems(items) {
     const itemList = document.getElementById("closetItemList");
+    if (!itemList) {
+        return;
+    }
+
     itemList.innerHTML = "";
 
     if (items.length === 0) {
@@ -80,7 +99,7 @@ function renderClosetItems(items) {
         return;
     }
 
-    items.forEach(function (item) {
+    items.forEach((item) => {
         const itemElement = document.createElement("div");
         itemElement.className = "closet-item";
 
@@ -88,12 +107,12 @@ function renderClosetItems(items) {
             <img
                 class="item-image"
                 src="${getItemImage(item)}"
-                alt="${item.item_name}"
+                alt="${escapeHtml(getItemName(item))}"
             >
-            <div class="item-quantity">× ${item.quantity}</div>
+            <div class="item-quantity">x ${item.quantity || 0}</div>
         `;
 
-        itemElement.addEventListener("click", function () {
+        itemElement.addEventListener("click", () => {
             handleItemClick(item);
         });
 
@@ -101,13 +120,53 @@ function renderClosetItems(items) {
     });
 }
 
-/**
- * 아이템 클릭 시 처리
- * - 착용 아이템이면 PATCH /closet/equipped-items
- * - 소비 아이템이면 POST /closet/items/{itemId}/use
- */
+function renderEquippedItems(items) {
+    const equippedBySlot = {
+        BACKGROUND: null,
+        HAT: null,
+        ACCESSORY: null,
+        CLOTHES: null,
+        FACE: null
+    };
+
+    items.forEach((item) => {
+        const slotType = (item.slotType || item.slot_type || "").toUpperCase();
+        if (slotType in equippedBySlot) {
+            equippedBySlot[slotType] = item;
+        }
+    });
+
+    applyEquippedLayer("equippedBackground", equippedBySlot.BACKGROUND);
+    applyEquippedLayer("equippedHat", equippedBySlot.HAT);
+    applyEquippedLayer("equippedAccessory", equippedBySlot.ACCESSORY);
+    applyEquippedLayer("equippedClothes", equippedBySlot.CLOTHES);
+    applyEquippedLayer("equippedFace", equippedBySlot.FACE);
+}
+
+function applyEquippedLayer(elementId, item) {
+    const layer = document.getElementById(elementId);
+    if (!layer) {
+        return;
+    }
+
+    const imageUrl = item ? getItemImage(item) : "";
+
+    if (!item || !imageUrl) {
+        layer.src = "";
+        layer.alt = "";
+        layer.hidden = true;
+        layer.classList.remove("is-visible");
+        return;
+    }
+
+    layer.src = imageUrl;
+    layer.alt = getItemName(item);
+    layer.hidden = false;
+    layer.classList.add("is-visible");
+}
+
 function handleItemClick(item) {
-    const itemType = item.item_type;
+    const itemType = getItemType(item);
 
     if (isEquipItem(itemType)) {
         equipItem(item);
@@ -117,9 +176,6 @@ function handleItemClick(item) {
     useItem(item);
 }
 
-/**
- * 장착 아이템 판별
- */
 function isEquipItem(itemType) {
     return itemType === "HAT"
         || itemType === "CLOTHES"
@@ -128,9 +184,6 @@ function isEquipItem(itemType) {
         || itemType === "BACKGROUND";
 }
 
-/**
- * item_type을 slot_type으로 변환
- */
 function getSlotType(itemType) {
     if (itemType === "HAT") {
         return "HAT";
@@ -155,85 +208,80 @@ function getSlotType(itemType) {
     return itemType;
 }
 
-/**
- * 아이템 장착
- * PATCH /closet/equipped-items
- */
 async function equipItem(item) {
-    const confirmed = confirm(`${item.item_name}을(를) 장착하시겠습니까?`);
+    const confirmed = confirm(`${getItemName(item)}을(를) 착용하시겠습니까?`);
 
     if (!confirmed) {
         return;
     }
 
     try {
-        const data = await requestAuthApi("/closet/equipped-items", {
+        await requestAuthApi("/closet/equipped-items", {
             method: "PATCH",
             body: JSON.stringify({
-                item_id: item.item_id,
-                slot_type: getSlotType(item.item_type)
+                itemId: getItemId(item),
+                slotType: getSlotType(getItemType(item))
             })
         });
 
-        alert("아이템을 장착했습니다.");
-
-        if (data && data.character_thumbnail_url) {
-            updateCharacterImage(data.character_thumbnail_url);
-        }
-
+        alert("아이템을 착용했습니다.");
+        await loadEquippedItems();
     } catch (error) {
         console.error(error);
-        alert("아이템 장착에 실패했습니다.");
+        alert(error.message || "아이템 착용에 실패했습니다.");
     }
 }
 
-/**
- * 아이템 사용
- * POST /closet/items/{itemId}/use
- */
 async function useItem(item) {
-    const confirmed = confirm(`${item.item_name}을(를) 사용하시겠습니까?`);
+    const confirmed = confirm(`${getItemName(item)}을(를) 사용하시겠습니까?`);
 
     if (!confirmed) {
         return;
     }
 
     try {
-        await requestAuthApi(`/closet/items/${item.item_id}/use`, {
+        await requestAuthApi(`/closet/items/${getItemId(item)}/use`, {
             method: "POST"
         });
 
         alert("아이템을 사용했습니다.");
-        loadClosetItems();
-
+        await loadClosetItems();
     } catch (error) {
         console.error(error);
         alert("아이템 사용에 실패했습니다.");
     }
 }
 
-/**
- * 장착 후 캐릭터 이미지 갱신
- */
-function updateCharacterImage(imageUrl) {
-    const danwoongImage = document.getElementById("danwoongImage");
-
-    if (!danwoongImage) {
-        return;
-    }
-
-    danwoongImage.src = imageUrl;
+function getItemImage(item) {
+    const itemImage = item.itemImage || item.item_image || "";
+    return itemImage.trim() !== "" ? itemImage : "";
 }
 
-/**
- * 아이템 이미지 결정
- * 현재 API 명세에는 item_image가 없으므로 기본 이미지를 사용.
- * 나중에 백엔드에서 item_image 내려주면 자동 반영됨.
- */
-function getItemImage(item) {
-    if (item.item_image && item.item_image.trim() !== "") {
-        return item.item_image;
+function getItemName(item) {
+    return item.itemName || item.item_name || "이름 없는 아이템";
+}
+
+function getItemId(item) {
+    return item.itemId || item.item_id;
+}
+
+function getItemType(item) {
+    return (item.itemType || item.item_type || "").toUpperCase();
+}
+
+function getResponseBody(response) {
+    if (!response) {
+        return null;
     }
 
-    return "/assets/item_red.png";
+    return response.data ?? response;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#039;");
 }

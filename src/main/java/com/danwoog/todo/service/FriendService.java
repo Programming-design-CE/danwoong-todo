@@ -93,6 +93,23 @@ public class FriendService {
         return new ReceivedFriendRequestListResponse(requests);
     }
 
+    public SentFriendRequestListResponse getSentRequests(Long senderId) {
+        User sender = findUser(senderId);
+
+        List<SentFriendRequestResponse> requests =
+                friendRequestRepository.findBySenderAndStatus(sender, FriendRequestStatus.PENDING)
+                        .stream()
+                        .map(request -> new SentFriendRequestResponse(
+                                request.getRequestId(),
+                                request.getReceiver().getUserId(),
+                                request.getReceiver().getNickname(),
+                                request.getStatus().name()
+                        ))
+                        .toList();
+
+        return new SentFriendRequestListResponse(requests);
+    }
+
     @Transactional
     public FriendRequestResponse acceptRequest(Long receiverId, Long requestId) {
         User receiver = findUser(receiverId);

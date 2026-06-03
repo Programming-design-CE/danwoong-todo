@@ -42,6 +42,10 @@ public class Folder {
         this.createdBy = createdBy;
     }
 
+    public void rename(String folderName) {
+        this.folderName = folderName;
+    }
+
     @PrePersist
     protected void onCreate() { createdAt = LocalDateTime.now(); }
 }
