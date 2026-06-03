@@ -44,11 +44,17 @@ public class FriendController {
         return friendService.getReceivedRequests(userId);
     }
 
+    @GetMapping("/requests/sent")
+    public SentFriendRequestListResponse getSentRequests(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return friendService.getSentRequests(userId);
+    }
+
     @Operation(summary = "친구 요청 승인", description = "받은 친구 요청을 승인합니다.")
     @PatchMapping("/requests/{requestId}/accept")
     public FriendRequestResponse acceptRequest(
             Authentication authentication,
-            @PathVariable Long requestId
+            @PathVariable("requestId") Long requestId
     ) {
         Long userId = (Long) authentication.getPrincipal();
         return friendService.acceptRequest(userId, requestId);
@@ -58,7 +64,7 @@ public class FriendController {
     @PatchMapping("/requests/{requestId}/reject")
     public FriendRequestResponse rejectRequest(
             Authentication authentication,
-            @PathVariable Long requestId
+            @PathVariable("requestId") Long requestId
     ) {
         Long userId = (Long) authentication.getPrincipal();
         return friendService.rejectRequest(userId, requestId);
@@ -68,7 +74,7 @@ public class FriendController {
     @GetMapping("/search")
     public UserSearchResponse searchUsers(
             Authentication authentication,
-            @RequestParam String keyword
+            @RequestParam("keyword") String keyword
     ) {
         Long userId = (Long) authentication.getPrincipal();
         return friendService.searchUsers(userId, keyword);
