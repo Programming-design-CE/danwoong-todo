@@ -16,6 +16,7 @@ import com.danwoog.todo.dto.todogroup.TodoGroupGarlicDistributionRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupInviteRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupInviteResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupListResponse;
+import com.danwoog.todo.dto.todogroup.TodoGroupRemoveMemberResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupSummaryResponse;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateRequest;
 import com.danwoog.todo.dto.todogroup.TodoGroupUpdateResponse;
@@ -243,6 +244,42 @@ public class TodoGroupService {
         group.increaseGarlicBudget(invitedCount);
 
         return new TodoGroupInviteResponse(groupId, invitedCount);
+    }
+
+    public TodoGroupRemoveMemberResponse removeMembers(
+            Long loginUserId,
+            Long groupId,
+            TodoGroupInviteRequest request
+    ) {
+        TodoGroup group = todoGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        if (group.getCreatedBy() == null || !group.getCreatedBy().getUserId().equals(loginUserId)) {
+            throw new IllegalArgumentException("프로젝트 리더만 멤버를 제거할 수 있습니다.");
+        }
+
+        int removedCount = 0;
+
+        if (request.getMemberIds() != null) {
+            for (Long memberId : request.getMemberIds()) {
+                if (memberId == null || memberId.equals(loginUserId)) {
+                    continue;
+                }
+
+                TodoGroupMember member = todoGroupMemberRepository
+                        .findByGroup_GroupIdAndUser_UserId(groupId, memberId)
+                        .orElse(null);
+
+                if (member == null || member.getRole() == GroupMemberRole.LEADER) {
+                    continue;
+                }
+
+                todoGroupMemberRepository.delete(member);
+                removedCount++;
+            }
+        }
+
+        return new TodoGroupRemoveMemberResponse(groupId, removedCount);
     }
 
     public void distributeGarlic(Long loginUserId, Long groupId, TodoGroupGarlicDistributionRequest request) {
