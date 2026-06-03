@@ -36,6 +36,10 @@ public class FileService {
 
     private static final String LEGACY_ROOT_FOLDER_NAME = "기본 폴더";
 
+    private static final int MAX_FILE_NAME_LENGTH = 255;
+    private static final int MAX_FILE_URL_LENGTH = 255;
+    private static final int MAX_FILE_TYPE_LENGTH = 255;
+
     private final FolderRepository folderRepository;
     private final FileItemRepository fileItemRepository;
     private final UserRepository userRepository;
@@ -115,7 +119,7 @@ public class FileService {
         validateUploadFile(file);
 
         String originalName = sanitizeOriginalFilename(file.getOriginalFilename());
-        String storedName = UUID.randomUUID() + "_" + originalName;
+        String storedName = shortenValue(UUID.randomUUID() + "_" + originalName, MAX_FILE_NAME_LENGTH);
         Path uploadPath = Paths.get(uploadDir);
 
         if (!Files.exists(uploadPath)) {
@@ -128,21 +132,26 @@ public class FileService {
                 StandardCopyOption.REPLACE_EXISTING
         );
 
-        FileEntity savedFile = fileItemRepository.save(
-                new FileEntity(
-                        group,
-                        folder,
-                        user,
-                        originalName,
-                        storedName,
-                        null,
-                        file.getSize(),
-                        file.getContentType() != null ? file.getContentType() : "application/octet-stream"
-                )
-        );
-        savedFile.updateFileUrl("/files/" + savedFile.getFileId());
+        try {
+            FileEntity savedFile = fileItemRepository.save(
+                    new FileEntity(
+                            group,
+                            folder,
+                            user,
+                            originalName,
+                            storedName,
+                            null,
+                            file.getSize(),
+                            normalizeContentType(file.getContentType())
+                    )
+            );
+            savedFile.updateFileUrl(shortenValue("/files/" + savedFile.getFileId(), MAX_FILE_URL_LENGTH));
 
-        return toFileResponse(savedFile);
+            return toFileResponse(savedFile);
+        } catch (RuntimeException e) {
+            Files.deleteIfExists(uploadPath.resolve(storedName));
+            throw e;
+        }
     }
 
     public FileEntity getFile(Long fileId, Long userId) {
@@ -262,7 +271,26 @@ public class FileService {
         if (originalName == null || originalName.isBlank()) {
             return "unnamed-file";
         }
-        return Paths.get(originalName).getFileName().toString();
+        return shortenValue(Paths.get(originalName).getFileName().toString(), MAX_FILE_NAME_LENGTH);
+    }
+
+    private String normalizeContentType(String contentType) {
+        String safeType = (contentType == null || contentType.isBlank())
+                ? "application/octet-stream"
+                : contentType.trim();
+        return shortenValue(safeType, MAX_FILE_TYPE_LENGTH);
+    }
+
+    private String shortenValue(String value, int maxLength) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value.length() <= maxLength) {
+            return value;
+        }
+
+        return value.substring(0, maxLength);
     }
 
     private void deleteFolderTree(Folder folder) throws IOException {
