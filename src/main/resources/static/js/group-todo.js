@@ -1,5 +1,6 @@
 const API_BASE = "";
 const queryParams = new URLSearchParams(window.location.search);
+const initialTodoId = Number(queryParams.get("todoId") || 0);
 
 const PRESET_CATEGORIES = ["발표 준비", "보고서", "기능 구현", "자료 조사"];
 const CATEGORY_META = {
@@ -1201,6 +1202,10 @@ async function bootstrapGroupTodoPage() {
 
     await loadTodos();
     await loadMemo();
+
+    if (initialTodoId > 0) {
+        await openTodoModal(initialTodoId);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
