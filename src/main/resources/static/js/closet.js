@@ -134,6 +134,7 @@ function renderEquippedItems(items) {
         BACKGROUND: null,
         HAT: null,
         ACCESSORY: null,
+        HAND_ACCESSORY: null,
         CLOTHES: null,
         FACE: null
     };
@@ -148,6 +149,7 @@ function renderEquippedItems(items) {
     applyEquippedLayer("equippedBackground", equippedBySlot.BACKGROUND);
     applyEquippedLayer("equippedHat", equippedBySlot.HAT);
     applyEquippedLayer("equippedAccessory", equippedBySlot.ACCESSORY);
+    applyEquippedLayer("equippedHandAccessory", equippedBySlot.HAND_ACCESSORY);
     applyEquippedLayer("equippedClothes", equippedBySlot.CLOTHES);
     applyEquippedLayer("equippedFace", equippedBySlot.FACE);
 }
@@ -189,6 +191,7 @@ function isEquipItem(itemType) {
     return itemType === "HAT"
         || itemType === "CLOTHES"
         || itemType === "ACCESSORY"
+        || itemType === "HAND_ACCESSORY"
         || itemType === "FACE"
         || itemType === "BACKGROUND";
 }
@@ -204,6 +207,10 @@ function getSlotType(itemType) {
 
     if (itemType === "ACCESSORY") {
         return "ACCESSORY";
+    }
+
+    if (itemType === "HAND_ACCESSORY") {
+        return "HAND_ACCESSORY";
     }
 
     if (itemType === "FACE") {

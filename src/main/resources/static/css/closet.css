@@ -131,7 +131,15 @@ body {
     z-index: 6;
 }
 
-.equipped-layer--accessory[src*="shop_notebook.svg"] {
+.equipped-layer--hand-accessory {
+    width: 76%;
+    left: 50%;
+    top: 42%;
+    transform: translateX(-50%) rotate(-2deg);
+    z-index: 6;
+}
+
+.equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
     width: 60%;
     top: auto;
     bottom: 10%;
