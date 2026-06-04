@@ -23,7 +23,8 @@ public class ShopCatalogInitializer implements CommandLineRunner {
     public void run(String... args) {
         List<ShopSeedItem> seedItems = List.of(
                 new ShopSeedItem("밀짚 모자", "HAT", "/assets/shop_hat_straw.svg", 120),
-                new ShopSeedItem("동그란 안경", "ACCESSORY", "/assets/shop_accessory_glasses.svg", 140)
+                new ShopSeedItem("동그란 안경", "ACCESSORY", "/assets/shop_accessory_glasses.svg", 140),
+                new ShopSeedItem("윙슈트", "CLOTHES", "/assets/shop_wingsuit.svg", 300)
         );
 
         Map<String, ShopItem> existingItems = shopItemRepository.findAll()
