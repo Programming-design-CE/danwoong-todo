@@ -407,6 +407,10 @@
 .add-todo-btn {
     margin-top: 12px;
     height: 42px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px dashed #3d3732;
     border-radius: 10px;
     background: transparent;
