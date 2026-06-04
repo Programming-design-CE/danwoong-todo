@@ -18,41 +18,42 @@
 }
 
 .todo-main {
-    padding: 12px 14px 14px;
+    padding: 18px 28px 24px;
     overflow: hidden;
 }
 
 .tab-bar {
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 2px 0 12px;
+    gap: 34px;
+    padding: 2px 0 18px;
     border-bottom: 1px solid #332f2b;
 }
 
 .tab-item {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 0 0 10px;
+    gap: 12px;
+    padding: 0 0 16px;
     border: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
     background: transparent;
-    color: #e9e4dc;
+    color: #f2efea;
     font-family: "MaplestoryLight", sans-serif;
-    font-size: 11px;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
     opacity: 0.8;
 }
 
 .tab-item.active {
-    color: #ebca8a;
-    border-bottom-color: #ebca8a;
+    color: #e7c690;
+    border-bottom-color: #e7c690;
     opacity: 1;
 }
 
 .tab-icon {
-    font-size: 12px;
+    font-size: 22px;
     line-height: 1;
 }
 
