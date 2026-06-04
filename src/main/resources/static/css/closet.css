@@ -142,8 +142,8 @@ body {
 .equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
     width: 60%;
     top: auto;
-    bottom: 10%;
-    left: 30%;
+    bottom: 60%;
+    left: 94%;
 }
 
 .equipped-layer--accessory[src*="shop_atomshoes.svg"],

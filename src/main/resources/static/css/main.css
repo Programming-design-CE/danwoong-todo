@@ -546,6 +546,15 @@ body {
     z-index: 6;
 }
 
+.main-equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
+    width: 58%;
+    top: auto;
+    bottom: 58%;
+    left: 92%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
 .main-equipped-layer--clothes {
     width: 120%;
     left: 50%;
