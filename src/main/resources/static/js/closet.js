@@ -1,8 +1,10 @@
+// 현재 착용 중인 아이템 ID Set (중복 착용 방지 및 뱃지 표시용)
+let equippedItemIds = new Set();
+
 document.addEventListener("DOMContentLoaded", async () => {
-    await Promise.all([
-        loadClosetItems(),
-        loadEquippedItems()
-    ]);
+    // 착용 아이템을 먼저 로드한 뒤 인벤토리를 렌더링해야 "착용 중" 뱃지가 정확히 표시됨
+    await loadEquippedItems();
+    await loadClosetItems();
 });
 
 function getAccessToken() {
@@ -100,15 +102,19 @@ function renderClosetItems(items) {
     }
 
     items.forEach((item) => {
+        const isEquipped = equippedItemIds.has(getItemId(item));
         const itemElement = document.createElement("div");
-        itemElement.className = "closet-item";
+        itemElement.className = "closet-item" + (isEquipped ? " closet-item--equipped" : "");
 
         itemElement.innerHTML = `
-            <img
-                class="item-image"
-                src="${getItemImage(item)}"
-                alt="${escapeHtml(getItemName(item))}"
-            >
+            <div class="item-card-inner">
+                <img
+                    class="item-image"
+                    src="${getItemImage(item)}"
+                    alt="${escapeHtml(getItemName(item))}"
+                >
+                ${isEquipped ? `<span class="equipped-badge">착용 중</span>` : ""}
+            </div>
             <div class="item-quantity">x ${item.quantity || 0}</div>
         `;
 
@@ -121,6 +127,9 @@ function renderClosetItems(items) {
 }
 
 function renderEquippedItems(items) {
+    // 착용 중인 itemId Set 갱신
+    equippedItemIds = new Set(items.map((item) => getItemId(item)));
+
     const equippedBySlot = {
         BACKGROUND: null,
         HAT: null,
@@ -209,6 +218,12 @@ function getSlotType(itemType) {
 }
 
 async function equipItem(item) {
+    // 이미 착용 중이면 중복 착용 방지
+    if (equippedItemIds.has(getItemId(item))) {
+        alert(`${getItemName(item)}은(는) 이미 착용 중입니다.`);
+        return;
+    }
+
     const confirmed = confirm(`${getItemName(item)}을(를) 착용하시겠습니까?`);
 
     if (!confirmed) {
@@ -225,7 +240,9 @@ async function equipItem(item) {
         });
 
         alert("아이템을 착용했습니다.");
+        // 착용 상태 갱신 → 뱃지 반영을 위해 인벤토리도 다시 렌더링
         await loadEquippedItems();
+        await loadClosetItems();
     } catch (error) {
         console.error(error);
         alert(error.message || "아이템 착용에 실패했습니다.");
