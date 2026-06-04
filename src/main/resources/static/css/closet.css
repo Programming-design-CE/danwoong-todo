@@ -131,6 +131,14 @@ body {
     z-index: 6;
 }
 
+.equipped-layer--hand-accessory {
+    width: 76%;
+    left: 50%;
+    top: 42%;
+    transform: translateX(-50%) rotate(-2deg);
+    z-index: 6;
+}
+
 .equipped-layer--clothes {
     width: 58%;
     left: 50%;

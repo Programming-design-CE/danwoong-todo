@@ -23,15 +23,24 @@ public class ShopCatalogInitializer implements CommandLineRunner {
     public void run(String... args) {
         List<ShopSeedItem> seedItems = List.of(
                 new ShopSeedItem("밀짚 모자", "HAT", "/assets/shop_hat_straw.svg", 120),
-                new ShopSeedItem("동그란 안경", "ACCESSORY", "/assets/shop_accessory_glasses.svg", 140)
+                new ShopSeedItem("동그란 안경", "ACCESSORY", "/assets/shop_accessory_glasses.svg", 140),
+                new ShopSeedItem("노트북", "HAND_ACCESSORY", "/assets/shop_accessory_laptop.svg", 160)
         );
 
-        Map<String, ShopItem> existingItems = shopItemRepository.findAll()
-                .stream()
+        List<ShopItem> existingCatalog = shopItemRepository.findAll();
+
+        Map<String, ShopItem> existingItemsByName = existingCatalog.stream()
                 .collect(Collectors.toMap(ShopItem::getItemName, Function.identity(), (left, right) -> left));
+        Map<String, ShopItem> existingItemsByImage = existingCatalog.stream()
+                .filter(item -> item.getItemImage() != null && !item.getItemImage().isBlank())
+                .collect(Collectors.toMap(ShopItem::getItemImage, Function.identity(), (left, right) -> left));
 
         for (ShopSeedItem seedItem : seedItems) {
-            ShopItem existing = existingItems.get(seedItem.itemName());
+            ShopItem existing = existingItemsByName.get(seedItem.itemName());
+
+            if (existing == null) {
+                existing = existingItemsByImage.get(seedItem.itemImage());
+            }
 
             if (existing != null) {
                 existing.updateCatalog(seedItem.itemType(), seedItem.itemImage(), seedItem.price());
