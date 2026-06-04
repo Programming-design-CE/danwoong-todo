@@ -110,7 +110,11 @@ function bindFriendEvents() {
 
         friendPanel.classList.add("active");
         friendSearchBox.classList.remove("active");
+
         await refreshFriendPanel();
+
+        // 친구창 열었을 때 말풍선 상태도 다시 확인
+        await checkIncomingFriendRequests();
     });
 
     friendCloseBtn?.addEventListener("click", () => {
@@ -312,6 +316,9 @@ async function respondFriendRequest(requestId, action) {
         });
 
         await refreshFriendPanel();
+
+        // 수락/거절 후 남은 요청 개수에 따라 말풍선 갱신
+        await checkIncomingFriendRequests();
     } catch (error) {
         console.error(error);
         alert("친구 요청 처리에 실패했습니다.");
@@ -404,6 +411,44 @@ async function sendFriendRequest(receiverId) {
     }
 }
 
+async function checkIncomingFriendRequests() {
+    const bubble = document.getElementById("friendRequestBubble");
+
+    if (!bubble) {
+        return;
+    }
+
+    const accessToken = getAccessToken();
+
+    if (!accessToken) {
+        bubble.classList.remove("active");
+        return;
+    }
+
+    try {
+        const data = await requestAuthApi("/friends/requests");
+        if (!data) {
+            bubble.classList.remove("active");
+            return;
+        }
+
+        const requests = data.requests || [];
+
+        if (requests.length > 0) {
+            bubble.textContent = requests.length === 1
+                ? "친구 요청이 왔어요!"
+                : `친구 요청 ${requests.length}개가 왔어요!`;
+
+            bubble.classList.add("active");
+        } else {
+            bubble.classList.remove("active");
+        }
+    } catch (error) {
+        console.error(error);
+        bubble.classList.remove("active");
+    }
+}
+
 function getFriendThumbnail(user) {
     if (user.character_thumbnail_url && user.character_thumbnail_url.trim() !== "") {
         return user.character_thumbnail_url;
@@ -442,4 +487,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMyCharacter();
     bindMenuEvents();
     bindFriendEvents();
+    checkIncomingFriendRequests();
 });
