@@ -139,7 +139,7 @@ body {
 /* 단웅이의 옷장 */
 #closetBtn,
 .menu-btn:nth-child(2) {
-    --shadow-color: 210, 116, 55;
+    --shadow-color: 67, 74, 97;
 }
 
 /* 마늘 상점 */
@@ -149,10 +149,11 @@ body {
 }
 
 .menu-btn:hover {
+    -webkit-text-stroke: initial;
     transform: translateX(8px);
     filter:
-        drop-shadow(0 4px 10px rgba(var(--shadow-color), 0.3))
-        drop-shadow(0 4px 35px rgba(var(--shadow-color), 0.3));
+        drop-shadow(0 4px 10px rgba(210, 116, 55, 1))
+        drop-shadow(0 4px 35px rgba(210, 116, 55, 0.8));
 }
 
 /* 오른쪽 아래 친구 아이콘 */
@@ -533,15 +534,15 @@ body {
 .main-equipped-layer--hat {
     width: 52%;
     left: 50%;
-    top: -30%;
+    top: -12%;
     transform: translateX(-50%);
     z-index: 6;
 }
 
 .main-equipped-layer--accessory {
     width: 36%;
-    left: 48%;
-    top: -2%;
+    left: 50%;
+    top: 24%;
     transform: translateX(-50%);
     z-index: 6;
 }
@@ -604,9 +605,10 @@ body {
 }
 
 .main-equipped-layer--clothes {
-    width: 120%;
+    width: 100%;
     left: 50%;
-    bottom: -2%;
+    top: 0;
+    bottom: auto;
     transform: translateX(-50%);
     z-index: 5;
 }
