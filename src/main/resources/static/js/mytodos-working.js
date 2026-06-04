@@ -152,10 +152,31 @@ function showModal(todo) {
     overlay.classList.add("active");
 }
 
+let myTodosList = [];
+let sortOrder = "recent";
+
+function sortAndRenderTodos() {
+    const sorted = [...myTodosList].sort((a, b) => {
+        if (sortOrder === "recent") {
+            return b.todo_id - a.todo_id;
+        } else if (sortOrder === "oldest") {
+            return a.todo_id - b.todo_id;
+        } else if (sortOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.todo_id - a.todo_id;
+            return timeA - timeB;
+        }
+        return 0;
+    });
+    renderTodos(sorted);
+}
+
 async function loadMyTodos() {
     try {
         const data = await fetchTodoJson("/todos/my");
-        renderTodos(data?.todos || []);
+        myTodosList = data?.todos || [];
+        sortAndRenderTodos();
     } catch (e) {
         console.error(e);
         const list = document.getElementById("mytodoList");
@@ -173,6 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         overlay.addEventListener("click", (e) => {
             if (e.target === overlay) overlay.classList.remove("active");
+        });
+    }
+
+    const sortSelect = document.getElementById("sortSelect");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+            sortOrder = e.target.value;
+            sortAndRenderTodos();
         });
     }
 });

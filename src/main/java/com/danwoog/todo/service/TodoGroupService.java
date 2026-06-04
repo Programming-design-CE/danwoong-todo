@@ -149,7 +149,8 @@ public class TodoGroupService {
                             groupMembers.size(),
                             totalTodos,
                             completedTodos,
-                            group.getCreatedBy() != null ? group.getCreatedBy().getUserId() : null
+                            group.getCreatedBy() != null ? group.getCreatedBy().getUserId() : null,
+                            group.getUpdatedAt() != null ? group.getUpdatedAt().toLocalDate() : null
                     );
                 })
                 .toList();

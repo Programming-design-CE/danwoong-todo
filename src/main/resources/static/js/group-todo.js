@@ -1,5 +1,6 @@
 const API_BASE = "";
 const queryParams = new URLSearchParams(window.location.search);
+const initialTodoId = Number(queryParams.get("todoId") || 0);
 
 const PRESET_CATEGORIES = ["발표 준비", "보고서", "기능 구현", "자료 조사"];
 const CATEGORY_META = {
@@ -96,7 +97,11 @@ function showTodoDetailModal(todo) {
     }
 
     const pct = getProgressPercent(todo) || 0;
-    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
+    const fillEl = overlay.querySelector(".mtm-progress-fill");
+    fillEl.style.width = pct + "%";
+    if (currentGroupIconStyle) {
+        fillEl.style.background = currentGroupIconStyle.replace("background:", "").replace(";", "");
+    }
     overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
     overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
 
@@ -146,9 +151,11 @@ function showTodoDetailModal(todo) {
 }
 
 let todos = [];
+let sortGroupTodoOrder = "recent";
 let friendList = [];
 let currentProjectMembers = [];
 let tempProjectMembers = [];
+let currentGroupIconStyle = "";
 
 let isLeader = false;
 let editingTodoId = null;
@@ -523,7 +530,7 @@ function renderTodoList() {
                 <span class="todo-deadline">${formatDeadline(todo.deadline)}</span>
             </div>
             <div class="todo-progress">
-                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; ${currentGroupIconStyle}"></div></div>
                 <span class="progress-text">${progress}%</span>
             </div>
             <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
@@ -598,6 +605,18 @@ async function loadGroupContext() {
         return;
     }
 
+    if (group.group_color) {
+        currentGroupIconStyle = `background:${group.group_color};`;
+    } else if (group.group_icon_url) {
+        try {
+            const parsed = JSON.parse(group.group_icon_url);
+            if (parsed.color) {
+                currentGroupIconStyle = `background:${parsed.color};`;
+            }
+        } catch (error) {
+        }
+    }
+
     const groupName = document.getElementById("groupName");
     const ddayBadge = document.getElementById("ddayBadge");
     const projectGarlicTotal = document.getElementById("projectGarlicTotal");
@@ -639,7 +658,7 @@ async function loadTodos() {
         todos = Array.isArray(data?.todos) ? data.todos : [];
         syncProjectMembersFromTodos();
         renderGroupMemberAvatars();
-        renderTodoList();
+        sortAndRenderTodoList();
     } catch (error) {
         console.error(error);
         todos = [];
@@ -648,9 +667,26 @@ async function loadTodos() {
     }
 }
 
+function sortAndRenderTodoList() {
+    todos.sort((a, b) => {
+        if (sortGroupTodoOrder === "recent") {
+            return b.todo_id - a.todo_id;
+        } else if (sortGroupTodoOrder === "oldest") {
+            return a.todo_id - b.todo_id;
+        } else if (sortGroupTodoOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.todo_id - a.todo_id;
+            return timeA - timeB;
+        }
+        return 0;
+    });
+    renderTodoList();
+}
+
 async function loadMemo() {
     try {
-        const data = await api(`/todo-groups/${currentGroupId}/note`);
+        const data = await api("/todos/my/note");
         const textarea = document.getElementById("memoTextarea");
         if (textarea) {
             textarea.textContent = data?.content || "";
@@ -667,7 +703,7 @@ function autoSaveMemo() {
     memoTimer = window.setTimeout(async () => {
         try {
             const textarea = document.getElementById("memoTextarea");
-            await api(`/todo-groups/${currentGroupId}/note`, {
+            await api("/todos/my/note", {
                 method: "PUT",
                 body: JSON.stringify({ content: textarea?.textContent || "" })
             });
@@ -764,7 +800,19 @@ function updateAssigneeDisplay() {
         const avatar = document.createElement("div");
         avatar.className = "assignee-selected";
         avatar.textContent = getAvatarInitial(member.nickname);
-        avatar.title = member.nickname;
+        avatar.title = member.nickname + " (클릭하여 삭제)";
+        avatar.style.cursor = "pointer";
+        
+        avatar.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedAssignees = selectedAssignees.filter(id => id !== userId);
+            updateAssigneeDisplay();
+            updateDistribution();
+            if (!document.getElementById("assigneeDropdown").classList.contains("hidden")) {
+                renderAssigneeOptions();
+            }
+        });
+
         area.insertBefore(avatar, addButton);
     });
 }
@@ -872,7 +920,8 @@ function renderAssigneeOptions() {
             `;
 
             option.addEventListener("click", () => {
-                if (isSelected) {
+                const alreadySelected = selectedAssignees.includes(member.user_id);
+                if (alreadySelected) {
                     selectedAssignees = selectedAssignees.filter((id) => id !== member.user_id);
                 } else {
                     selectedAssignees.push(member.user_id);
@@ -1171,6 +1220,10 @@ async function bootstrapGroupTodoPage() {
 
     await loadTodos();
     await loadMemo();
+
+    if (initialTodoId > 0) {
+        await openTodoModal(initialTodoId);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1179,6 +1232,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("memoTextarea")?.addEventListener("input", autoSaveMemo);
     document.getElementById("addTodoBtn")?.addEventListener("click", () => openModal("add"));
+
+    const sortSelect = document.getElementById("filterSortSelect");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+            sortGroupTodoOrder = e.target.value;
+            sortAndRenderTodoList();
+        });
+    }
 
     document.getElementById("modalCloseBtn")?.addEventListener("click", closeModal);
     document.getElementById("modalCancelBtn")?.addEventListener("click", closeModal);

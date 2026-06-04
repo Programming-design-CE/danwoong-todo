@@ -2,6 +2,7 @@ package com.danwoog.todo.service;
 
 import com.danwoog.todo.domain.todo.Todo;
 import com.danwoog.todo.domain.todo.TodoStatus;
+import com.danwoog.todo.domain.todogroup.GroupStatus;
 import com.danwoog.todo.dto.calendar.CalendarDailyResponse;
 import com.danwoog.todo.dto.calendar.CalendarDayDto;
 import com.danwoog.todo.dto.calendar.CalendarMonthlyResponse;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -25,8 +27,13 @@ public class CalendarService {
 
     private final TodoRepository todoRepository;
 
-    public CalendarDailyResponse getDailyTodos(LocalDate date) {
-        List<Todo> todos = todoRepository.findByDeadlineBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
+    public CalendarDailyResponse getDailyTodos(Long userId, LocalDate date, String viewMode) {
+        List<Todo> todos = getCalendarTodos(
+                userId,
+                date.atStartOfDay(),
+                date.atTime(23, 59, 59),
+                viewMode
+        );
 
         List<CalendarTodoDto> todoDtos = todos.stream()
                 .sorted(Comparator
@@ -38,12 +45,17 @@ public class CalendarService {
         return new CalendarDailyResponse(date.toString(), todoDtos.size(), todoDtos);
     }
 
-    public CalendarMonthlyResponse getMonthlyTodos(int year, int month) {
+    public CalendarMonthlyResponse getMonthlyTodos(Long userId, int year, int month, String viewMode) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        List<Todo> todos = todoRepository.findByDeadlineBetween(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+        List<Todo> todos = getCalendarTodos(
+                userId,
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                viewMode
+        );
 
         Map<LocalDate, List<CalendarTodoDto>> todosByDate = todos.stream()
                 .filter(todo -> todo.getDeadline() != null)
@@ -63,9 +75,29 @@ public class CalendarService {
         return new CalendarMonthlyResponse(year, month, days);
     }
 
+    private List<Todo> getCalendarTodos(Long userId, LocalDateTime start, LocalDateTime end, String viewMode) {
+        if ("group".equalsIgnoreCase(viewMode)) {
+            return todoRepository.findCalendarTodosByGroupMemberAndDeadlineBetween(
+                    userId,
+                    start,
+                    end,
+                    GroupStatus.DELETED
+            );
+        }
+
+        return todoRepository.findCalendarTodosByUserIdAndDeadlineBetween(
+                userId,
+                start,
+                end,
+                GroupStatus.DELETED
+        );
+    }
+
     private CalendarTodoDto toCalendarTodoDto(Todo todo) {
         return CalendarTodoDto.builder()
                 .todoId(todo.getTodoId())
+                .groupId(todo.getGroup() != null ? todo.getGroup().getGroupId() : null)
+                .groupColor(todo.getGroup() != null ? todo.getGroup().getGroupColor() : null)
                 .title(todo.getTodoName())
                 .date(todo.getDeadline() != null ? todo.getDeadline().toLocalDate().toString() : null)
                 .completed(todo.getStatus() == TodoStatus.COMPLETED)
