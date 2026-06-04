@@ -495,8 +495,8 @@ body {
 /* 단웅이 친구 요청 말풍선 */
 .danwoong-speech-bubble {
     position: absolute;
-    left: 315px;
-    bottom: 310px;
+    left: 290px;
+    bottom: 430px;
     z-index: 6;
 
     display: none;
