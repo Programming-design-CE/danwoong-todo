@@ -40,15 +40,14 @@
               <div class="group-member-avatars" id="groupMemberAvatars"></div>
               <span>멤버 관리</span>
             </button>
-            <button class="filter-btn" id="filterCategory" type="button">
-              <span class="filter-icon">👤</span>
-              전체 카테고리
-              <span class="dropdown-arrow">▾</span>
-            </button>
-            <button class="filter-btn" id="filterSort" type="button">
-              최근 추가순
-              <span class="dropdown-arrow">▾</span>
-            </button>
+            <div style="position: relative; display: inline-block;">
+              <select class="filter-btn" id="filterSortSelect" style="appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; padding-right:24px;">
+                <option value="recent">최근 추가순</option>
+                <option value="oldest">오래된 순</option>
+                <option value="deadline">마감일 순</option>
+              </select>
+              <span class="dropdown-arrow" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 10px;">▾</span>
+            </div>
           </div>
         </div>
 
