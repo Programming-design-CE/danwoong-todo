@@ -27,7 +27,9 @@ public class ShopCatalogInitializer implements CommandLineRunner {
                 new ShopSeedItem("윙슈트", "CLOTHES", "/assets/shop_wingsuit.svg", 300),
                 new ShopSeedItem("노트북", "ACCESSORY", "/assets/shop_notebook.svg", 150),
                 new ShopSeedItem("아톰 신발", "ACCESSORY", "/assets/shop_atomshoes.svg", 200),
-                new ShopSeedItem("창", "ACCESSORY", "/assets/shop_spear.svg", 250)
+                new ShopSeedItem("창", "ACCESSORY", "/assets/shop_spear.svg", 250),
+                new ShopSeedItem("상처", "FACE", "/assets/shop_hurt.svg", 50),
+                new ShopSeedItem("트로피", "ACCESSORY", "/assets/shop_trophy.svg", 180)
         );
 
         Map<String, ShopItem> existingItems = shopItemRepository.findAll()
