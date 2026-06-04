@@ -139,6 +139,11 @@ body {
     z-index: 5;
 }
 
+.equipped-layer--clothes[src*="shop_wingsuit.svg"] {
+    width: 120%;
+    bottom: -3%;
+}
+
 .equipped-layer--face {
     width: 32%;
     left: 50%;
