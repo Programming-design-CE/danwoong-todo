@@ -123,22 +123,6 @@ body {
     z-index: 6;
 }
 
-.equipped-layer--accessory {
-    width: 36%;
-    left: 48%;
-    top: -3%;
-    transform: translateX(-50%);
-    z-index: 6;
-}
-
-.equipped-layer--hand-accessory {
-    width: 76%;
-    left: 50%;
-    top: 42%;
-    transform: translateX(-50%) rotate(-2deg);
-    z-index: 6;
-}
-
 /* 노트북 */
 .equipped-layer[src*="shop_accessory_notebook.svg"] {
     width: 50%;
@@ -146,63 +130,67 @@ body {
     bottom: 80%;
     left: 100%;
     transform: translateX(-50%);
-    z-index: 7;
+    z-index: 5;
 }
 
 /* 아톰신발 */
-.equipped-layer--accessory[src*="shop_atomshoes.svg"] {
+.equipped-layer[src*="shop_atomshoes.svg"] {
     width: 50%;
     top: auto;
     bottom: -5%;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 5;
+
 }
 
 /* 창 */
-.equipped-layer--accessory[src*="shop_spear.svg"] {
-    width: 120%;
-    top: auto;
-    bottom: -3%;
-    left: 50%;
+.equipped-layer[src*="shop_spear.svg"] {
+    width: 50%;
+    bottom: 70%;
+    left: 100%;
     transform: translateX(-50%);
+    z-index: 5;
 }
 
 /* 트로피 */
-.equipped-layer--accessory[src*="shop_trophy.svg"] {
+.equipped-layer[src*="shop_trophy.svg"] {
     width: 40%;
     top: auto;
     bottom: 80%;
     left: 100%;
     transform: translateX(-50%);
-}
-
-.equipped-layer--clothes {
-    width: 58%;
-    left: 50%;
-    bottom: 20%;
-    transform: translateX(-50%);
     z-index: 5;
+
 }
 
+/* 윙슈트 */
 .equipped-layer--clothes[src*="shop_wingsuit.svg"] {
     width: 120%;
     bottom: -3%;
+    z-index: 7;
+    left: 50%;
+    transform: translateX(-50%);
+
 }
 
-.equipped-layer--face {
+/* 안경 */
+.equipped-layer[src*="shop_accessory_glasses.svg"] {
     width: 32%;
-    left: 50%;
-    top: 30%;
+    left: 48%;
+    top: -2%;
     transform: translateX(-50%);
     z-index: 6;
 }
 
-.equipped-layer--face[src*="shop_hurt.svg"] {
+/* 상처 */
+.equipped-layer[src*="shop_hurt.svg"] {
     width: 30%;
     top: auto;
     bottom: 50%;
     left: 60%;
     transform: translateX(-50%);
+    z-index: 6;
 }
 
 .angry-danbi {

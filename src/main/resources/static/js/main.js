@@ -68,7 +68,8 @@ async function loadMyCharacter() {
         const slotMap = {
             BACKGROUND: "mainEquippedBackground",
             HAT:        "mainEquippedHat",
-            ACCESSORY:  "mainEquippedAccessory",
+            HAND:       "mainEquippedHand",
+            FOOT:       "mainEquippedFoot",
             CLOTHES:    "mainEquippedClothes",
             FACE:       "mainEquippedFace"
         };

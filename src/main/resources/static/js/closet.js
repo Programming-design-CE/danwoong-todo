@@ -130,29 +130,32 @@ function renderEquippedItems(items) {
     // 착용 중인 itemId Set 갱신
     equippedItemIds = new Set(items.map((item) => getItemId(item)));
 
+    // 모든 슬롯을 단일 슬롯으로 취급!
     const equippedBySlot = {
         BACKGROUND: null,
         HAT: null,
-        ACCESSORY: null,
-        HAND_ACCESSORY: null,
+        FACE: null,
         CLOTHES: null,
-        FACE: null
+        HAND: null,
+        FOOT: null
     };
 
     items.forEach((item) => {
         const slotType = (item.slotType || item.slot_type || "").toUpperCase();
         if (slotType in equippedBySlot) {
-            equippedBySlot[slotType] = item;
+            equippedBySlot[slotType] = item; // 같은 슬롯이면 무조건 덮어씀 (1개만 유지)
         }
     });
 
+    // 모두 applyEquippedLayer 로 처리
     applyEquippedLayer("equippedBackground", equippedBySlot.BACKGROUND);
     applyEquippedLayer("equippedHat", equippedBySlot.HAT);
-    applyEquippedLayer("equippedAccessory", equippedBySlot.ACCESSORY);
-    applyEquippedLayer("equippedHandAccessory", equippedBySlot.HAND_ACCESSORY);
-    applyEquippedLayer("equippedClothes", equippedBySlot.CLOTHES);
     applyEquippedLayer("equippedFace", equippedBySlot.FACE);
+    applyEquippedLayer("equippedClothes", equippedBySlot.CLOTHES);
+    applyEquippedLayer("equippedHand", equippedBySlot.HAND);
+    applyEquippedLayer("equippedFoot", equippedBySlot.FOOT);
 }
+
 
 function applyEquippedLayer(elementId, item) {
     const layer = document.getElementById(elementId);
@@ -190,8 +193,8 @@ function handleItemClick(item) {
 function isEquipItem(itemType) {
     return itemType === "HAT"
         || itemType === "CLOTHES"
-        || itemType === "ACCESSORY"
-        || itemType === "HAND_ACCESSORY"
+        || itemType === "HAND"
+        || itemType === "FOOT"
         || itemType === "FACE"
         || itemType === "BACKGROUND";
 }
