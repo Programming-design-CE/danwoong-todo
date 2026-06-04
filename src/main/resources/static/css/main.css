@@ -532,10 +532,10 @@ body {
     z-index: 2;
 }
 
-.main-equipped-layer--hat {
+.main-equipped-layer[src*="shop_hat_straw"] {
     width: 52%;
     left: 50%;
-    top: -12%;
+    top: -30%;
     transform: translateX(-50%);
     z-index: 6;
 }
