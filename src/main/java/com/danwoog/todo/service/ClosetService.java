@@ -5,11 +5,7 @@ import com.danwoog.todo.domain.shop.ShopItem;
 import com.danwoog.todo.domain.shop.UserCharacter;
 import com.danwoog.todo.domain.shop.UserInventory;
 import com.danwoog.todo.domain.user.User;
-import com.danwoog.todo.dto.closet.ClosetDto.EquipRequest;
-import com.danwoog.todo.dto.closet.ClosetDto.EquipResponse;
-import com.danwoog.todo.dto.closet.ClosetDto.EquippedItemResponse;
-import com.danwoog.todo.dto.closet.ClosetDto.InventoryItemResponse;
-import com.danwoog.todo.dto.closet.ClosetDto.UseItemResponse;
+import com.danwoog.todo.dto.closet.ClosetDto.*;
 import com.danwoog.todo.exception.CustomException.BusinessException;
 import com.danwoog.todo.exception.CustomException.NotFoundException;
 import com.danwoog.todo.repository.CharacterEquippedItemRepository;
@@ -21,8 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,30 +34,35 @@ public class ClosetService {
 
     public List<InventoryItemResponse> getInventoryItems(Long userId) {
         User user = findUser(userId);
-        return memberInventoryRepository.findByUser(user).stream()
-                .map(inv -> InventoryItemResponse.builder()
-                        .itemId(inv.getItem().getId())
-                        .itemName(inv.getItem().getItemName())
-                        .itemType(inv.getItem().getItemType())
-                        .itemImage(inv.getItem().getItemImage())
-                        .quantity(inv.getQuantity())
-                        .build())
-                .collect(Collectors.toList());
+        List<InventoryItemResponse> result = new ArrayList<>();
+        for (UserInventory inv : memberInventoryRepository.findByUser(user)) {
+            result.add(InventoryItemResponse.builder()
+                    .itemId(inv.getItem().getId())
+                    .itemName(inv.getItem().getItemName())
+                    .itemType(inv.getItem().getItemType())
+                    .itemImage(inv.getItem().getItemImage())
+                    .quantity(inv.getQuantity())
+                    .build());
+        }
+        return result;
     }
 
     public List<EquippedItemResponse> getEquippedItems(Long userId) {
         User user = findUser(userId);
-
-        return userCharacterRepository.findByUser(user)
-                .map(character -> equippedItemRepository.findByCharacter(character).stream()
-                        .map(equipped -> EquippedItemResponse.builder()
-                                .itemId(equipped.getItem().getId())
-                                .itemName(equipped.getItem().getItemName())
-                                .slotType(equipped.getSlotType())
-                                .itemImage(equipped.getItem().getItemImage())
-                                .build())
-                        .collect(Collectors.toList()))
-                .orElseGet(List::of);
+        if (!userCharacterRepository.findByUser(user).isPresent()) {
+            return Collections.emptyList();
+        }
+        UserCharacter character = userCharacterRepository.findByUser(user).get();
+        List<EquippedItemResponse> result = new ArrayList<>();
+        for (CharacterEquippedItem equipped : equippedItemRepository.findByCharacter(character)) {
+            result.add(EquippedItemResponse.builder()
+                    .itemId(equipped.getItem().getId())
+                    .itemName(equipped.getItem().getItemName())
+                    .slotType(equipped.getSlotType())
+                    .itemImage(equipped.getItem().getItemImage())
+                    .build());
+        }
+        return result;
     }
 
     @Transactional
@@ -68,23 +70,55 @@ public class ClosetService {
         User user = findUser(userId);
         UserCharacter character = findOrCreateCharacter(user);
         ShopItem item = findShopItem(request.getItemId());
+        String slotType = request.getSlotType();
 
         memberInventoryRepository.findByUserAndItem(user, item)
                 .filter(inv -> inv.getQuantity() > 0)
                 .orElseThrow(() -> new BusinessException("보유하지 않은 아이템입니다."));
 
-        CharacterEquippedItem equipped = equippedItemRepository
-                .findByCharacterAndSlotType(character, request.getSlotType())
-                .map(existing -> {
-                    existing.changeItem(item);
-                    return existing;
-                })
-                .orElse(new CharacterEquippedItem(character, item, request.getSlotType()));
+        CharacterEquippedItem existing =
+                equippedItemRepository.findByCharacterAndSlotType(character, slotType).orElse(null);
+
+        CharacterEquippedItem equipped;
+        if (existing != null) {
+            existing.changeItem(item);
+            equipped = existing;
+        } else {
+            equipped = new CharacterEquippedItem(character, item, slotType);
+        }
         equippedItemRepository.save(equipped);
 
         return EquipResponse.builder()
                 .characterId(character.getCharacterId())
                 .characterThumbnailUrl("/assets/danwoong.png")
+                .build();
+    }
+
+    @Transactional
+    public UnequipResponse unequipItem(Long userId, UnequipRequest request) {
+        User user = findUser(userId);
+        Long itemId = request.getItemId();
+        ShopItem item = findShopItem(itemId);
+
+        UserCharacter character = userCharacterRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException("캐릭터를 찾을 수 없습니다."));
+
+        CharacterEquippedItem target = null;
+        for (CharacterEquippedItem e : equippedItemRepository.findByCharacter(character)) {
+            if (e.getItem().getId().equals(item.getId())) {
+                target = e;
+                break;
+            }
+        }
+        if (target == null) {
+            throw new BusinessException("착용 중이지 않은 아이템입니다.");
+        }
+
+        equippedItemRepository.delete(target);
+
+        return UnequipResponse.builder()
+                .itemId(itemId)
+                .message("아이템 착용이 해제되었습니다.")
                 .build();
     }
 
@@ -110,10 +144,11 @@ public class ClosetService {
                 .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
     }
 
-    @Transactional
     private UserCharacter findOrCreateCharacter(User user) {
-        return userCharacterRepository.findByUser(user)
-                .orElseGet(() -> userCharacterRepository.save(new UserCharacter(user)));
+        if (userCharacterRepository.findByUser(user).isPresent()) {
+            return userCharacterRepository.findByUser(user).get();
+        }
+        return userCharacterRepository.save(new UserCharacter(user));
     }
 
     private ShopItem findShopItem(Long itemId) {
