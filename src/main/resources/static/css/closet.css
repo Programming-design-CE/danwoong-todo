@@ -139,20 +139,40 @@ body {
     z-index: 6;
 }
 
-.equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
-    width: 60%;
+/* 노트북 */
+.equipped-layer[src*="shop_accessory_notebook.svg"] {
+    width: 50%;
     top: auto;
-    bottom: 10%;
-    left: 30%;
+    bottom: 80%;
+    left: 100%;
+    transform: translateX(-50%);
+    z-index: 7;
 }
 
-.equipped-layer--accessory[src*="shop_atomshoes.svg"],
-.equipped-layer--accessory[src*="shop_spear.svg"],
-.equipped-layer--accessory[src*="shop_trophy.svg"] {
+/* 아톰신발 */
+.equipped-layer--accessory[src*="shop_atomshoes.svg"] {
+    width: 50%;
+    top: auto;
+    bottom: -5%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 창 */
+.equipped-layer--accessory[src*="shop_spear.svg"] {
     width: 120%;
     top: auto;
     bottom: -3%;
     left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 트로피 */
+.equipped-layer--accessory[src*="shop_trophy.svg"] {
+    width: 40%;
+    top: auto;
+    bottom: 80%;
+    left: 100%;
     transform: translateX(-50%);
 }
 
@@ -178,9 +198,11 @@ body {
 }
 
 .equipped-layer--face[src*="shop_hurt.svg"] {
-    width: 120%;
+    width: 30%;
     top: auto;
-    bottom: -3%;
+    bottom: 50%;
+    left: 60%;
+    transform: translateX(-50%);
 }
 
 .angry-danbi {
@@ -291,7 +313,7 @@ body {
     padding: 2px 5px;
     border-radius: 6px;
     white-space: nowrap;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
     pointer-events: none;
 }
 

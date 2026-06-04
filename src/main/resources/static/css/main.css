@@ -547,6 +547,63 @@ body {
     z-index: 6;
 }
 
+.main-equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
+    width: 58%;
+    top: auto;
+    bottom: 58%;
+    left: 92%;
+
+.danwoong-stack .danwoong {
+    position: relative;
+    display: block;
+    width: 100%;
+    left: auto;
+    bottom: auto;
+}
+
+.main-equipped-layer {
+    position: absolute;
+    display: none;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.main-equipped-layer.is-visible {
+    display: block;
+}
+
+.main-equipped-layer--background {
+    width: 145%;
+    left: 50%;
+    top: -10%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.main-equipped-layer--hat {
+    width: 52%;
+    left: 50%;
+    top: -30%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
+.main-equipped-layer--clothes {
+    width: 120%;
+    left: 50%;
+    bottom: -2%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+.main-equipped-layer--accessory {
+    width: 36%;
+    left: 48%;
+    top: -2%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
 .main-equipped-layer--clothes {
     width: 100%;
     left: 50%;
