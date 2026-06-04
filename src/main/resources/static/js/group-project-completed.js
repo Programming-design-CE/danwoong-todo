@@ -141,15 +141,21 @@ async function loadCurrentUser() {
     }
 }
 
-let sortCompletedOrder = "desc";
+let sortCompletedOrder = "recent";
 
 function sortAndRenderCompletedGroups() {
     const sorted = [...completedGroups].sort((a, b) => {
-        if (sortCompletedOrder === "desc") {
+        if (sortCompletedOrder === "recent") {
             return b.group_id - a.group_id;
-        } else {
+        } else if (sortCompletedOrder === "oldest") {
             return a.group_id - b.group_id;
+        } else if (sortCompletedOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.group_id - a.group_id;
+            return timeA - timeB;
         }
+        return 0;
     });
     renderCompletedProjects(sorted);
 }
@@ -411,11 +417,10 @@ function bindEvents() {
     document.getElementById("garlicModalSubmit")?.addEventListener("click", submitGarlicDistribution);
 
     /* 정렬 버튼 */
-    const sortBtn = document.getElementById("sortCompletedProjectBtn");
-    if (sortBtn) {
-        sortBtn.addEventListener("click", () => {
-            sortCompletedOrder = sortCompletedOrder === "desc" ? "asc" : "desc";
-            sortBtn.innerHTML = (sortCompletedOrder === "desc" ? "최근 완료순" : "오래된 순") + ' <span class="filter-caret">▾</span>';
+    const sortSelect = document.getElementById("sortCompletedProjectSelect");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+            sortCompletedOrder = e.target.value;
             sortAndRenderCompletedGroups();
         });
     }

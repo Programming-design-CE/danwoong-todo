@@ -3,7 +3,7 @@ let friends = [];
 let selectedAssignees = [];
 let selectedColor = "#4CAF7D";
 let activeProjectMenuGroupId = null;
-let sortProjectOrder = "desc";
+let sortProjectOrder = "recent";
 
 function setCurrentGroupId(groupId) {
     if (!groupId) {
@@ -318,11 +318,17 @@ async function loadProjects() {
 
 function sortAndRenderProjects() {
     const sorted = [...allGroups].sort((a, b) => {
-        if (sortProjectOrder === "desc") {
+        if (sortProjectOrder === "recent") {
             return b.group_id - a.group_id;
-        } else {
+        } else if (sortProjectOrder === "oldest") {
             return a.group_id - b.group_id;
+        } else if (sortProjectOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.group_id - a.group_id;
+            return timeA - timeB;
         }
+        return 0;
     });
     renderProjects(sorted);
 }
@@ -554,11 +560,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const sortProjectBtn = document.getElementById("sortProjectBtn");
-    if (sortProjectBtn) {
-        sortProjectBtn.addEventListener("click", () => {
-            sortProjectOrder = sortProjectOrder === "desc" ? "asc" : "desc";
-            sortProjectBtn.innerHTML = (sortProjectOrder === "desc" ? "최근 추가순" : "오래된 순") + ' <span class="filter-caret">▾</span>';
+    const sortProjectSelect = document.getElementById("sortProjectSelect");
+    if (sortProjectSelect) {
+        sortProjectSelect.addEventListener("change", (e) => {
+            sortProjectOrder = e.target.value;
             sortAndRenderProjects();
         });
     }

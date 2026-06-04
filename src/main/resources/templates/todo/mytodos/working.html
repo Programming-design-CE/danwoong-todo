@@ -18,7 +18,14 @@
             <div th:replace="~{todo/fragments/tabs :: tabs('mytodos', 'working', '0', '0')}"></div>
 
             <div class="filter-bar">
-                <button class="filter-btn" id="sortBtn" type="button">최신 순 <span class="filter-caret">∨</span></button>
+                <div style="position: relative; display: inline-block;">
+                    <select class="filter-btn" id="sortSelect" style="appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; padding-right:24px;">
+                        <option value="recent">최근 추가순</option>
+                        <option value="oldest">오래된 순</option>
+                        <option value="deadline">마감일 순</option>
+                    </select>
+                    <span class="filter-caret" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 10px;">▾</span>
+                </div>
             </div>
 
             <div class="mytodo-scroll-area">
