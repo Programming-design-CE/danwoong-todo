@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @AllArgsConstructor
 public class CalendarTodoDto {
     private Long todoId;
+    @JsonProperty("group_id")
+    private Long groupId;
     private String title;
     private String date;
     @JsonProperty("isCompleted")
