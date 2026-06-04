@@ -57,12 +57,50 @@ async function loadMyInfo() {
 
 async function loadMyCharacter() {
     try {
-        const data = await requestAuthApi("/users/character");
-        if (!data) {
+        const payload = await requestAuthApi("/closet/equipped-items");
+        if (!payload) {
             return;
         }
 
-        console.log("내 캐릭터 정보:", data);
+        const body = payload.data ?? payload;
+        const items = Array.isArray(body) ? body : (body?.items || []);
+
+        const slotMap = {
+            BACKGROUND: "mainEquippedBackground",
+            HAT:        "mainEquippedHat",
+            ACCESSORY:  "mainEquippedAccessory",
+            CLOTHES:    "mainEquippedClothes",
+            FACE:       "mainEquippedFace"
+        };
+
+        // 모든 레이어 초기화
+        Object.values(slotMap).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.src = "";
+                el.alt = "";
+                el.hidden = true;
+                el.classList.remove("is-visible");
+            }
+        });
+
+        // 착용 중인 아이템 적용
+        items.forEach((item) => {
+            const slotType = (item.slotType || item.slot_type || "").toUpperCase();
+            const elementId = slotMap[slotType];
+            if (!elementId) return;
+
+            const imageUrl = item.itemImage || item.item_image || "";
+            if (!imageUrl.trim()) return;
+
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.src = imageUrl;
+                el.alt = item.itemName || item.item_name || "";
+                el.hidden = false;
+                el.classList.add("is-visible");
+            }
+        });
     } catch (error) {
         console.error(error);
     }
@@ -110,11 +148,7 @@ function bindFriendEvents() {
 
         friendPanel.classList.add("active");
         friendSearchBox.classList.remove("active");
-
         await refreshFriendPanel();
-
-        // 친구창 열었을 때 말풍선 상태도 다시 확인
-        await checkIncomingFriendRequests();
     });
 
     friendCloseBtn?.addEventListener("click", () => {
@@ -316,9 +350,6 @@ async function respondFriendRequest(requestId, action) {
         });
 
         await refreshFriendPanel();
-
-        // 수락/거절 후 남은 요청 개수에 따라 말풍선 갱신
-        await checkIncomingFriendRequests();
     } catch (error) {
         console.error(error);
         alert("친구 요청 처리에 실패했습니다.");
@@ -411,44 +442,6 @@ async function sendFriendRequest(receiverId) {
     }
 }
 
-async function checkIncomingFriendRequests() {
-    const bubble = document.getElementById("friendRequestBubble");
-
-    if (!bubble) {
-        return;
-    }
-
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        bubble.classList.remove("active");
-        return;
-    }
-
-    try {
-        const data = await requestAuthApi("/friends/requests");
-        if (!data) {
-            bubble.classList.remove("active");
-            return;
-        }
-
-        const requests = data.requests || [];
-
-        if (requests.length > 0) {
-            bubble.textContent = requests.length === 1
-                ? "친구 요청이 왔어요!"
-                : `친구 요청 ${requests.length}개가 왔어요!`;
-
-            bubble.classList.add("active");
-        } else {
-            bubble.classList.remove("active");
-        }
-    } catch (error) {
-        console.error(error);
-        bubble.classList.remove("active");
-    }
-}
-
 function getFriendThumbnail(user) {
     if (user.character_thumbnail_url && user.character_thumbnail_url.trim() !== "") {
         return user.character_thumbnail_url;
@@ -487,5 +480,4 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMyCharacter();
     bindMenuEvents();
     bindFriendEvents();
-    checkIncomingFriendRequests();
 });

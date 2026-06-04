@@ -13,12 +13,14 @@
   <section class="character-area">
     <img class="rock" th:src="@{/assets/rock.png}" alt="바위">
 
-    <img class="danwoong" th:src="@{/assets/danwoong.png}" alt="단웅">
-
-    <div class="danwoong-speech-bubble" id="friendRequestBubble">
-      친구 요청이 왔어요!
+    <div class="danwoong-stack">
+      <img class="main-equipped-layer main-equipped-layer--background" id="mainEquippedBackground" src="" alt="" hidden>
+      <img class="danwoong" th:src="@{/assets/danwoong.png}" alt="단웅">
+      <img class="main-equipped-layer main-equipped-layer--hat" id="mainEquippedHat" src="" alt="" hidden>
+      <img class="main-equipped-layer main-equipped-layer--accessory" id="mainEquippedAccessory" src="" alt="" hidden>
+      <img class="main-equipped-layer main-equipped-layer--clothes" id="mainEquippedClothes" src="" alt="" hidden>
+      <img class="main-equipped-layer main-equipped-layer--face" id="mainEquippedFace" src="" alt="" hidden>
     </div>
-
     <img class="danbi" th:src="@{/assets/danbi.png}" alt="단비">
 
     <div class="nickname" id="nicknameText"></div>
