@@ -74,13 +74,19 @@ body {
 /* 닉네임 */
 .nickname {
     position: absolute;
-    left: 200px;
-    bottom: 40px;
+    left: 230px;
+    bottom: 38px;
     z-index: 5;
+
+    min-width: 120px;
+    text-align: center;
+
     font-family: 'MaplestoryLight', sans-serif;
     font-size: 26px;
     color: #ffffff;
     letter-spacing: -1px;
+
+    transform: translateX(-50%);
 }
 
 /* 건드리지 마 */
@@ -200,7 +206,8 @@ body {
     align-items: center;
     justify-content: flex-end;
 
-    padding-right: 8%;
+    padding-right: 260px;
+
     background: rgba(0, 0, 0, 0.15);
 }
 
