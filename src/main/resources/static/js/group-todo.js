@@ -650,7 +650,7 @@ async function loadTodos() {
 
 async function loadMemo() {
     try {
-        const data = await api(`/todo-groups/${currentGroupId}/note`);
+        const data = await api("/todos/my/note");
         const textarea = document.getElementById("memoTextarea");
         if (textarea) {
             textarea.textContent = data?.content || "";
@@ -667,7 +667,7 @@ function autoSaveMemo() {
     memoTimer = window.setTimeout(async () => {
         try {
             const textarea = document.getElementById("memoTextarea");
-            await api(`/todo-groups/${currentGroupId}/note`, {
+            await api("/todos/my/note", {
                 method: "PUT",
                 body: JSON.stringify({ content: textarea?.textContent || "" })
             });
