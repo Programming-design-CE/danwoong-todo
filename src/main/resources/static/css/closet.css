@@ -147,7 +147,8 @@ body {
 }
 
 .equipped-layer--accessory[src*="shop_atomshoes.svg"],
-.equipped-layer--accessory[src*="shop_spear.svg"] {
+.equipped-layer--accessory[src*="shop_spear.svg"],
+.equipped-layer--accessory[src*="shop_trophy.svg"] {
     width: 120%;
     top: auto;
     bottom: -3%;
@@ -174,6 +175,12 @@ body {
     top: 30%;
     transform: translateX(-50%);
     z-index: 6;
+}
+
+.equipped-layer--face[src*="shop_hurt.svg"] {
+    width: 120%;
+    top: auto;
+    bottom: -3%;
 }
 
 .angry-danbi {
@@ -220,12 +227,27 @@ body {
 }
 
 .item-list::-webkit-scrollbar {
-    width: 0;
+    width: 6px;
+}
+
+.item-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.item-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+}
+
+.item-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .closet-item {
     width: 100%;
     min-height: 130px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
