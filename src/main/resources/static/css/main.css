@@ -522,6 +522,7 @@ body {
     display: block;
 }
 
+/* 배경, 모자, 옷 */
 .main-equipped-layer--background {
     width: 145%;
     left: 50%;
@@ -534,73 +535,21 @@ body {
     width: 52%;
     left: 50%;
     top: -30%;
-    transform: translateX(-50%);
-    z-index: 6;
-}
-
-.main-equipped-layer--accessory {
-    width: 36%;
-    left: 48%;
-    top: -2%;
-    transform: translateX(-50%);
-    z-index: 6;
-}
-
-.main-equipped-layer[src*="shop_accessory_notebook.svg"] {
-    width: 58%;
-    top: auto;
-    bottom: 58%;
-    left: 92%;
-
-.danwoong-stack .danwoong {
-    position: relative;
-    display: block;
-    width: 100%;
-    left: auto;
-    bottom: auto;
-}
-
-.main-equipped-layer {
-    position: absolute;
-    display: none;
-    object-fit: contain;
-    pointer-events: none;
-}
-
-.main-equipped-layer.is-visible {
-    display: block;
-}
-
-.main-equipped-layer--background {
-    width: 145%;
-    left: 50%;
-    top: -10%;
-    transform: translateX(-50%);
-    z-index: 2;
-}
-
-.main-equipped-layer--hat {
-    width: 52%;
-    left: 50%;
-    top: -30%;
-    transform: translateX(-50%);
-    z-index: 6;
-}
-
-.main-equipped-layer--accessory {
-    width: 36%;
-    left: 48%;
-    top: -2%;
     transform: translateX(-50%);
     z-index: 6;
 }
 
 .main-equipped-layer--clothes {
-    width: 120%;
+    width: 58%;
     left: 50%;
-    bottom: -2%;
+    bottom: 20%;
     transform: translateX(-50%);
     z-index: 5;
+}
+
+.main-equipped-layer--clothes[src*="shop_wingsuit.svg"] {
+    width: 120%;
+    bottom: -3%;
 }
 
 .main-equipped-layer--face {
@@ -610,4 +559,62 @@ body {
     transform: translateX(-50%);
     z-index: 6;
 }
+
+/* 창 */
+.main-equipped-layer[src*="shop_spear.svg"] {
+    width: 40%;
+    top: auto;
+    bottom: 70%;
+    left: 100%;
+    transform: translateX(-50%);
+    z-index: 5; 
+}
+
+/* 트로피 */
+.main-equipped-layer[src*="shop_trophy.svg"] {
+    width: 40%;
+    top: auto;
+    bottom: 80%;
+    left: 100%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+/* 노트북 */
+.main-equipped-layer[src*="shop_accessory_notebook.svg"] {
+    width: 50%;
+    top: auto;
+    bottom: 80%;
+    left: 100%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+/* 안경 */
+.main-equipped-layer[src*="shop_accessory_glasses.svg"] {
+    width: 36%;
+    left: 48%;
+    top: -3%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
+/* 상처 */
+.main-equipped-layer[src*="shop_hurt.svg"] {
+    width: 30%;
+    top: auto;
+    bottom: 50%;
+    left: 60%;
+    transform: translateX(-50%);
+    z-index: 6;
+}
+
+/* 신발 */
+.main-equipped-layer[src*="shop_atomshoes.svg"] {
+    width: 50%;
+    top: auto;
+    bottom: -5%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
 }

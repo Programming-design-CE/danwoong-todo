@@ -190,6 +190,7 @@ body {
     bottom: 50%;
     left: 60%;
     transform: translateX(-50%);
+    z-index: 6;
 }
 
 .angry-danbi {
