@@ -492,3 +492,60 @@ body {
         font-size: 30px;
     }
 }
+/* 단웅이 친구 요청 말풍선 */
+.danwoong-speech-bubble {
+    position: absolute;
+    left: 290px;
+    bottom: 430px;
+    z-index: 6;
+
+    display: none;
+
+    padding: 14px 18px;
+
+    background: rgba(255, 255, 255, 0.96);
+    color: #3b2415;
+
+    border: 3px solid #3b2415;
+    border-radius: 22px;
+
+    font-family: 'MaplestoryLight', sans-serif;
+    font-size: 18px;
+    white-space: nowrap;
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.35),
+        inset 0 0 8px rgba(255, 214, 140, 0.35);
+
+    animation: speechBounce 1.3s ease-in-out infinite;
+}
+
+/* 말풍선 꼬리 */
+.danwoong-speech-bubble::after {
+    content: "";
+    position: absolute;
+    left: 24px;
+    bottom: -16px;
+
+    width: 0;
+    height: 0;
+
+    border-top: 16px solid rgba(255, 255, 255, 0.96);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+
+/* 친구 요청이 있을 때만 표시 */
+.danwoong-speech-bubble.active {
+    display: block;
+}
+
+@keyframes speechBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
