@@ -22,7 +22,8 @@ import java.util.List;
         "member_count",
         "total_todo_count",
         "completed_todo_count",
-        "leader_id"
+        "leader_id",
+        "updated_at"
 })
 public class TodoGroupSummaryResponse {
 
@@ -68,6 +69,9 @@ public class TodoGroupSummaryResponse {
     @JsonProperty("leader_id")
     private Long leaderId;
 
+    @JsonProperty("updated_at")
+    private LocalDate updatedAt;
+
     public TodoGroupSummaryResponse(
             Long groupId,
             String groupName,
@@ -82,7 +86,8 @@ public class TodoGroupSummaryResponse {
             int memberCount,
             int totalTodoCount,
             int completedTodoCount,
-            Long leaderId
+            Long leaderId,
+            LocalDate updatedAt
     ) {
         this.groupId = groupId;
         this.groupName = groupName;
@@ -98,6 +103,7 @@ public class TodoGroupSummaryResponse {
         this.totalTodoCount = totalTodoCount;
         this.completedTodoCount = completedTodoCount;
         this.leaderId = leaderId;
+        this.updatedAt = updatedAt;
     }
 
     public Long getGroupId() {
@@ -154,5 +160,9 @@ public class TodoGroupSummaryResponse {
 
     public Long getLeaderId() {
         return leaderId;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
     }
 }

@@ -2,9 +2,8 @@ let allGroups = [];
 let friends = [];
 let selectedAssignees = [];
 let selectedColor = "#4CAF7D";
-let selectedCategory = "school";
-let selectedIcon = "S";
 let activeProjectMenuGroupId = null;
+let sortProjectOrder = "recent";
 
 function setCurrentGroupId(groupId) {
     if (!groupId) {
@@ -92,15 +91,15 @@ function buildMemberAvatars(group) {
     const members = Array.isArray(group.members) ? group.members : [];
     const visibleMembers = members.slice(0, 3).map((member) => {
         if (member.profile_image) {
-            return `<div class="member-avatar"><img src="${member.profile_image}" alt="${member.nickname || "member"}"></div>`;
+            return `<div class="member-avatar" title="${member.nickname || "member"}"><img src="${member.profile_image}" alt="${member.nickname || "member"}"></div>`;
         }
 
         const initial = (member.nickname || "?").trim().charAt(0) || "?";
-        return `<div class="member-avatar member-avatar--empty">${initial}</div>`;
+        return `<div class="member-avatar member-avatar--empty" title="${member.nickname || "member"}">${initial}</div>`;
     }).join("");
 
     const extraCount = Math.max((group.member_count || 0) - Math.min(members.length, 3), 0);
-    const extra = extraCount > 0 ? `<div class="member-more">+${extraCount}</div>` : "";
+    const extra = extraCount > 0 ? `<div class="member-more" title="나머지 멤버 보기">+${extraCount}</div>` : "";
     return visibleMembers + extra;
 }
 
@@ -126,10 +125,10 @@ function createProjectCard(group) {
         dday ? `      <span class="project-dday">${dday}</span>` : "",
         "  </div>",
         '  <div class="project-progress-block">',
-        `      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>`,
-        `      <span class="project-percent">${progress} %</span>`,
+        `      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; ${getGroupIconStyle(group)}"></div></div>`,
+        `      <span class="project-percent">${progress}% (${group.completed_todo_count || 0}/${group.total_todo_count || 0})</span>`,
         "  </div>",
-        `  <div class="member-avatars">${buildMemberAvatars(group)}</div>`,
+        `  <div class="member-avatars" onclick="event.stopPropagation(); alert('담당자: ' + '${(group.members || []).map(m=>m.nickname).join(', ')}')">${buildMemberAvatars(group)}</div>`,
         `  <div class="project-priority"><span class="project-priority-flag">&#9873;</span><span>${priority}</span></div>`,
         `  <button class="project-more" type="button" data-group-id="${group.group_id}" aria-label="프로젝트 메뉴">&#8942;</button>`,
         "</div>"
@@ -157,7 +156,21 @@ function showProjectContextMenu(button) {
     }
 
     const rect = button.getBoundingClientRect();
-    activeProjectMenuGroupId = Number(button.dataset.groupId);
+    const groupId = Number(button.dataset.groupId);
+    activeProjectMenuGroupId = groupId;
+    
+    // 100% 진행된 프로젝트만 '프로젝트 완료' 버튼 표시
+    const group = allGroups.find(g => g.group_id === groupId);
+    const progress = group ? getProgressPercent(group) : 0;
+    const completeBtn = document.getElementById("completeProjectAction");
+    if (completeBtn) {
+        if (progress >= 100 && group.total_todo_count > 0) {
+            completeBtn.style.display = "block";
+        } else {
+            completeBtn.style.display = "none";
+        }
+    }
+
     menu.style.left = `${Math.max(16, rect.right - 112)}px`;
     menu.style.top = `${rect.bottom + 6}px`;
     menu.classList.remove("hidden");
@@ -199,6 +212,45 @@ async function deleteProject(groupId) {
     } catch (error) {
         console.error(error);
         alert("프로젝트를 삭제하지 못했습니다.");
+    }
+}
+
+async function completeProject(groupId) {
+    if (!groupId) return;
+
+    const targetGroup = allGroups.find((group) => group.group_id === groupId);
+    const groupName = targetGroup?.group_name || "이 프로젝트";
+
+    if (!window.confirm(`${groupName} 프로젝트를 완료 처리하시겠습니까?`)) {
+        return;
+    }
+
+    try {
+        // Find existing data to preserve other fields
+        const body = {
+            group_name: targetGroup.group_name,
+            group_icon_url: targetGroup.group_color ? JSON.stringify({color: targetGroup.group_color}) : null,
+            group_category: targetGroup.group_category,
+            deadline: targetGroup.deadline,
+            priority: targetGroup.priority,
+            status: "COMPLETED"
+        };
+
+        await fetchTodoJson(`/todo-groups/${groupId}`, {
+            method: "PATCH",
+            headers: getTodoAuthHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        const currentGroupId = Number(localStorage.getItem("currentGroupId") || 0);
+        if (currentGroupId === Number(groupId)) {
+            clearCurrentGroupId();
+        }
+
+        await loadProjects();
+    } catch (error) {
+        console.error(error);
+        alert("프로젝트를 완료 처리하지 못했습니다. 팀장 권한이 필요할 수 있습니다.");
     }
 }
 
@@ -245,8 +297,8 @@ function bindProjectAddButton() {
 async function loadProjects() {
     try {
         const data = await fetchTodoJson("/todo-groups");
-        // 진행률 100% 미만이고 상태가 COMPLETED가 아닌 것만 진행 중에 표시
-        allGroups = (data?.groups || []).filter(g => getProgressPercent(g) < 100 && g.status !== 'COMPLETED');
+        // 상태가 COMPLETED가 아닌 것만 진행 중에 표시
+        allGroups = (data?.groups || []).filter(g => g.status !== 'COMPLETED');
 
         const savedGroupId = Number(localStorage.getItem("currentGroupId") || 0);
         const hasSavedGroup = allGroups.some((group) => group.group_id === savedGroupId);
@@ -257,48 +309,54 @@ async function loadProjects() {
             clearCurrentGroupId();
         }
 
-        renderProjects(allGroups);
+        sortAndRenderProjects();
     } catch (error) {
         console.error(error);
         renderStatusMessage("프로젝트 목록을 불러오지 못했습니다.");
     }
 }
 
-function resetColorSelection() {
+function sortAndRenderProjects() {
+    const sorted = [...allGroups].sort((a, b) => {
+        if (sortProjectOrder === "recent") {
+            return b.group_id - a.group_id;
+        } else if (sortProjectOrder === "oldest") {
+            return a.group_id - b.group_id;
+        } else if (sortProjectOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.group_id - a.group_id;
+            return timeA - timeB;
+        }
+        return 0;
+    });
+    renderProjects(sorted);
+}
+
+function clearColorSelection() {
     document.querySelectorAll(".color-dot").forEach((dot) => {
         dot.classList.remove("active");
         dot.textContent = "";
-    });
-
-    const defaultDot = document.querySelector('.color-dot[data-color="#4CAF7D"]');
-    if (defaultDot) {
-        defaultDot.classList.add("active");
-        defaultDot.textContent = "✓";
-    }
-}
-
-function resetCategorySelection() {
-    selectedCategory = "school";
-    selectedIcon = "S";
-
-    document.querySelectorAll(".category-btn").forEach((button, index) => {
-        button.classList.toggle("active", index === 0);
     });
 }
 
 function closeModal() {
     document.getElementById("modalOverlay")?.classList.remove("open");
     document.getElementById("groupName").value = "";
-    document.getElementById("groupDesc").value = "";
     document.getElementById("groupDeadline").value = "";
     document.getElementById("groupGarlic").value = "";
     document.getElementById("nameCount").textContent = "0";
-    document.getElementById("descCount").textContent = "0";
 
     selectedAssignees = [];
     selectedColor = "#4CAF7D";
-    resetColorSelection();
-    resetCategorySelection();
+    clearColorSelection();
+    
+    const defaultDot = document.querySelector('.color-dot[data-color="#4CAF7D"]');
+    if (defaultDot) {
+        defaultDot.classList.add("active");
+        defaultDot.textContent = "✓";
+    }
+    
     renderAssignees();
 }
 
@@ -318,22 +376,9 @@ function bindModalEvents() {
         document.getElementById("nameCount").textContent = String(event.target.value.length);
     });
 
-    document.getElementById("groupDesc")?.addEventListener("input", (event) => {
-        document.getElementById("descCount").textContent = String(event.target.value.length);
-    });
-
-    document.querySelectorAll(".category-btn").forEach((button) => {
-        button.addEventListener("click", () => {
-            document.querySelectorAll(".category-btn").forEach((item) => item.classList.remove("active"));
-            button.classList.add("active");
-            selectedCategory = button.dataset.category || "school";
-            selectedIcon = button.dataset.icon || "S";
-        });
-    });
-
     document.querySelectorAll(".color-dot").forEach((button) => {
         button.addEventListener("click", () => {
-            resetColorSelection();
+            clearColorSelection();
             button.classList.add("active");
             button.textContent = "✓";
             selectedColor = button.dataset.color || "#4CAF7D";
@@ -446,17 +491,23 @@ async function createProject() {
         return;
     }
 
+    const garlicValue = document.getElementById("groupGarlic").value.trim();
+    if (!garlicValue) {
+        alert("마늘 개수를 입력해주세요.");
+        return;
+    }
+
     const body = {
         group_name: groupName,
         deadline: document.getElementById("groupDeadline").value || null,
-        priority: document.getElementById("groupPriority").value,
+        priority: "MEDIUM",
         invitee_ids: selectedAssignees.map((assignee) => assignee.id),
-        group_category: selectedCategory,
+        group_category: "etc",
         group_icon_url: JSON.stringify({
-            icon: selectedIcon,
+            icon: "S",
             color: selectedColor
         }),
-        total_garlic_reward: Number(document.getElementById("groupGarlic").value || 0)
+        total_garlic_reward: Number(garlicValue)
     };
 
     try {
@@ -491,6 +542,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("btnSubmit")?.addEventListener("click", createProject);
 
+    document.getElementById("completeProjectAction")?.addEventListener("click", async () => {
+        const groupId = activeProjectMenuGroupId;
+        hideProjectContextMenu();
+        await completeProject(groupId);
+    });
+
     document.getElementById("deleteProjectAction")?.addEventListener("click", async () => {
         const groupId = activeProjectMenuGroupId;
         hideProjectContextMenu();
@@ -502,4 +559,12 @@ document.addEventListener("DOMContentLoaded", () => {
             hideProjectContextMenu();
         }
     });
+
+    const sortProjectSelect = document.getElementById("sortProjectSelect");
+    if (sortProjectSelect) {
+        sortProjectSelect.addEventListener("change", (e) => {
+            sortProjectOrder = e.target.value;
+            sortAndRenderProjects();
+        });
+    }
 });

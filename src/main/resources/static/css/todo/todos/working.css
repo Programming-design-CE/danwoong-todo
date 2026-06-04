@@ -125,14 +125,14 @@
     max-width: 150px;
     height: 7px;
     border-radius: 999px;
-    background: #5a544d;
+    background: #2b2723;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
     border-radius: 999px;
-    background: #7b756d;
+    background: linear-gradient(90deg, #c9a55a, #e8c87a);
 }
 
 .project-percent {
