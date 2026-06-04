@@ -29,14 +29,20 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 520px;
+
+    width: 42vw;
+    max-width: 760px;
+    min-width: 520px;
     height: 100vh;
+
     background: #fdf6e3;
     z-index: 9998;
-    transition: transform .3s cubic-bezier(.4,0,.2,1), z-index 0s .3s;
+
     display: flex;
     flex-direction: column;
+
     box-shadow: -8px 0 32px rgba(0,0,0,.4);
+
     transform: translateX(100%);
     transition: transform .3s cubic-bezier(.4,0,.2,1);
 }
