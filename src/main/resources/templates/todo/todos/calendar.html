@@ -28,7 +28,14 @@
                     <select class="calendar-filter-select" id="calendarGroupFilter" aria-label="프로젝트 필터">
                         <option value="all">전체</option>
                     </select>
-                    <button class="calendar-today-btn" id="calendarTodayBtn" type="button">오늘</button>
+                    <div class="calendar-view-toggle" role="tablist" aria-label="calendar view">
+                        <button class="calendar-view-btn is-active" id="calendarAssignedBtn" type="button" data-view="assigned">
+                            나한테 배정된 할일
+                        </button>
+                        <button class="calendar-view-btn" id="calendarGroupBtn" type="button" data-view="group">
+                            프로젝트 전체 일정
+                        </button>
+                    </div>
                 </div>
             </section>
 

@@ -44,7 +44,7 @@
 }
 
 .calendar-filter-select,
-.calendar-today-btn {
+.calendar-view-btn {
     height: 40px;
     padding: 0 16px;
     border: 1px solid #38332d;
@@ -61,9 +61,29 @@
     cursor: pointer;
 }
 
-.calendar-today-btn {
-    min-width: 80px;
+.calendar-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px;
+    border: 1px solid #38332d;
+    border-radius: 18px;
+    background: #24201d;
+}
+
+.calendar-view-btn {
+    min-width: 152px;
+    border-radius: 14px;
+    background: transparent;
+    color: #bfb7ad;
     cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-view-btn.is-active {
+    border-color: #5b4a31;
+    background: #3a2f21;
+    color: #f6ead7;
 }
 
 .calendar-board {
