@@ -150,6 +150,7 @@ function showTodoDetailModal(todo) {
 }
 
 let todos = [];
+let sortGroupTodoOrder = "recent";
 let friendList = [];
 let currentProjectMembers = [];
 let tempProjectMembers = [];
@@ -656,13 +657,30 @@ async function loadTodos() {
         todos = Array.isArray(data?.todos) ? data.todos : [];
         syncProjectMembersFromTodos();
         renderGroupMemberAvatars();
-        renderTodoList();
+        sortAndRenderTodoList();
     } catch (error) {
         console.error(error);
         todos = [];
         renderEmptyTodoState("할 일 목록을 불러오지 못했습니다.");
         alert("할 일 목록을 불러오지 못했습니다.");
     }
+}
+
+function sortAndRenderTodoList() {
+    todos.sort((a, b) => {
+        if (sortGroupTodoOrder === "recent") {
+            return b.todo_id - a.todo_id;
+        } else if (sortGroupTodoOrder === "oldest") {
+            return a.todo_id - b.todo_id;
+        } else if (sortGroupTodoOrder === "deadline") {
+            const timeA = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+            const timeB = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+            if (timeA === timeB) return b.todo_id - a.todo_id;
+            return timeA - timeB;
+        }
+        return 0;
+    });
+    renderTodoList();
 }
 
 async function loadMemo() {
@@ -1209,6 +1227,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("memoTextarea")?.addEventListener("input", autoSaveMemo);
     document.getElementById("addTodoBtn")?.addEventListener("click", () => openModal("add"));
+
+    const sortSelect = document.getElementById("filterSortSelect");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", (e) => {
+            sortGroupTodoOrder = e.target.value;
+            sortAndRenderTodoList();
+        });
+    }
 
     document.getElementById("modalCloseBtn")?.addEventListener("click", closeModal);
     document.getElementById("modalCancelBtn")?.addEventListener("click", closeModal);
