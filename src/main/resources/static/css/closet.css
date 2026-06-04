@@ -118,15 +118,15 @@ body {
 .equipped-layer--hat {
     width: 52%;
     left: 50%;
-    top: -5%;
+    top: -30%;
     transform: translateX(-50%);
     z-index: 6;
 }
 
 .equipped-layer--accessory {
     width: 36%;
-    left: 50%;
-    top: 16%;
+    left: 48%;
+    top: -3%;
     transform: translateX(-50%);
     z-index: 6;
 }
@@ -134,7 +134,7 @@ body {
 .equipped-layer--clothes {
     width: 58%;
     left: 50%;
-    bottom: -2%;
+    bottom: 20%;
     transform: translateX(-50%);
     z-index: 5;
 }
@@ -142,7 +142,7 @@ body {
 .equipped-layer--face {
     width: 32%;
     left: 50%;
-    top: 16%;
+    top: 30%;
     transform: translateX(-50%);
     z-index: 6;
 }
@@ -208,6 +208,40 @@ body {
 .closet-item:hover {
     transform: translateY(-4px);
     filter: brightness(1.12);
+}
+
+/* 착용 중 아이템 카드 강조 */
+.closet-item--equipped {
+    filter: drop-shadow(0 0 6px rgba(255, 220, 80, 0.85));
+}
+
+.closet-item--equipped:hover {
+    filter: drop-shadow(0 0 6px rgba(255, 220, 80, 0.85)) brightness(1.12);
+}
+
+/* 이미지 + 뱃지를 감싸는 래퍼 */
+.item-card-inner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 착용 중 뱃지 */
+.equipped-badge {
+    position: absolute;
+    right: -6px;
+    top: -6px;
+    background: #f5c518;
+    color: #1a1a1a;
+    font-size: 10px;
+    font-family: inherit;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    pointer-events: none;
 }
 
 .item-image {
