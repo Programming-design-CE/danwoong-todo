@@ -4,7 +4,10 @@ import lombok.*;
 
 public class ClosetDto {
 
-    @Getter @Builder
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class InventoryItemResponse {
         private Long itemId;
         private String itemName;
@@ -13,7 +16,10 @@ public class ClosetDto {
         private Integer quantity;
     }
 
-    @Getter @Builder
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EquippedItemResponse {
         private Long itemId;
         private String itemName;
@@ -21,21 +27,45 @@ public class ClosetDto {
         private String itemImage;
     }
 
-    @Getter @NoArgsConstructor @AllArgsConstructor
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EquipRequest {
         private Long itemId;
-        private String slotType;  // HAT, CLOTHES, ACCESSORY, BACKGROUND, color
+        private String slotType;
     }
 
-    @Getter @Builder
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EquipResponse {
         private Long characterId;
         private String characterThumbnailUrl;
     }
 
-    @Getter @Builder
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UseItemResponse {
         private Long itemId;
         private Integer quantity;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UnequipRequest {
+        private Long itemId;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UnequipResponse {
+        private Long itemId;
+        private String message;
     }
 }

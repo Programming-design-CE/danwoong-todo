@@ -218,9 +218,9 @@ function getSlotType(itemType) {
 }
 
 async function equipItem(item) {
-    // 이미 착용 중이면 중복 착용 방지
+    // 이미 착용 중이면 → 해제
     if (equippedItemIds.has(getItemId(item))) {
-        alert(`${getItemName(item)}은(는) 이미 착용 중입니다.`);
+        await unequipItem(item);
         return;
     }
 
@@ -246,6 +246,21 @@ async function equipItem(item) {
     } catch (error) {
         console.error(error);
         alert(error.message || "아이템 착용에 실패했습니다.");
+    }
+}
+
+async function unequipItem(item) {
+    try {
+        await requestAuthApi("/closet/equipped-items", {
+            method: "DELETE",
+            body: JSON.stringify({ itemId: getItemId(item) })
+        });
+
+        await loadEquippedItems();
+        await loadClosetItems();
+    } catch (error) {
+        console.error(error);
+        alert(error.message || "아이템 해제에 실패했습니다.");
     }
 }
 

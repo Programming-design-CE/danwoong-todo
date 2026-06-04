@@ -5,11 +5,14 @@ import com.danwoog.todo.dto.closet.ClosetDto.EquipRequest;
 import com.danwoog.todo.dto.closet.ClosetDto.EquipResponse;
 import com.danwoog.todo.dto.closet.ClosetDto.EquippedItemResponse;
 import com.danwoog.todo.dto.closet.ClosetDto.InventoryItemResponse;
+import com.danwoog.todo.dto.closet.ClosetDto.UnequipRequest;
+import com.danwoog.todo.dto.closet.ClosetDto.UnequipResponse;
 import com.danwoog.todo.dto.closet.ClosetDto.UseItemResponse;
 import com.danwoog.todo.service.ClosetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +51,16 @@ public class ClosetController {
     ) {
         return ResponseEntity.ok(
                 ApiResponse.ok(closetService.equipItem(getLoginUserId(authentication), request))
+        );
+    }
+
+    @DeleteMapping("/equipped-items")
+    public ResponseEntity<ApiResponse<UnequipResponse>> unequipItem(
+            Authentication authentication,
+            @RequestBody UnequipRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(closetService.unequipItem(getLoginUserId(authentication), request))
         );
     }
 
