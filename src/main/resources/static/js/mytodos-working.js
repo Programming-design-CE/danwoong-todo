@@ -152,10 +152,25 @@ function showModal(todo) {
     overlay.classList.add("active");
 }
 
+let myTodosList = [];
+let sortOrder = "desc";
+
+function sortAndRenderTodos() {
+    const sorted = [...myTodosList].sort((a, b) => {
+        if (sortOrder === "desc") {
+            return b.todo_id - a.todo_id;
+        } else {
+            return a.todo_id - b.todo_id;
+        }
+    });
+    renderTodos(sorted);
+}
+
 async function loadMyTodos() {
     try {
         const data = await fetchTodoJson("/todos/my");
-        renderTodos(data?.todos || []);
+        myTodosList = data?.todos || [];
+        sortAndRenderTodos();
     } catch (e) {
         console.error(e);
         const list = document.getElementById("mytodoList");
@@ -173,6 +188,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         overlay.addEventListener("click", (e) => {
             if (e.target === overlay) overlay.classList.remove("active");
+        });
+    }
+
+    const sortBtn = document.getElementById("sortBtn");
+    if (sortBtn) {
+        sortBtn.addEventListener("click", () => {
+            sortOrder = sortOrder === "desc" ? "asc" : "desc";
+            sortBtn.innerHTML = (sortOrder === "desc" ? "최신 순" : "오래된 순") + ' <span class="filter-caret">∨</span>';
+            sortAndRenderTodos();
         });
     }
 });

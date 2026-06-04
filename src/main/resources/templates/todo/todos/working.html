@@ -18,10 +18,7 @@
             <div th:replace="~{todo/fragments/tabs :: tabs('todos', 'working', '4', '2')}"></div>
 
             <div class="filter-bar">
-                <button class="filter-btn" type="button">
-                    전체 카테고리 <span class="filter-caret">▾</span>
-                </button>
-                <button class="filter-btn" type="button">
+                <button class="filter-btn" id="sortProjectBtn" type="button">
                     최근 추가순 <span class="filter-caret">▾</span>
                 </button>
             </div>
@@ -52,28 +49,12 @@
             <div class="char-count"><span id="nameCount">0</span>/50</div>
         </div>
 
-        <div class="form-group">
-            <label class="form-label" for="groupDesc">설명</label>
-            <textarea id="groupDesc" class="form-input" placeholder="프로젝트 설명을 입력하세요." maxlength="200" rows="3"></textarea>
-            <div class="char-count"><span id="descCount">0</span>/200</div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group" style="margin-bottom: 0; position: relative;">
-                <label class="form-label">담당자</label>
-                <div class="assignee-wrap" id="assigneeWrap">
-                    <button class="btn-add-assignee" id="btnAddAssignee" type="button">+</button>
-                </div>
-                <div class="friend-picker" id="friendPicker"></div>
+        <div class="form-group" style="margin-top: 16px; position: relative;">
+            <label class="form-label">담당자</label>
+            <div class="assignee-wrap" id="assigneeWrap">
+                <button class="btn-add-assignee" id="btnAddAssignee" type="button">+</button>
             </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="groupPriority">우선순위</label>
-                <select class="priority-select" id="groupPriority">
-                    <option value="LOW">낮음</option>
-                    <option value="MEDIUM" selected>보통</option>
-                    <option value="HIGH">높음</option>
-                </select>
-            </div>
+            <div class="friend-picker" id="friendPicker"></div>
         </div>
 
         <div class="form-row" style="margin-top: 16px;">
@@ -84,17 +65,6 @@
             <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" for="groupGarlic">마늘 개수</label>
                 <input id="groupGarlic" type="number" class="form-input" placeholder="보상을 입력하세요." min="0">
-            </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 16px;">
-            <label class="form-label">카테고리</label>
-            <div class="category-list">
-                <button class="category-btn active" type="button" data-category="school" data-icon="S">학교</button>
-                <button class="category-btn" type="button" data-category="activity" data-icon="A">대외활동</button>
-                <button class="category-btn" type="button" data-category="study" data-icon="T">스터디</button>
-                <button class="category-btn" type="button" data-category="personal" data-icon="P">개인</button>
-                <button class="category-btn" type="button" data-category="etc" data-icon="E">기타</button>
             </div>
         </div>
 
@@ -121,6 +91,7 @@
 </div>
 
 <div class="project-context-menu hidden" id="projectContextMenu">
+    <button class="project-context-item project-context-item--success" id="completeProjectAction" type="button" style="color: #4CAF7D;">프로젝트 완료</button>
     <button class="project-context-item project-context-item--danger" id="deleteProjectAction" type="button">삭제</button>
 </div>
 </body>

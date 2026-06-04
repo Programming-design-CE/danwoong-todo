@@ -18,8 +18,7 @@
             <div th:replace="~{todo/fragments/tabs :: tabs('mytodos', 'working', '0', '0')}"></div>
 
             <div class="filter-bar">
-                <button class="filter-btn" type="button">전체 카테고리 <span class="filter-caret">∨</span></button>
-                <button class="filter-btn" type="button">최신 순 <span class="filter-caret">∨</span></button>
+                <button class="filter-btn" id="sortBtn" type="button">최신 순 <span class="filter-caret">∨</span></button>
             </div>
 
             <div class="mytodo-scroll-area">

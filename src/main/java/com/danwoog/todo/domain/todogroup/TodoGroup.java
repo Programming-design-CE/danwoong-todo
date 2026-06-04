@@ -220,4 +220,8 @@ public class TodoGroup {
     public Integer getRemainingGarlicReward() {
         return remainingGarlicReward;
     }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

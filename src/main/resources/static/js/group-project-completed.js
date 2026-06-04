@@ -27,15 +27,18 @@ function formatEndDate(deadline) {
 
 function buildMemberAvatars(group) {
     const members = Array.isArray(group.members) ? group.members : [];
-    const visible = members.slice(0, 3).map((m) => {
-        const initial = (m.nickname || "?").trim().charAt(0);
-        if (m.profile_image) {
-            return `<div class="member-avatar"><img src="${m.profile_image}" alt="${m.nickname || ""}"></div>`;
+    const visibleMembers = members.slice(0, 3).map((member) => {
+        if (member.profile_image) {
+            return `<div class="member-avatar" title="${member.nickname || "member"}"><img src="${member.profile_image}" alt="${member.nickname || "member"}"></div>`;
         }
-        return `<div class="member-avatar member-avatar--empty">${initial}</div>`;
+
+        const initial = getAvatarInitial(member.nickname || "?");
+        return `<div class="member-avatar member-avatar--empty" title="${member.nickname || "member"}">${initial}</div>`;
     }).join("");
-    const extra = Math.max((group.member_count || 0) - Math.min(members.length, 3), 0);
-    return visible + (extra > 0 ? `<div class="member-more">+${extra}</div>` : "");
+
+    const extraCount = Math.max((group.member_count || 0) - Math.min(members.length, 3), 0);
+    const extra = extraCount > 0 ? `<div class="member-more" title="나머지 멤버 보기">+${extraCount}</div>` : "";
+    return visibleMembers + extra;
 }
 
 function getGroupIconStyle(group) {
@@ -69,7 +72,7 @@ window.deleteCompletedProject = async function(groupId) {
 
 /* ---- 프로젝트 카드 렌더 ---- */
 function createCompletedCard(group) {
-    const endDate = formatEndDate(group.deadline);
+    const endDate = formatEndDate(group.updated_at);
     const hasLeaderInfo = group.leader_id != null && currentUser != null;
     const isLeader = !hasLeaderInfo || currentUser.user_id === group.leader_id;
     // 마늘 예산이 0이 되면 분배가 완료된 것으로 간주 (총 마늘이 0 이상일 때)
@@ -105,10 +108,10 @@ function createCompletedCard(group) {
             ${endDate ? `<div class="project-end-date">${endDate}</div>` : ""}
         </div>
         <div class="project-progress-block">
-            <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:100%; ${getGroupIconStyle(group)}"></div></div>
             <span class="project-percent">100 %</span>
         </div>
-        <div class="member-avatars">${buildMemberAvatars(group)}</div>
+        <div class="member-avatars" onclick="event.stopPropagation(); alert('담당자: ' + '${(group.members || []).map(m=>m.nickname).join(', ')}')">${buildMemberAvatars(group)}</div>
         <div class="project-actions-right">
             ${actionUI}
         </div>
@@ -138,29 +141,29 @@ async function loadCurrentUser() {
     }
 }
 
+let sortCompletedOrder = "desc";
+
+function sortAndRenderCompletedGroups() {
+    const sorted = [...completedGroups].sort((a, b) => {
+        if (sortCompletedOrder === "desc") {
+            return b.group_id - a.group_id;
+        } else {
+            return a.group_id - b.group_id;
+        }
+    });
+    renderCompletedProjects(sorted);
+}
+
 async function loadCompletedGroups() {
     try {
-        const data = await fetchTodoJson("/todo-groups?status=COMPLETED");
-        completedGroups = data?.groups || [];
-    } catch (_) {
-        // COMPLETED 필터 미지원 시 전체에서 필터링
-        try {
-            const data = await fetchTodoJson("/todo-groups");
-            const all = data?.groups || [];
-            // progress 100% (할 일 개수 기준) 또는 status == COMPLETED 인 것
-            completedGroups = all.filter((g) => {
-                const total = Number(g.total_todo_count || 0);
-                const completed = Number(g.completed_todo_count || 0);
-                if (g.status === 'COMPLETED') return true;
-                if (total <= 0) return false;
-                return Math.round((completed / total) * 100) >= 100;
-            });
-        } catch (e) {
-            console.error("프로젝트 목록 로드 실패", e);
-            completedGroups = [];
-        }
+        const data = await fetchTodoJson("/todo-groups");
+        const all = data?.groups || [];
+        completedGroups = all.filter((g) => g.status === 'COMPLETED');
+    } catch (e) {
+        console.error("프로젝트 목록 로드 실패", e);
+        completedGroups = [];
     }
-    renderCompletedProjects(completedGroups);
+    sortAndRenderCompletedGroups();
 }
 
 /* ==========================================
@@ -406,6 +409,16 @@ function bindEvents() {
 
     /* 분배 제출 */
     document.getElementById("garlicModalSubmit")?.addEventListener("click", submitGarlicDistribution);
+
+    /* 정렬 버튼 */
+    const sortBtn = document.getElementById("sortCompletedProjectBtn");
+    if (sortBtn) {
+        sortBtn.addEventListener("click", () => {
+            sortCompletedOrder = sortCompletedOrder === "desc" ? "asc" : "desc";
+            sortBtn.innerHTML = (sortCompletedOrder === "desc" ? "최근 완료순" : "오래된 순") + ' <span class="filter-caret">▾</span>';
+            sortAndRenderCompletedGroups();
+        });
+    }
 }
 
 /* ---- 초기화 ---- */

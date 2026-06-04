@@ -96,7 +96,11 @@ function showTodoDetailModal(todo) {
     }
 
     const pct = getProgressPercent(todo) || 0;
-    overlay.querySelector(".mtm-progress-fill").style.width = pct + "%";
+    const fillEl = overlay.querySelector(".mtm-progress-fill");
+    fillEl.style.width = pct + "%";
+    if (currentGroupIconStyle) {
+        fillEl.style.background = currentGroupIconStyle.replace("background:", "").replace(";", "");
+    }
     overlay.querySelector(".mtm-progress-pct").textContent = Math.floor(pct) + "%";
     overlay.querySelector(".mtm-progress-pct-right").textContent = Math.floor(pct) + "%";
 
@@ -149,6 +153,7 @@ let todos = [];
 let friendList = [];
 let currentProjectMembers = [];
 let tempProjectMembers = [];
+let currentGroupIconStyle = "";
 
 let isLeader = false;
 let editingTodoId = null;
@@ -523,7 +528,7 @@ function renderTodoList() {
                 <span class="todo-deadline">${formatDeadline(todo.deadline)}</span>
             </div>
             <div class="todo-progress">
-                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${progress}%; ${currentGroupIconStyle}"></div></div>
                 <span class="progress-text">${progress}%</span>
             </div>
             <div class="todo-assignees">${assigneeHtml}${moreHtml}</div>
@@ -596,6 +601,18 @@ async function loadGroupContext() {
     const group = data.groups.find((item) => item.group_id === currentGroupId);
     if (!group) {
         return;
+    }
+
+    if (group.group_color) {
+        currentGroupIconStyle = `background:${group.group_color};`;
+    } else if (group.group_icon_url) {
+        try {
+            const parsed = JSON.parse(group.group_icon_url);
+            if (parsed.color) {
+                currentGroupIconStyle = `background:${parsed.color};`;
+            }
+        } catch (error) {
+        }
     }
 
     const groupName = document.getElementById("groupName");
@@ -764,7 +781,19 @@ function updateAssigneeDisplay() {
         const avatar = document.createElement("div");
         avatar.className = "assignee-selected";
         avatar.textContent = getAvatarInitial(member.nickname);
-        avatar.title = member.nickname;
+        avatar.title = member.nickname + " (클릭하여 삭제)";
+        avatar.style.cursor = "pointer";
+        
+        avatar.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectedAssignees = selectedAssignees.filter(id => id !== userId);
+            updateAssigneeDisplay();
+            updateDistribution();
+            if (!document.getElementById("assigneeDropdown").classList.contains("hidden")) {
+                renderAssigneeOptions();
+            }
+        });
+
         area.insertBefore(avatar, addButton);
     });
 }
@@ -872,7 +901,8 @@ function renderAssigneeOptions() {
             `;
 
             option.addEventListener("click", () => {
-                if (isSelected) {
+                const alreadySelected = selectedAssignees.includes(member.user_id);
+                if (alreadySelected) {
                     selectedAssignees = selectedAssignees.filter((id) => id !== member.user_id);
                 } else {
                     selectedAssignees.push(member.user_id);
