@@ -546,7 +546,7 @@ body {
     z-index: 6;
 }
 
-.main-equipped-layer--accessory[src*="shop_accessory_notebook.svg"] {
+.main-equipped-layer[src*="shop_accessory_notebook.svg"] {
     width: 58%;
     top: auto;
     bottom: 58%;
@@ -587,14 +587,6 @@ body {
     z-index: 6;
 }
 
-.main-equipped-layer--clothes {
-    width: 120%;
-    left: 50%;
-    bottom: -2%;
-    transform: translateX(-50%);
-    z-index: 5;
-}
-
 .main-equipped-layer--accessory {
     width: 36%;
     left: 48%;
@@ -617,4 +609,5 @@ body {
     top: 30%;
     transform: translateX(-50%);
     z-index: 6;
+}
 }
