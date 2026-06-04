@@ -11,6 +11,7 @@ const calendarState = {
     viewMonth: 0,
     selectedDate: "",
     selectedGroup: "all",
+    viewMode: "assigned",
     monthDays: []
 };
 
@@ -299,7 +300,9 @@ async function loadCalendarMonth() {
 
     try {
         const data = await fetchTodoJson(
-            "/calendar/month?year=" + calendarState.viewYear + "&month=" + calendarState.viewMonth
+            "/calendar/month?year=" + calendarState.viewYear
+            + "&month=" + calendarState.viewMonth
+            + "&view=" + encodeURIComponent(calendarState.viewMode)
         );
         calendarState.monthDays = Array.isArray(data?.days) ? data.days : [];
         renderGroupFilter();
@@ -332,21 +335,24 @@ function moveCalendarMonth(offset) {
 function bindCalendarControls() {
     document.getElementById("calendarPrevBtn")?.addEventListener("click", () => moveCalendarMonth(-1));
     document.getElementById("calendarNextBtn")?.addEventListener("click", () => moveCalendarMonth(1));
-    document.getElementById("calendarTodayBtn")?.addEventListener("click", () => {
-        const today = getTodayParts();
-        calendarState.viewYear = today.year;
-        calendarState.viewMonth = today.month;
-        calendarState.selectedDate = [
-            today.year,
-            String(today.month).padStart(2, "0"),
-            String(today.day).padStart(2, "0")
-        ].join("-");
-        loadCalendarMonth();
-    });
-
     document.getElementById("calendarGroupFilter")?.addEventListener("change", (event) => {
         calendarState.selectedGroup = event.target.value;
         renderCalendarGrid();
+    });
+
+    document.querySelectorAll(".calendar-view-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const nextView = button.dataset.view || "assigned";
+            if (calendarState.viewMode === nextView) {
+                return;
+            }
+
+            calendarState.viewMode = nextView;
+            document.querySelectorAll(".calendar-view-btn").forEach((item) => {
+                item.classList.toggle("is-active", item.dataset.view === nextView);
+            });
+            loadCalendarMonth();
+        });
     });
 }
 
