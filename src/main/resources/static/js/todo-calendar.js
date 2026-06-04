@@ -44,10 +44,23 @@ function addDays(date, days) {
 }
 
 function formatMonthLabel(year, month) {
-    return year + "년 " + month + "월";
+    return `${year}년 ${month}월`;
 }
 
-function getCategoryColor(todo) {
+function escapeCalendarHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+function getTodoColor(todo) {
+    if (todo?.group_color) {
+        return todo.group_color;
+    }
+
     if (todo?.category && CALENDAR_CATEGORY_COLORS[todo.category]) {
         return CALENDAR_CATEGORY_COLORS[todo.category];
     }
@@ -71,12 +84,14 @@ function formatDetailDateTitle(isoDate) {
     return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 (${weekdays[date.getDay()]})`;
 }
 
+function isTodoVisible(todo) {
+    return calendarState.selectedGroup === "all" || String(todo.group_id) === calendarState.selectedGroup;
+}
+
 function getFilteredTodosByDate(isoDate) {
     const dayData = getCurrentMonthMap().get(isoDate);
     const todos = Array.isArray(dayData?.todos) ? dayData.todos : [];
-    return todos.filter((todo) => {
-        return calendarState.selectedGroup === "all" || todo.group_name === calendarState.selectedGroup;
-    });
+    return todos.filter(isTodoVisible);
 }
 
 function hideCalendarDetail() {
@@ -110,7 +125,7 @@ function renderCalendarDetail() {
             return [
                 '<a class="calendar-detail-item" href="' + detailHref + '">',
                 '  <div class="calendar-detail-item-main">',
-                '    <span class="calendar-detail-item-dot" style="background:' + getCategoryColor(todo) + '"></span>',
+                '    <span class="calendar-detail-item-dot" style="background:' + getTodoColor(todo) + '"></span>',
                 '    <div class="calendar-detail-item-text">',
                 '      <div class="calendar-detail-item-title">' + escapeCalendarHtml(todo.title || "") + '</div>',
                 '      <div class="calendar-detail-item-meta">' + meta + '</div>',
@@ -169,9 +184,7 @@ function buildCalendarCells() {
         const isCurrentMonth = cellDate.getMonth() + 1 === calendarState.viewMonth;
         const isToday = isoDate === todayIso;
         const isSelected = isoDate === calendarState.selectedDate;
-        const filteredTodos = (dayData.todos || []).filter((todo) => {
-            return calendarState.selectedGroup === "all" || todo.group_name === calendarState.selectedGroup;
-        });
+        const filteredTodos = (dayData.todos || []).filter(isTodoVisible);
         const visibleTodos = filteredTodos.slice(0, 3);
         const hiddenCount = Math.max(filteredTodos.length - visibleTodos.length, 0);
 
@@ -252,7 +265,7 @@ function renderCalendarGrid() {
 
             return [
                 '<div class="' + classes.join(" ") + '">',
-                '  <span class="calendar-dot" style="background:' + getCategoryColor(todo) + '"></span>',
+                '  <span class="calendar-dot" style="background:' + getTodoColor(todo) + '"></span>',
                 '  <span class="calendar-todo-title">' + escapeCalendarHtml(todo.title || "") + "</span>",
                 "</div>"
             ].join("");
@@ -318,41 +331,103 @@ function renderCalendarGrid() {
     });
 }
 
-function escapeCalendarHtml(value) {
-    return value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-}
-
-function renderGroupFilter() {
-    const select = document.getElementById("calendarGroupFilter");
-    if (!select) {
+function closeCalendarGroupMenu() {
+    const menu = document.getElementById("calendarGroupFilterMenu");
+    const button = document.getElementById("calendarGroupFilterBtn");
+    if (!menu || !button) {
         return;
     }
 
-    const groupNames = Array.from(new Set(
-        calendarState.monthDays
-            .flatMap((day) => (day.todos || []).map((todo) => todo.group_name))
-            .filter(Boolean)
-    ));
+    menu.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+}
 
-    const previousValue = calendarState.selectedGroup;
-    const options = ['<option value="all">전체</option>']
-        .concat(groupNames.map((groupName) => {
-            return '<option value="' + escapeCalendarHtml(groupName) + '">' + escapeCalendarHtml(groupName) + "</option>";
-        }));
+function openCalendarGroupMenu() {
+    const menu = document.getElementById("calendarGroupFilterMenu");
+    const button = document.getElementById("calendarGroupFilterBtn");
+    if (!menu || !button) {
+        return;
+    }
 
-    select.innerHTML = options.join("");
-    if (previousValue !== "all" && groupNames.includes(previousValue)) {
-        select.value = previousValue;
-        calendarState.selectedGroup = previousValue;
-    } else {
-        select.value = "all";
+    menu.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+}
+
+function toggleCalendarGroupMenu() {
+    const menu = document.getElementById("calendarGroupFilterMenu");
+    if (!menu) {
+        return;
+    }
+
+    if (menu.hidden) {
+        openCalendarGroupMenu();
+        return;
+    }
+
+    closeCalendarGroupMenu();
+}
+
+function renderGroupFilter() {
+    const label = document.getElementById("calendarGroupFilterLabel");
+    const menu = document.getElementById("calendarGroupFilterMenu");
+    if (!label || !menu) {
+        return;
+    }
+
+    const groupMap = new Map();
+    calendarState.monthDays.forEach((day) => {
+        (day.todos || []).forEach((todo) => {
+            if (!todo.group_id || !todo.group_name || groupMap.has(String(todo.group_id))) {
+                return;
+            }
+
+            groupMap.set(String(todo.group_id), {
+                id: String(todo.group_id),
+                name: todo.group_name,
+                color: getTodoColor(todo)
+            });
+        });
+    });
+
+    if (calendarState.selectedGroup !== "all" && !groupMap.has(calendarState.selectedGroup)) {
         calendarState.selectedGroup = "all";
     }
+
+    const selectedGroup = calendarState.selectedGroup === "all"
+        ? null
+        : groupMap.get(calendarState.selectedGroup);
+
+    label.textContent = selectedGroup ? selectedGroup.name : "전체";
+
+    const items = [
+        { id: "all", name: "전체", color: "#d9b171" },
+        ...Array.from(groupMap.values())
+    ];
+
+    menu.innerHTML = items.map((group) => {
+        const isSelected = calendarState.selectedGroup === group.id;
+        return [
+            '<button class="calendar-filter-item' + (isSelected ? ' is-selected' : '') + '" type="button" data-group-id="' + group.id + '">',
+            '  <span class="calendar-filter-item-main">',
+            '    <span class="calendar-filter-item-dot" style="background:' + group.color + '"></span>',
+            '    <span class="calendar-filter-item-label">' + escapeCalendarHtml(group.name) + '</span>',
+            '  </span>',
+            isSelected ? '  <span class="calendar-filter-item-check">✓</span>' : '',
+            '</button>'
+        ].join("");
+    }).join("");
+
+    menu.querySelectorAll(".calendar-filter-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            calendarState.selectedGroup = item.dataset.groupId || "all";
+            renderGroupFilter();
+            renderCalendarGrid();
+            if (calendarState.detailOpen) {
+                renderCalendarDetail();
+            }
+            closeCalendarGroupMenu();
+        });
+    });
 }
 
 function renderMonthLabel() {
@@ -425,12 +500,9 @@ function moveCalendarMonth(offset) {
 function bindCalendarControls() {
     document.getElementById("calendarPrevBtn")?.addEventListener("click", () => moveCalendarMonth(-1));
     document.getElementById("calendarNextBtn")?.addEventListener("click", () => moveCalendarMonth(1));
-    document.getElementById("calendarGroupFilter")?.addEventListener("change", (event) => {
-        calendarState.selectedGroup = event.target.value;
-        renderCalendarGrid();
-        if (calendarState.detailOpen) {
-            renderCalendarDetail();
-        }
+    document.getElementById("calendarGroupFilterBtn")?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleCalendarGroupMenu();
     });
 
     document.querySelectorAll(".calendar-view-btn").forEach((button) => {
@@ -465,8 +537,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", (event) => {
         const clickedInsideCalendarDay = event.target.closest(".calendar-day");
         const clickedInsidePopover = event.target.closest(".calendar-detail-popover");
+        const clickedInsideFilter = event.target.closest(".calendar-filter-dropdown");
+
         if (!clickedInsideCalendarDay && !clickedInsidePopover) {
             hideCalendarDetail();
+        }
+        if (!clickedInsideFilter) {
+            closeCalendarGroupMenu();
         }
     });
 });

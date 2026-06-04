@@ -12,6 +12,8 @@ public class CalendarTodoDto {
     private Long todoId;
     @JsonProperty("group_id")
     private Long groupId;
+    @JsonProperty("group_color")
+    private String groupColor;
     private String title;
     private String date;
     @JsonProperty("isCompleted")

@@ -97,6 +97,7 @@ public class CalendarService {
         return CalendarTodoDto.builder()
                 .todoId(todo.getTodoId())
                 .groupId(todo.getGroup() != null ? todo.getGroup().getGroupId() : null)
+                .groupColor(todo.getGroup() != null ? todo.getGroup().getGroupColor() : null)
                 .title(todo.getTodoName())
                 .date(todo.getDeadline() != null ? todo.getDeadline().toLocalDate().toString() : null)
                 .completed(todo.getStatus() == TodoStatus.COMPLETED)
